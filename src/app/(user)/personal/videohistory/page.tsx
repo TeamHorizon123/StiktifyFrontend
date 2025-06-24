@@ -1,7 +1,7 @@
 "use client";
 import HistoryList from "@/components/personal/history/history-list";
 import SettingHistory from "@/components/personal/history/setting-history";
-import Header from "@/components/page/trending/header";
+import Header from "@/components/page/header";
 import { AuthContext } from "@/context/AuthContext";
 import { sendRequest } from "@/utils/api";
 import React, { useContext, useEffect, useState } from "react";

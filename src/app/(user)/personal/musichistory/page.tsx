@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import ListenedHistory from "@/components/personal/history/listened-history";
 import SettingListenHistory from "@/components/personal/history/setting-listen-history";
-import Header from "@/components/page/trending/header";
+import Header from "@/components/page/header";
 import { handleSearchHistory } from "@/actions/music.action";
 
 interface Music {

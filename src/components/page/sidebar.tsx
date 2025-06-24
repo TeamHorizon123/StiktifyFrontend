@@ -114,7 +114,8 @@ const SideBar: React.FC<SideBarProps> = ({ isHidden }) => {
     //     <small className="text-gray-500">©2025 Stiktify</small>
     //   </footer>
     // </div>
-    <div className="w-[12vw] max-[600px]:w-[16vw] min-h-[100vh] flex flex-col bg-[#21201E] text-white items-center lg:items-start overflow-auto shadow-md-[#61369040] lg:pl-4">
+    <div
+      className="w-[12vw] max-[600px]:w-[16vw] min-h-[100vh] flex flex-col bg-[#21201E] text-white items-center lg:items-start overflow-auto drop-shadow-sm lg:pl-4">
       {/* logo */}
       <Link className="mt-8 mb-8 flex items-center text-end sm:text-[4vw] lg:text-[24px] lg:text-right space-x-3" href="/">
         <FaHeadphonesSimple />
@@ -174,24 +175,24 @@ const SideBar: React.FC<SideBarProps> = ({ isHidden }) => {
       <div className="mt-14 ext-sm max-[600px]:text-xs flex flex-col items-center justify-center space-y-1">
         <ul className="flex flex-wrap text-center items-center justify-center space-x-1 lg:text-[10px]" >
           <li>
-            <Link href="">About</Link>
+            <Link href="/">About</Link>
           </li>
           <li>
-            <Link href="">Copyright</Link>
+            <Link href="/">Copyright</Link>
           </li>
           <li>
-            <Link href="">Contact us</Link>
+            <Link href="/">Contact us</Link>
           </li>
         </ul>
         <ul className="flex flex-wrap text-center items-center justify-center space-x-1 lg:text-[10px]" >
           <li>
-            <Link href="">Terms</Link>
+            <Link href="/">Terms</Link>
           </li>
           <li>
-            <Link href="">Privacy</Link>
+            <Link href="/">Privacy</Link>
           </li>
           <li>
-            <Link href="">Policy & Safety</Link>
+            <Link href="/">Policy & Safety</Link>
           </li>
         </ul>
         <p className="text-xs text-center">@2025 Stiktify</p>

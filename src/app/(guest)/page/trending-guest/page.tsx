@@ -3,7 +3,7 @@ import { handleSearchShortVideos } from "@/actions/manage.short.video.action";
 import TagMusic from "@/components/music/tag.music";
 import SearchCard from "@/components/page/search/searchCard";
 import CommentSection from "@/components/page/trending/comments/comment_section";
-import Header from "@/components/page/trending/header";
+import Header from "@/components/page/header";
 import InteractSideBar from "@/components/page/trending/interact_sidebar";
 import MainVideo from "@/components/page/trending/main_video";
 import OtherVideos from "@/components/page/trending/otherVideo";

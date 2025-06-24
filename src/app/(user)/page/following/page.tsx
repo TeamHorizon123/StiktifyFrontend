@@ -1,5 +1,5 @@
 "use client";
-import Header from "@/components/page/trending/header";
+import Header from "@/components/page/header";
 import InteractSideBar from "@/components/page/trending/interact_sidebar";
 import MainVideo from "@/components/page/trending/main_video";
 import VideoFooter from "@/components/page/trending/video-footer";
