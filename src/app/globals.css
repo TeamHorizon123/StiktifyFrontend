@@ -4,6 +4,10 @@
   box-sizing: border-box;
 }
 
+body, html{
+  background: linear-gradient(to bottom, #2E335A, #1C1B33);
+}
+
 :root {
   --mint-green: #80EE98;
   --seafoam: #46DFB1;

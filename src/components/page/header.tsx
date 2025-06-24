@@ -92,7 +92,7 @@ const Header: React.FC<HeaderProps> = ({
 
   return (
     <header
-      className="flex items-center justify-between p-4 bg-gradient-to-b from-[#1C1B33] to-[#2E335A] drop-shadow-sm">
+      className="flex items-center justify-between p-4 bg-gradient-to-b from-[#1C1B33] to-[#2E335A] shadow-lg shadow-[#FFFFFF40]">
       <div className="flex items-center flex-1 justify-center">
         <input
           type="text"
