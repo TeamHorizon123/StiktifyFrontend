@@ -142,7 +142,7 @@ const Header: React.FC<HeaderProps> = ({
         {/* {!isGuest && <NotificationModel />} */}
 
         <div className="text-xl cursor-pointer">
-          {!isGuest ? (
+          {isGuest ? (
             <button
               onClick={() => router.push("/auth/login")}
               className="text-white bg-[#454B79] border-2 border-[#454B79] rounded-lg py-1 px-4 hover:border-white transition-all duration-300"
@@ -179,7 +179,7 @@ const Header: React.FC<HeaderProps> = ({
           )}
         </div>
 
-        {!isGuest ? (
+        {isGuest ? (
           ""
         ) : (
           <Dropdown menu={{ items }} trigger={["click"]}>
