@@ -48,7 +48,7 @@ const MainVideo: React.FC<MainVideoProps> = ({
   }, [onVideoWatched, videoRef.current]); // Cập nhật dependency
 
   return (
-    <div className="w-[73%] bg-white shadow-lg absolute left-30 top-[95px] h-3/4 group">
+    <div className="w-[73%] bg-transparent shadow-lg absolute left-30 top-[95px] h-3/4 group">
       <video
         ref={videoRef}
         src={videoUrl}
