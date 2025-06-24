@@ -165,7 +165,7 @@ const SideBar: React.FC<SideBarProps> = ({ isHidden }) => {
         <hr />
         <Link href="" className="test-base sm:text-[4vw] lg:text-base flex items-center space-x-2">
           <AiFillShop />
-          <p className="text-base sm:hidden max-[600px]:hidden lg:block">Home</p>
+          <p className="text-base sm:hidden max-[600px]:hidden lg:block">Shop</p>
         </Link>
         <hr />
         {/* Following account */}
