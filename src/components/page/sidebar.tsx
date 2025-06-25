@@ -18,6 +18,7 @@ import { FaCircleUser } from "react-icons/fa6";
 import { IoSettings } from "react-icons/io5";
 import { MdReport, MdHelp, MdFeedback } from "react-icons/md";
 import SearchBar from "@/components/page/searchBar";
+import BtnSignIn from "@/components/button/btnSignIn";
 
 interface SideBarProps {
   isHidden?: boolean;
@@ -168,57 +169,76 @@ const SideBar: React.FC<SideBarProps> = () => {
                 <p className="text-base sm:hidden max-[600px]:hidden lg:block">Explore</p>
               </Link>
             </li>
-            <li className="w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
-              <Link href="/page/following" className="flex items-center space-x-2">
-                <RiUserReceivedFill />
-                <p className="text-base sm:hidden max-[600px]:hidden lg:block">Following</p>
-              </Link>
-            </li>
-            <li className="w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
-              <Link href="" className="flex items-center space-x-2">
-                <FaUserGroup />
-                <p className="text-base sm:hidden max-[600px]:hidden lg:block">Friends</p>
-              </Link>
-            </li>
-            <li className="w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
-              <Link href="" className="flex items-center space-x-2">
-                <BsPlusSquareFill />
-                <p className="text-base sm:hidden max-[600px]:hidden lg:block">Upload</p>
-              </Link>
-            </li>
-            <li className="relative w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
-              <Link href="/page/following" className="flex items-center space-x-2">
-                <PiBellSimpleFill />
-                <div className="red-dot absolute hidden"></div>
-                <p className="text-base sm:hidden max-[600px]:hidden lg:block">Notification</p>
-              </Link>
-            </li>
-            <li className="relative w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
-              <Link href="" className="flex items-center space-x-2">
-                <AiFillMessage />
-                <div className="red-dot absolute hidden"></div>
-                <p className="text-base sm:hidden max-[600px]:hidden lg:block">Messages</p>
-              </Link>
-            </li>
-            <li className="w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
-              <Link href="" className="flex items-center space-x-2">
-                <FaCircleUser />
-                <p className="text-base sm:hidden max-[600px]:hidden lg:block">Profile</p>
-              </Link>
-            </li>
+            {
+              !isGuest ? (
+                <>
+                  <li className="w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
+                    <Link href="/page/following" className="flex items-center space-x-2">
+                      <RiUserReceivedFill />
+                      <p className="text-base sm:hidden max-[600px]:hidden lg:block">Following</p>
+                    </Link>
+                  </li>
+                  <li className="w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
+                    <Link href="" className="flex items-center space-x-2">
+                      <FaUserGroup />
+                      <p className="text-base sm:hidden max-[600px]:hidden lg:block">Friends</p>
+                    </Link>
+                  </li>
+                  <li className="w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
+                    <Link href="" className="flex items-center space-x-2">
+                      <BsPlusSquareFill />
+                      <p className="text-base sm:hidden max-[600px]:hidden lg:block">Upload</p>
+                    </Link>
+                  </li>
+                  <li className="relative w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
+                    <Link href="/page/following" className="flex items-center space-x-2">
+                      <PiBellSimpleFill />
+                      <div className="red-dot absolute hidden"></div>
+                      <p className="text-base sm:hidden max-[600px]:hidden lg:block">Notification</p>
+                    </Link>
+                  </li>
+                  <li className="relative w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
+                    <Link href="" className="flex items-center space-x-2">
+                      <AiFillMessage />
+                      <div className="red-dot absolute hidden"></div>
+                      <p className="text-base sm:hidden max-[600px]:hidden lg:block">Messages</p>
+                    </Link>
+                  </li>
+                  <li className="w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
+                    <Link href="" className="flex items-center space-x-2">
+                      <FaCircleUser />
+                      <p className="text-base sm:hidden max-[600px]:hidden lg:block">Profile</p>
+                    </Link>
+                  </li>
+                </>
+              ) : (<> </>)
+            }
             <li className="w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
               <Link href={isGuest ? "/page/trending-guest" : "/page/trending-user"} className="flex items-center space-x-2">
                 <AiFillFire />
                 <p className="text-base sm:hidden max-[600px]:hidden lg:block">Trending</p>
               </Link>
             </li>
+            {
+              isGuest ? (<>
+                <li className="w-full h-fit p-2">
+                  <BtnSignIn />
+                </li>
+              </>) : (<></>)
+            }
           </ul>
           <hr />
-          <Link href="" className="test-base flex items-center space-x-2 w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
-            <AiFillShop />
-            <p className="text-base sm:hidden max-[600px]:hidden lg:block">Shop</p>
-          </Link>
-          <hr />
+          {
+            !isGuest ? (<>
+
+              <Link href="" className="test-base flex items-center space-x-2 w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
+                <AiFillShop />
+                <p className="text-base sm:hidden max-[600px]:hidden lg:block">Shop</p>
+              </Link>
+              <hr />
+            </>) : (<></>)
+          }
+
           {/* setting account */}
           <ul className="w-full space-y-2 text-base text-center flex flex-col items-center lg:items-start">
             <li className="w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
