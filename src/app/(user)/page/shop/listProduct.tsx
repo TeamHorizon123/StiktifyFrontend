@@ -6,7 +6,7 @@ import Product from "@/components/page/shop/product/product";
 export default function ListProduct() {
     return (
         <>
-            <div className="w-3/4 m-auto mt-4 p-2 bg-slate-700">
+            <div className="w-3/4 m-auto mt-4 p-2">
                 <div className="mb-2 flex justify-between">
                     <div className="flex items-center text-white space-x-2">
                         <FaBolt className="text-[#FB923C]" />
