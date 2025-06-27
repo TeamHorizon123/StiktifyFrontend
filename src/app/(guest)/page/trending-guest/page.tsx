@@ -303,8 +303,6 @@ const TrendingPage = () => {
       </div>
     );
   }
-
-  // Sidebar render helper
   const renderSidebar = () => (
     <div className="w-full sm:w-72 lg:w-80 bg-black/20 backdrop-blur-md border-l border-white/10 h-full flex flex-col overflow-y-auto">
       <div className="p-4 border-b border-white/10">
