@@ -54,7 +54,7 @@ const Login = () => {
       if (res?.data?.user?.role == "ADMIN") {
         router.push("/dashboard/user");
       } else if (res?.data?.user?.role == "USERS") {
-        router.push("/page/trending-user");
+        router.push("/page/trending");
       } else {
         if (res?.message === "Account has not been activated") {
           setIsActive(false);

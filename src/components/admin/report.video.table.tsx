@@ -137,9 +137,14 @@ const ManageReportTable = (props: IProps) => {
     })();
   }, [search, startDate, dataSource]);
 
+  useEffect(() => {
+    console.log("Data table updated:", dataTable);
+    console.log("Meta table updated:", metaTable);
+  }, [search, dataSource, meta]);
+
   const columns: ColumnsType<IReport> = [
     {
-      title: "Username",
+      title: "Creator",
       dataIndex: "dataVideo",
       key: "userName",
       render: (value, record) => <div>{record.dataVideo.userId.userName}</div>,
@@ -155,6 +160,12 @@ const ManageReportTable = (props: IProps) => {
         />
       ),
     },
+     {
+            title: 'Description',
+            dataIndex: 'dataVideo',
+            key: 'videoDescription',
+               render: (value, record) => <div>{record.dataVideo.videoDescription}</div>,
+      },
     {
       title: "Views",
       dataIndex: "dataVideo",

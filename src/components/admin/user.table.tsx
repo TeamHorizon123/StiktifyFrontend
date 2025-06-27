@@ -38,10 +38,10 @@ const ManageUserTable = (props: IProps) => {
 
     const dataFilter = [
             {
-                value: "lock",
+                value: "block",
                 title: "Block"
             }, {
-                value: "unlock",
+                value: "unblock",
                 title: "Unblock"
             }, {
                 value: "USERS",

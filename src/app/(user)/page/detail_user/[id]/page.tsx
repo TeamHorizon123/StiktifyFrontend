@@ -24,7 +24,7 @@ import BusinessAccountModal from "@/components/modal/modal.upgrade.to.business.a
 import FollowerModal from "@/components/modal/modal.follower";
 import FollowingModal from "@/components/modal/modal.following";
 import { checkFollowAction, handleFollow } from "@/actions/manage.follow.action";
-import { message } from "antd";
+import { message, notification } from "antd";
 
 // ======= Interfaces for User & Video =======
 interface User {
@@ -64,6 +64,7 @@ const UserDetail = () => {
   const [isFollow, setFollow] = useState(false);
 
   useEffect(() => {
+    if(!id || !accessToken) return;
     (async () => {
       const res = await checkFollowAction(user?._id, id + "")
       if (res?.statusCode === 201) {
@@ -75,10 +76,8 @@ const UserDetail = () => {
   }, [])
 
   useEffect(() => {
-    if (id && accessToken) {
       fetchUserDetail();
       checkFriend();
-    }
   }, [id, accessToken]);
 
   const fetchRequestById = async () => {
@@ -251,6 +250,12 @@ const UserDetail = () => {
   };
 
   const handleFollowA = async () => {
+    if (!user) {
+      notification.warning({
+        message: "Please create an account to follow.",
+      });
+      return;
+    }
     const res = await handleFollow(user?._id, id + "");
     if (res?.statusCode === 201) {
       message.success(res.data.message)
@@ -398,7 +403,11 @@ const UserDetail = () => {
                   ? "bg-gray-400"
                   : "bg-blue-500 hover:bg-blue-600"
                   } text-white`}
-                onClick={isFriend ? unfriend : sendFriendRequest}
+                onClick={user?(isFriend ? unfriend : sendFriendRequest) : () => {
+                  notification.warning({
+                    message: "Please create an account to send friend request.",
+                  });
+                }}
                 disabled={friendRequestSent}
               />
               <Button
