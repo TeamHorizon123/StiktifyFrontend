@@ -12,6 +12,7 @@ import { useShowComment } from "@/context/ShowCommentContext";
 import OtherVideos from "@/components/page/trending/otherVideo";
 import { useSearchParams, useRouter } from "next/navigation";
 import TagMusic from "@/components/music/tag.music";
+import { a, u, video } from "framer-motion/client";
 
 const TrendingPage = () => {
   const [searchValue, setSearchValue] = useState<string>("");
@@ -30,6 +31,7 @@ const TrendingPage = () => {
 
   const [currentMusic, setCurrentMusic] = useState<IMusic | null>(null);
   const router = useRouter();
+  const [isGetGuestVideo, setIsGetGuestVideo] = useState(false);
   useEffect(() => {
     if (currentVideo) {
       const data = currentVideo?.musicId;
@@ -47,18 +49,20 @@ const TrendingPage = () => {
     setShowComments((prev) => !prev);
   };
 
-  useEffect(() => {
-    getVideoData();
-  }, [accessToken, user]);
-  useEffect(() => {
-    const newIndex = currentVideoIndex + 1;
-    setCurrentVideoIndex(newIndex);
-    setCurrentVideo(videoData[newIndex]);
-  }, [videoData.length]);
+useEffect(() => { 
+  getVideoData();
+}, [accessToken, user]);
+
+useEffect(() => { 
+  setCurrentVideoIndex(0);
+  setCurrentVideo(videoData[0]);
+}, [isGetGuestVideo]);
+
   const getVideoData = async () => {
-    if (!accessToken || !user) return;
     try {
-      const res = await sendRequest<IBackendRes<IVideo[]>>({
+      let res= null;
+      if(user && accessToken) {
+       res = await sendRequest<IBackendRes<IVideo[]>>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/trending-user-videos`,
         method: "POST",
         headers: {
@@ -69,8 +73,26 @@ const TrendingPage = () => {
           videoId: isFetchId ? id || "" : "",
         },
       });
+      console.log("res-user", res);
+      setIsGetGuestVideo(false);
+      if(isGetGuestVideo){
+      setVideoData([]);
+      setRequestCount(0);
+      }
+    
+    } else if(!user && !accessToken) {
+       res = await sendRequest<IBackendRes<IVideo[]>>({
+              url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/trending-guest-videos`,
+              method: "POST",
+              body:{
+                videoId: isFetchId ? id || "" : "",
+              }
+        });
+        console.log("res", res);
+        setIsGetGuestVideo(true)
+    }
       setIsFetchId(false);
-      if (res.data && Array.isArray(res.data)) {
+      if (res?.data && Array.isArray(res.data) ) {
         if (requestCount === 0) {
           setVideoData(res.data);
           setRequestCount(1);
@@ -92,20 +114,22 @@ const TrendingPage = () => {
     }
 
     setIsWatched(false);
-    const videoSuggestId = Cookies.get("suggestVideoId");
-    const res = await sendRequest<IBackendRes<IVideo[]>>({
-      url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/wishlist`,
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: {
-        userId: user._id,
-        id: videoSuggestId || currentVideo?._id,
-        triggerAction: "ScrollVideo",
-      },
-    });
-    console.log(res);
+    if(accessToken && user) {
+      const videoSuggestId = Cookies.get("suggestVideoId");
+      const res = await sendRequest<IBackendRes<IVideo[]>>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/wishlist`,
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: {
+          userId: user._id,
+          id: videoSuggestId || currentVideo?._id,
+          triggerAction: "ScrollVideo",
+        },
+      });
+      console.log(res);
+    }
 
     if (event.deltaY > 0) {
       if (currentVideoIndex < videoData.length - 1) {
@@ -169,9 +193,6 @@ const TrendingPage = () => {
       window.removeEventListener("keydown", handleArrowKey);
     };
   }, [currentVideoIndex, videoData, requestCount, accessToken, showComments]);
-  useEffect(() => {
-    getVideoData();
-  }, []);
 
   useEffect(() => {
     if (currentVideo === null) setCurrentVideo(videoData[0] || null);
@@ -206,7 +227,6 @@ const TrendingPage = () => {
           triggerAction: "WatchVideo",
         },
       });
-      console.log(res);
       storageVideoId(currentVideo?._id + "");
       const isPause = Cookies.get("isPause");
       const res1 = await sendRequest<IBackendRes<IVideo>>({
@@ -355,7 +375,7 @@ const TrendingPage = () => {
     <div>
       <div onWheel={handleScroll}>
         <Header
-          isGuest={false}
+          isGuest={user ? false : true}
           searchValue={searchValue}
           setSearchValue={setSearchValue}
           onClick={handleSearch}

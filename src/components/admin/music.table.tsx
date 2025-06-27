@@ -1,12 +1,12 @@
 "use client"
 import { ColumnsType } from "antd/es/table";
 import { Popconfirm } from "antd";
-import { FilterOutlined, FlagTwoTone, SearchOutlined } from "@ant-design/icons";
+import { FilterOutlined, FlagTwoTone, LockTwoTone, SearchOutlined, UnlockTwoTone } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import InputCustomize from "../input/input.customize";
 import DropdownCustomize from "../dropdown/dropdown.customize";
 import TagMusic from "../music/tag.music";
-import { formatNumber } from "@/utils/utils";
+import { formatDateTimeVn, formatNumber } from "@/utils/utils";
 import { handleFilterAndSearchMusicAction } from "@/actions/music.action";
 import TableCustomize from "../ticked-user/table/table.dashboard";
 interface IProps {
@@ -45,10 +45,13 @@ const ManageMusicTable = (props: IProps) => {
     }, [search, dataSource, filterReq, meta])
 
     const columns: ColumnsType<IMusic> = [
-        {
-            title: 'Name',
-            dataIndex: 'musicDescription',
-            key: 'musicDescription',
+          {
+            title: "Creator",
+            dataIndex: "userId",
+            key: "userId",
+            render: (value) => {
+                return <div>{value?.userName ?? "Unknown"}</div>;
+            },
         },
         {
             title: 'Music',
@@ -60,6 +63,11 @@ const ManageMusicTable = (props: IProps) => {
                 </div>
             ),
         },
+          {
+            title: 'Description',
+            dataIndex: 'musicDescription',
+            key: 'musicDescription',
+        },
         {
             title: 'Listeners',
             dataIndex: 'totalListener',
@@ -69,21 +77,30 @@ const ManageMusicTable = (props: IProps) => {
             )
         },
         {
-            title: 'Favorites',
-            dataIndex: 'totalFavorite',
-            key: 'totalFavorite',
-            render: (value, record, index) => (
-                <div>{formatNumber(value ?? 0)}</div>
-            )
+              title: "Comments",
+              dataIndex: "totalComment",
+              key: "totalComment",
+              render: (value) => <div>{formatNumber(value ?? 0)}</div>,
         },
         {
-            title: 'Reactions',
-            dataIndex: 'totalReactions',
-            key: 'totalReactions',
-            render: (value, record, index) => (
-                <div>{formatNumber(value ?? 0)}</div>
-            )
+            title: "Blocked",
+            key: "isBlock",
+            render: (_, record) => (
+            <div>
+                {record?.isBlock ? (
+                <LockTwoTone style={{ fontSize: "24px" }} twoToneColor="#d63031" />
+                ) : (
+                <UnlockTwoTone style={{ fontSize: "24px" }} twoToneColor="#00b894" />
+                )}
+            </div>
+            ),
         },
+     {
+              title: "Created At",
+              dataIndex: "createdAt",
+              key: "createdAt",
+              render: (value) => <div>{value?formatDateTimeVn(value+""):""}</div>,
+            },
         {
             title: 'Action',
             dataIndex: 'flag',

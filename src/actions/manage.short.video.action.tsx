@@ -55,16 +55,19 @@ export const handleFlagShortVideoAction = async (id: string, flag: boolean) => {
   }
 };
 
-export const handleSearchShortVideos = async (
+export const handleSearchAndFilterShortVideos = async (
   searchText: string,
+  filterReq: string,
   current: number,
   pageSize: number
 ) => {
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL
-      }/api/v1/short-videos/search-video?searchText=${encodeURIComponent(
+      }/api/v1/short-videos/search-video?search=${encodeURIComponent(
         searchText
+      )}&filterReq=${encodeURIComponent(
+        filterReq
       )}&current=${current}&pageSize=${pageSize}`,
       {
         method: "GET",

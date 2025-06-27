@@ -17,21 +17,14 @@ const ManageUserPage = async ({ searchParams }: any) => {
     total: data?.meta?.total || 1,
   };
 
-  const cate = await handleGetAllCategoryAction()
-  const dataCate: {
-    _id: string,
-    categoryName: string
-  }[] = cate?.data
+ const dataConfig: { value: string, title: string }[] = [
+  { value: "recent", title: "Most Recent" },
+  { value: "oldest", title: "Oldest" },
+  { value: "blocked", title: "Blocked" },
+  { value: "flagged", title: "Flagged" },
+  { value: "mostListend", title: "Most Listened" },
+];
 
-  const dataConfig: { value: string, title: string }[] = []
-
-  dataCate && dataCate.length > 0 && dataCate.map(item => {
-    const data = {
-      value: item._id,
-      title: item.categoryName
-    }
-    dataConfig.push(data)
-  })
 
   return (
     <div>

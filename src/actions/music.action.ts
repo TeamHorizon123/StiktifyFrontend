@@ -225,7 +225,7 @@ export const handleFilterAndSearchMusicAction = async (current: number, pageSize
   try {
     const cookieStore = cookies();
     const token = cookieStore.get("token")?.value;
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/music-categories/filter-search?search=${search}&filterReq=${filterRes}&current=${current}&pageSize=${pageSize}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/filter-search-in-management?search=${search}&filterReq=${filterRes}&current=${current}&pageSize=${pageSize}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
