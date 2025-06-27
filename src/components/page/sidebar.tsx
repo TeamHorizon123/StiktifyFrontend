@@ -86,8 +86,8 @@ const SideBar: React.FC<SideBarProps> = ({ isHidden }) => {
 
           <li>
             <Link
-              href="/page/sticktify-shop"
-              className={getLinkClass("/page/stiktify-shop")}
+              href="/page/shop"
+              className={getLinkClass("/page/shop")}
             >
               Stiktify Shop
             </Link>
