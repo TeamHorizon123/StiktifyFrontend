@@ -12,13 +12,9 @@ const ShopPage = () => {
           <FaShop />
           <p className="">Stiktify Shop</p>
         </div>
-        <div className="w-full">
-          <SearchProduct />
-        </div>
-        <div>
-          <FlashSale />
-        </div>
-        <ListProduct />
+        <SearchProduct />
+        {/* <FlashSale /> */}
+        <ListProduct top="" skip="" />
       </div>
     </>
   );

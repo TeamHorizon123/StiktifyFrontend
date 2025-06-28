@@ -8,32 +8,35 @@ import { sendRequest } from "@/utils/api";
 import { AuthContext } from "@/context/AuthContext";
 
 
-// interface IQueryParam {
-//     current: string,
-//     pageSize: string
-// }
+interface IQueryParam {
+    skip: string,
+    top: string
+}
 
-export default function ListProduct() {
+export default function ListProduct({ top, skip }: IQueryParam) {
     const { accessToken } = useContext(AuthContext) ?? {};
     const [products, setListProduct] = useState<IProduct[]>([]);
 
     const GetAllProduct = async () => {
         // console.log(accessToken);
-        
+
         // if (!accessToken) {
         //     return;
         // }
         try {
             const res = await sendRequest<IListProduct>({
                 url: `${process.env.NEXT_PUBLIC_BACKEND_SHOP_URL}odata/product`,
+                queryParams: {
+                    $top: top || 8,
+                    $skip: skip || 0
+                },
                 method: "GET",
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
                 }
             });
-            console.log(res);
-            
-            setListProduct(res.value || []);  
+
+            setListProduct(res.value || []);
         } catch (error) {
             console.log("Error get all product: ", error);
         }
@@ -41,9 +44,9 @@ export default function ListProduct() {
 
     useEffect(() => {
         // console.log(products);
-        
+
         GetAllProduct();
-    },[accessToken]);
+    }, [accessToken, top, skip]);
     return (
         <>
             <div className="w-3/4 m-auto mt-4 p-2">
@@ -52,19 +55,28 @@ export default function ListProduct() {
                         <FaBolt className="text-[#FB923C]" />
                         <p>Recommend</p>
                     </div>
-                    <div className="flex text-[#C084FC] items-center space-x-2 text-sm">
-                        <Link href="">View all</Link>
-                        <FaArrowRightLong />
-                    </div>
+                    {
+                        (products.length > 0) ? (
+                            <div className="flex text-[#C084FC] items-center space-x-2 text-sm">
+                                <Link href="">View all</Link>
+                                <FaArrowRightLong />
+                            </div>
+                        ) : (<></>)
+                    }
                 </div>
-                <div className="grid grid-cols-4 gap-4">
+                <div className="min-w-full">
                     {products.length > 0 ? (
-                        products.map((product: IProduct) => (
-                            <Product key={product.Id} data={product} />
-                        ))
+                        <div className="min-w-full grid grid-cols-4 gap-4">
+                            {
+                                products.map((product: IProduct) => (
+                                    <Product key={product.Id} data={product} />
+                                ))
+                            }
+                        </div>
+
                     ) : (
                         <>
-                            <p>no data </p>
+                            <p className="text-center text-white grid grid-cols-1 text-lg">No products available at the moment. </p>
                         </>
                     )}
 
