@@ -4,6 +4,7 @@ import FlashSale from "@/components/page/shop/flashSale";
 import { FaShop } from "react-icons/fa6";
 
 const ShopPage = () => {
+
   return (
     <>
       <div>
