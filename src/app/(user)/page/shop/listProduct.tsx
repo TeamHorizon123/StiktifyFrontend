@@ -3,50 +3,19 @@
 import { FaArrowRightLong, FaBolt } from "react-icons/fa6";
 import Link from "next/link";
 import Product from "@/components/page/shop/product/product";
-import { useContext, useEffect, useState } from "react";
-import { sendRequest } from "@/utils/api";
-import { AuthContext } from "@/context/AuthContext";
-
-
+import useFetchListOData from "@/modules/shop/useFetchList";
 interface IQueryParam {
-    skip: string,
-    top: string
+    page: number
 }
 
-export default function ListProduct({ top, skip }: IQueryParam) {
-    const { accessToken } = useContext(AuthContext) ?? {};
-    const [products, setListProduct] = useState<IProduct[]>([]);
+export default function ListProduct({ page }: IQueryParam) {
+    const [products] = useFetchListOData<IProduct>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_SHOP_URL}odata/product`,
+        limit: 8,
+        method: "GET",
+        page: page
+    });
 
-    const GetAllProduct = async () => {
-        // console.log(accessToken);
-
-        // if (!accessToken) {
-        //     return;
-        // }
-        try {
-            const res = await sendRequest<IListProduct>({
-                url: `${process.env.NEXT_PUBLIC_BACKEND_SHOP_URL}odata/product`,
-                queryParams: {
-                    $top: top || 8,
-                    $skip: skip || 0
-                },
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                }
-            });
-
-            setListProduct(res.value || []);
-        } catch (error) {
-            console.log("Error get all product: ", error);
-        }
-    }
-
-    useEffect(() => {
-        // console.log(products);
-
-        GetAllProduct();
-    }, [accessToken, top, skip]);
     return (
         <>
             <div className="w-3/4 m-auto mt-4 p-2">
