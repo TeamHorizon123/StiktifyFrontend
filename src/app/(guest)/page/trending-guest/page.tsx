@@ -303,6 +303,7 @@ const TrendingPage = () => {
       </div>
     );
   }
+
   const renderSidebar = () => (
     <div className="w-full sm:w-72 lg:w-80 bg-black/20 backdrop-blur-md border-l border-white/10 h-full flex flex-col overflow-y-auto">
       <div className="p-4 border-b border-white/10">
@@ -555,7 +556,7 @@ const TrendingPage = () => {
         setSearchValue={setSearchValue}
         isGuest={true}
       /> */}
-      <div className="h-[calc(100vh-64px)] overflow-hidden bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900">
+      <div className="h-full overflow-hidden bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900">
         {/* Animated Background */}
         <div className="absolute inset-0 pointer-events-none select-none">
           <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
@@ -641,21 +642,6 @@ const TrendingPage = () => {
                           onClick={() => setIsMuted(!isMuted)}
                           className="text-white bg-black/30 hover:bg-white/20 w-10 h-10 p-0"
                         />
-                      </div>
-                      {/* Progress Indicator */}
-                      <div className="absolute left-16 top-1/2 transform -translate-y-1/2">
-                        <div className="flex flex-col gap-1">
-                          {videoData.map((_, index) => (
-                            <div
-                              key={index}
-                              className={`w-1 h-6 rounded-full transition-all duration-300 ${
-                                index === currentVideoIndex
-                                  ? "bg-white"
-                                  : "bg-white/30"
-                              }`}
-                            />
-                          ))}
-                        </div>
                       </div>
                     </div>
                   ) : (
@@ -748,7 +734,7 @@ const TrendingPage = () => {
                   )}
 
                   {sidebarMode === "interactions" && (
-                    <div className="max-h-[calc(100vh-200px)] overflow-y-auto space-y-6">
+                    <div className="h-full overflow-y-auto space-y-6">
                       {currentVideo && (
                         <div className="flex flex-col gap-3 p-3 bg-white/10 rounded-lg">
                           <div className="flex items-center gap-3">
