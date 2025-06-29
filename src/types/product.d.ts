@@ -1,8 +1,8 @@
-interface IListProduct {
-    ['@odata.count']?: number;
-    ['@odata.nextLink']?: string;
-    ['@odata.context']?: string;
-    value?: IProduct[]
+interface IListOdata<T> {
+    '@odata.count'?: number;
+    '@odata.nextLink'?: string;
+    '@odata.context'?: string;
+    value: T[]
 }
 
 interface IProduct {
