@@ -1,3 +1,11 @@
+interface IQuery {
+    page?: number,
+    skip?: number,
+    top?: number
+    search?: string
+    count?: boolean
+}
+
 interface IListOdata<T> {
     '@odata.count'?: number;
     '@odata.nextLink'?: string;
