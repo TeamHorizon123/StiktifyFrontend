@@ -6,7 +6,7 @@ const ProductDetailPage = () => {
     return (
         <div className='w-3/4 h-fit m-auto flex flex-col space-y-4'>
             <div className='flex space-x-2 text-white text-sm'>
-                <p><Link className='hover:underline hover:text-white text-gray-400' href="">Stiktify shop</Link></p>
+                <p><Link className='hover:underline hover:text-white text-gray-400' href="/page/shop">Stiktify shop</Link></p>
                 <p>/</p>
                 <p>Product name</p>
             </div>

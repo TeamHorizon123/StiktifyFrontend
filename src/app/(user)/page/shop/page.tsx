@@ -1,6 +1,5 @@
 import ListProduct from "@/app/(user)/page/shop/listProduct";
 import SearchProduct from "@/app/(user)/page/shop/searchProduct";
-import FlashSale from "@/components/page/shop/flashSale";
 import { FaShop } from "react-icons/fa6";
 
 const ShopPage = () => {
@@ -14,7 +13,7 @@ const ShopPage = () => {
         </div>
         <SearchProduct />
         {/* <FlashSale /> */}
-        <ListProduct top="" skip="" />
+        <ListProduct page={1} />
       </div>
     </>
   );
