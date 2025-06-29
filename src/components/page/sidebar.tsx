@@ -29,30 +29,21 @@ const SideBar: React.FC<SideBarProps> = ({ isHidden }) => {
 
   return (
     <div
-      className="w-[10%] pt-10 h-screen bg-white shadow-lg p-5"
-      style={isHidden && { display: "none" }}
-    >
+  className="w-[10%] pt-10 h-screen bg-white shadow-lg p-5 fixed top-0 left-0 z-50 overflow-y-auto"
+  style={isHidden && { display: "none" }}
+>
       <nav>
         <ul className="space-y-4">
-          {isGuest ? (
-            <li>
-              <Link
-                href="/page/trending-guest"
-                className={getLinkClass("/page/trending-guest")}
-              >
-                Trending
-              </Link>
-            </li>
-          ) : (
-            <li>
-              <Link
-                href="/page/trending-user"
-                className={getLinkClass("/page/trending-user")}
-              >
-                Trending
-              </Link>
-            </li>
-          )}
+          <li>
+            <Link
+              href="/page/trending"
+              className={
+                getLinkClass("/page/trending") + " " + getLinkClass("/page/search-user-video")
+              }
+            >
+              Trending
+            </Link>
+          </li>
           {isGuest ? (
             ""
           ) : (

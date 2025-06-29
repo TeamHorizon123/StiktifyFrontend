@@ -45,6 +45,9 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleReport = () => {
+    if(!user || !user._id) {
+      return notification.error({ message: "Please log in first" });
+    }
     setIsModalOpen(true);
   };
   const handleCloseModal = () => {

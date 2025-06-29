@@ -47,7 +47,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
 
   const handleLogout = () => {
     logout();
-    router.replace("/page/trending-guest");
+    router.replace("/page/trending");
   };
 
   const [editProfile, setEditProfile] = useState({

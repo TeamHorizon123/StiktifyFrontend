@@ -1,12 +1,11 @@
 import React, { ReactNode } from "react";
-import type { MenuProps } from "antd";
-import { Button, Dropdown, Select, Space } from "antd";
+import { Select } from "antd";
 
 interface IProps {
   title?: string;
   icon?: ReactNode;
   selected: string;
-  setSelect: any;
+  setSelect: (value: string) => void;
 }
 
 const DropdownCustomizeFilterVideo: React.FC<IProps> = (props) => {
@@ -15,25 +14,20 @@ const DropdownCustomizeFilterVideo: React.FC<IProps> = (props) => {
 
   return (
     <Select
-      defaultValue="filter"
+      value={selected}
       menuItemSelectedIcon={icon}
       style={{ width: 120 }}
       onChange={setSelect}
     >
       <Option value="filter" disabled>
-        {title}
+        {title ?? "Filter"}
       </Option>
       <Option value="">None</Option>
-      <Option value="Mashup">Mashup</Option>
-      <Option value="Cover">Cover</Option>
-      <Option value="Dance">Dance</Option>
-      <Option value="Guitar">Guitar</Option>
-      <Option value="Japan Music">Japan Music</Option>
-      <Option value="EDM">EDM</Option>
-      <Option value="Game Music">Game Music</Option>
-      <Option value="Movie Music">Movie Music</Option>
-      <Option value="Funk">Funk</Option>
-      <Option value="Rap">Rap</Option>
+      <Option value="recent">Most Recent</Option>
+      <Option value="oldest">Oldest</Option>
+      <Option value="blocked">Blocked</Option>
+      <Option value="flagged">Flagged</Option>
+      <Option value="mostViews">Most Viewed</Option>
     </Select>
   );
 };

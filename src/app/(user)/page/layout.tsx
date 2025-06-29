@@ -10,7 +10,7 @@ const PageLayout = ({ children }: { children: React.ReactNode }) => {
     <div className="flex">
       {!showComments && <SideBar />}
       <NotificationModel />
-      <main className="flex-grow p-5">{children}</main>
+      <main className={`flex-grow p-5 ${!showComments ? "ml-[10%]" : ""}`}>{children}</main>
     </div>
   );
 };
