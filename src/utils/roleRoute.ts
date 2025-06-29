@@ -1,6 +1,6 @@
 const roleRoutes: Record<string, (string | RegExp)[]> = {
   USERS: [
-    "/page/trending-user",
+    "/page/trending",
     /^\/page\/detail_user\/[\w-]+$/, // Chấp nhận chữ cái, số và dấu -
     "/page/music-favorite",
     "/page/my-music",
@@ -29,8 +29,10 @@ const roleRoutes: Record<string, (string | RegExp)[]> = {
     "/page/karaoke",
   ],
   GUEST: [
-    "/page/trending-guest",
+    "/page/trending",
     "/page/rankings",
+     /^\/page\/detail_user\/[\w-]+$/, 
+     "/page/search-user-video",
     /^\/page\/rankings\/music\/[\w-]+$/,
     /^\/page\/rankings\/video\/[\w-]+$/,
     /^\/page\/rankings\/creator\/[\w-]+$/,
@@ -66,8 +68,8 @@ const roleRoutes: Record<string, (string | RegExp)[]> = {
 };
 
 const defaultRoutes: Record<string, string> = {
-  USERS: "/page/trending-user",
-  GUEST: "/page/trending-guest",
+  USERS: "/page/trending",
+  GUEST: "/page/trending",
   ADMIN: "/dashboard/user",
 };
 

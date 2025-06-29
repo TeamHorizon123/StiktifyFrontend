@@ -24,10 +24,11 @@ const Header: React.FC<HeaderProps> = ({
   const { user, logout } = useContext(AuthContext) ?? {};
   const userId = user?._id;
 
-  const handleLogout = () => {
-    logout!();
-    router.replace("/page/trending-guest");
-  };
+const handleLogout = () => {
+  logout!();
+  window.location.href = "/page/trending"; // hard reload
+};
+
 
   // State quản lý modal upload video
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);

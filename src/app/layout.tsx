@@ -40,7 +40,7 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
                 : route === pathname
             )
           ) {
-            router.replace(defaultRoutes[userRole] || "/page/trending-guest");
+            router.replace(defaultRoutes[userRole] || "/page/trending");
           }
         }, 500);
 

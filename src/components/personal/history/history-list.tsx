@@ -112,7 +112,7 @@ const HistoryList: React.FC<HistoryListProps> = ({
             >
               <img
                 onClick={() => {
-                  router.push(`/page/trending-user?id=${history.videoId._id}`);
+                  router.push(`/page/trending?id=${history.videoId._id}`);
                 }}
                 src={history.videoId?.videoThumbnail}
                 alt="Thumbnail"
@@ -122,7 +122,7 @@ const HistoryList: React.FC<HistoryListProps> = ({
               <div
                 className="flex-1"
                 onClick={() => {
-                  router.push(`/page/trending-user?id=${history.videoId._id}`);
+                  router.push(`/page/trending?id=${history.videoId._id}`);
                 }}
               >
                 <h3 className="font-semibold text-lg">
