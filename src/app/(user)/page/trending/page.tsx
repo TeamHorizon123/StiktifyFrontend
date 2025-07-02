@@ -59,6 +59,7 @@ useEffect(() => {
 }, [isGetGuestVideo]);
 
   const getVideoData = async () => {
+    console.log("getVideoData called");
     try {
       let res= null;
       if(user && accessToken) {
@@ -80,7 +81,7 @@ useEffect(() => {
       setRequestCount(0);
       }
     
-    } else if(!user && !accessToken) {
+    } else {
        res = await sendRequest<IBackendRes<IVideo[]>>({
               url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/trending-guest-videos`,
               method: "POST",

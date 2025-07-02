@@ -8,7 +8,7 @@ const DashboardPageComponent = () => {
         <div style={{ padding: 20 }}>
             <Result
                 icon={<CrownOutlined />}
-                title="Fullstack Next/Nest - createdBy @Group 3"
+                title="Fullstack Next/Nest - createdBy @Horizon"
             />
         </div>
     )

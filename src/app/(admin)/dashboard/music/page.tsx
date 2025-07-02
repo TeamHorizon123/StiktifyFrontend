@@ -1,5 +1,4 @@
-import { handleGetAllCategoryAction } from "@/actions/category.action";
-import { handleGetMusic } from "@/actions/music.action";
+import { handleFilterAndSearchMusicAction } from "@/actions/music.action";
 import ManageMusicTable from "@/components/admin/music.table";
 
 const ManageUserPage = async ({ searchParams }: any) => {
@@ -7,7 +6,7 @@ const ManageUserPage = async ({ searchParams }: any) => {
   const result = current ? current : 1;
   const LIMIT = pageSize ? pageSize : 10;
 
-  const res = await handleGetMusic(result, LIMIT);
+  const res = await handleFilterAndSearchMusicAction(result, LIMIT,searchParams?.search || "", searchParams?.filterReq || "");
 
   const data = res?.data;
 

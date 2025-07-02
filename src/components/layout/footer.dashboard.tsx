@@ -7,7 +7,7 @@ const DashboardFooter = () => {
     return (
         <>
             <Footer style={{ textAlign: 'center' }}>
-                Stiktify ©{new Date().getFullYear()} Created by @Group 3
+                Stiktify ©{new Date().getFullYear()} Created by @Horizon
             </Footer>
         </>
     )
