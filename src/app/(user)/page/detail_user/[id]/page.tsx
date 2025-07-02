@@ -23,7 +23,10 @@ import { CheckCircleTwoTone } from "@ant-design/icons";
 import BusinessAccountModal from "@/components/modal/modal.upgrade.to.business.account";
 import FollowerModal from "@/components/modal/modal.follower";
 import FollowingModal from "@/components/modal/modal.following";
-import { checkFollowAction, handleFollow } from "@/actions/manage.follow.action";
+import {
+  checkFollowAction,
+  handleFollow,
+} from "@/actions/manage.follow.action";
 import { message, notification } from "antd";
 
 // ======= Interfaces for User & Video =======
@@ -64,18 +67,17 @@ const UserDetail = () => {
   const [isFollow, setFollow] = useState(false);
   const [copied, setCopied] = useState(false);
 
-
   useEffect(() => {
     if (!id || !accessToken) return;
     (async () => {
-      const res = await checkFollowAction(user?._id, id + "")
+      const res = await checkFollowAction(user?._id, id + "");
       if (res?.statusCode === 201) {
-        setFollow(res?.data)
+        setFollow(res?.data);
       } else {
-        setFollow(false)
+        setFollow(false);
       }
-    })()
-  }, [])
+    })();
+  }, []);
 
   useEffect(() => {
     fetchUserDetail();
@@ -260,23 +262,10 @@ const UserDetail = () => {
     }
     const res = await handleFollow(user?._id, id + "");
     if (res?.statusCode === 201) {
-      message.success(res.data.message)
-      setFollow(!isFollow)
-    }
-  }
-
-  const handleShareClick = async () => {
-    const link = `${process.env.NEXT_PUBLIC_BASE_URL}/page/detail_user/${id}`;
-    console.log(link);
-
-    try {
-      await navigator.clipboard.writeText(link);
-      notification.success({ message: "Copied Link Successfully" })
-    } catch (err) {
-      console.error("Failed to copy: ", err);
+      message.success(res.data.message);
+      setFollow(!isFollow);
     }
   };
-
 
   return (
     <div className="max-w-screen-xl mx-auto p-6 bg-white border rounded-2xl shadow-2xl transition-shadow duration-300 min-h-screen max-h-screen overflow-hidden flex flex-col">
@@ -317,8 +306,9 @@ const UserDetail = () => {
           </div>
           <p className="flex items-center text-lg font-medium mt-1">
             <span
-              className={`w-3 h-3 mr-2 rounded-full ${userData.isActive ? "bg-green-500" : "bg-gray-400"
-                }`}
+              className={`w-3 h-3 mr-2 rounded-full ${
+                userData.isActive ? "bg-green-500" : "bg-gray-400"
+              }`}
             ></span>
             {userData.isActive ? "Online" : "Offline"}
           </p>
@@ -411,18 +401,26 @@ const UserDetail = () => {
                   isFriend
                     ? "Unfriend"
                     : friendRequestSent
-                      ? "Request Sent"
-                      : "Add Friend"
+                    ? "Request Sent"
+                    : "Add Friend"
                 }
-                className={`${friendRequestSent
-                  ? "bg-gray-400"
-                  : "bg-blue-500 hover:bg-blue-600"
-                  } text-white`}
-                onClick={user ? (isFriend ? unfriend : sendFriendRequest) : () => {
-                  notification.warning({
-                    message: "Please create an account to send friend request.",
-                  });
-                }}
+                className={`${
+                  friendRequestSent
+                    ? "bg-gray-400"
+                    : "bg-blue-500 hover:bg-blue-600"
+                } text-white`}
+                onClick={
+                  user
+                    ? isFriend
+                      ? unfriend
+                      : sendFriendRequest
+                    : () => {
+                        notification.warning({
+                          message:
+                            "Please create an account to send friend request.",
+                        });
+                      }
+                }
                 disabled={friendRequestSent}
               />
               <Button
@@ -462,10 +460,11 @@ const UserDetail = () => {
             (tab) => (
               <button
                 key={tab}
-                className={`text-lg font-semibold p-2 flex-1 text-center ${activeTab === tab
-                  ? "border-b-4 border-blue-500 text-blue-600"
-                  : "text-gray-600"
-                  }`}
+                className={`text-lg font-semibold p-2 flex-1 text-center ${
+                  activeTab === tab
+                    ? "border-b-4 border-blue-500 text-blue-600"
+                    : "text-gray-600"
+                }`}
                 onClick={() => setActiveTab(tab)}
               >
                 {tabLabels[tab]}
@@ -479,7 +478,7 @@ const UserDetail = () => {
           {activeTab === "video" && <VideoTab />}
           {activeTab === "music" && <MusicTab />}
           {activeTab === "likedVideo" && <LikedVideoTab />}
-          {activeTab === "likedMusic" && <LikedMusicTab userId={user._id} />}
+          {activeTab === "likedMusic" && <LikedMusicTab userId={user?._id} />}
         </div>
       </div>
     </div>

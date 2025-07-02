@@ -51,6 +51,7 @@ const roleRoutes: Record<string, (string | RegExp)[]> = {
     /^\/page\/store\/[\w-]+$/,
     "/page/shop",
     /^\/page\/product-detail\/[\w-]+$/,
+    "/page/trending-new-ui",
   ],
   ADMIN: [
     "/dashboard/user",
@@ -64,7 +65,7 @@ const roleRoutes: Record<string, (string | RegExp)[]> = {
     "/dashboard/ticked",
     "/dashboard/statistic/users",
     "/dashboard/statistic/videos",
-    "/dashboard/statistic/musics"
+    "/dashboard/statistic/musics",
   ],
 };
 
