@@ -37,4 +37,13 @@ declare global {
     access_token: string;
   }
 
+  interface IRequestOData {
+    url: string,
+    method: string,
+    page: number,
+    limit:number,
+    useCredentials?: boolean,
+    headers?,
+    nextOption?,
+  }
 }
