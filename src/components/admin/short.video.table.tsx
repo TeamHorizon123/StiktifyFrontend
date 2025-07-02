@@ -13,7 +13,7 @@ import { notification, Popconfirm } from "antd";
 import {
   handleFlagShortVideoAction,
   handleFilterByCategory,
-  handleSearchAndFilterShortVideos,
+  handleGetAllShortVideo,
 } from "@/actions/manage.short.video.action";
 import InputCustomize from "../input/input.customize";
 import DropdownCustomizeFilterVideo from "../dropdown/dropdownFilterVide";
@@ -47,14 +47,15 @@ const ManageShortVideoTable = (props: IProps) => {
     (async () => {
       if (search.length > 0 || filterReq.length > 0) {
         if (search.length > 0) {
-          console.log("Searching for videos with:", search, filterReq);
-          const res = await handleSearchAndFilterShortVideos(
+          let res = await handleGetAllShortVideo(
             search,
             filterReq,
             meta.current,
             meta.pageSize
           );
-
+            if(res?.data?.meta?.current>=1 && res?.data?.meta?.total<=meta.pageSize){
+               res=await handleGetAllShortVideo(search, filterReq, 1, meta.pageSize);
+            }
           if (res?.data?.result && Array.isArray(res.data.result)) {
             const sortedVideos = [...res.data.result].sort((a, b) => {
               const aMatch = a.videoDescription
@@ -77,13 +78,15 @@ const ManageShortVideoTable = (props: IProps) => {
             setMetaTable(meta);
           }
         } else if (filterReq.length > 0) {
-          const res = await handleSearchAndFilterShortVideos(
+          let res = await handleGetAllShortVideo(
             search,
             filterReq,
             meta.current,
             meta.pageSize
           );
-
+           if(res?.data?.meta?.current>=1 && res?.data?.meta?.total<=meta.pageSize){
+               res=await handleGetAllShortVideo(search, filterReq, 1, meta.pageSize);
+            }
           if (res?.statusCode === 200) {
             setDataTable(res.data.result);
             setMetaTable(res.data.meta);
