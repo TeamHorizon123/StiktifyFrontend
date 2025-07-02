@@ -65,6 +65,7 @@ const UserDetail = () => {
   const [friendRequestSent, setFriendRequestSent] = useState(false);
   const [isFriend, setIsFriend] = useState(false);
   const [isFollow, setFollow] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (!id || !accessToken) return;
@@ -332,6 +333,7 @@ const UserDetail = () => {
               <Button
                 icon={<FiShare2 />}
                 text="Share"
+                onClick={handleShareClick}
                 className="bg-gray-200 hover:bg-gray-300 text-gray-700"
               />
               <div>
@@ -438,6 +440,7 @@ const UserDetail = () => {
               <Button
                 icon={<FiShare2 />}
                 text="Share"
+                onClick={handleShareClick}
                 className="bg-gray-200 hover:bg-gray-300 text-gray-700"
               />
               <Button

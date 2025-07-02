@@ -2,7 +2,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import Header from "@/components/page/trending/header";
 import CommentSection from "@/components/page/trending/comments/comment_section";
-import CreateCommentModal from "@/components/page/trending/comments/create-comment-modal";
 import { AuthContext } from "@/context/AuthContext";
 import { sendRequest } from "@/utils/api";
 import Cookies from "js-cookie";
@@ -44,7 +43,7 @@ const TrendingPage = () => {
   const id = searchParams.get("id");
   const [currentMusic, setCurrentMusic] = useState<IMusic | null>(null);
   const router = useRouter();
-
+  const [isGetGuestVideo, setIsGetGuestVideo] = useState(false);
   // UI states
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
@@ -66,15 +65,6 @@ const TrendingPage = () => {
   const [refreshComments, setRefreshComments] = useState(0);
 
   const videoRef = useRef<HTMLVideoElement>(null);
-
-  const reactions = [
-    { type: "favorite", emoji: "❤️", label: "Favorite", color: "text-red-500" },
-    { type: "like", emoji: "👍", label: "Like", color: "text-blue-400" },
-    { type: "haha", emoji: "😂", label: "Haha", color: "text-yellow-400" },
-    { type: "sad", emoji: "😢", label: "Sad", color: "text-blue-300" },
-    { type: "angry", emoji: "😡", label: "Angry", color: "text-red-400" },
-  ];
-
   useEffect(() => {
     if (currentVideo) {
       setCurrentMusic(currentVideo?.musicId || null);
@@ -97,7 +87,7 @@ const TrendingPage = () => {
   useEffect(() => {
     setCurrentVideoIndex(0);
     setCurrentVideo(videoData[0]);
-  }, []);
+  }, [isGetGuestVideo]);
 
   useEffect(() => {
     if (currentVideo === null) setCurrentVideo(videoData[0] || null);
@@ -211,6 +201,12 @@ const TrendingPage = () => {
             videoId: isFetchId ? id || "" : "",
           },
         });
+        console.log("res-user", res);
+        setIsGetGuestVideo(false);
+        if (isGetGuestVideo) {
+          setVideoData([]);
+          setRequestCount(0);
+        }
       } else if (!user && !accessToken) {
         res = await sendRequest<IBackendRes<IVideo[]>>({
           url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/trending-guest-videos`,
@@ -219,6 +215,8 @@ const TrendingPage = () => {
             videoId: isFetchId ? id || "" : "",
           },
         });
+        console.log("res", res);
+        setIsGetGuestVideo(true);
       }
       setIsFetchId(false);
       if (res?.data && Array.isArray(res.data)) {
@@ -304,7 +302,20 @@ const TrendingPage = () => {
       setIsWatched(false);
     }
   };
-
+  const handleAddUserAction = async (videoId: string) => {
+    if (!accessToken) return;
+    try {
+      const res = await sendRequest<IBackendRes<any>>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/kafka/action?action=view&id=${videoId}&`,
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+    } catch (error) {
+      console.error("Error add action:", error);
+    }
+  };
   // Social actions
   const handleReaction = (reaction: string) => {
     setSelectedReaction(selectedReaction === reaction ? null : reaction);
@@ -335,20 +346,9 @@ const TrendingPage = () => {
         },
       });
       setNewComment("");
-      setRefreshComments((v) => v + 1); // trigger reload comment
-    } catch (err) {
-      // handle error (show toast, etc.)
-    }
+      setRefreshComments((v) => v + 1);
+    } catch (err) {}
   };
-
-  const getTotalReactions = () => {
-    return Object.values(userReactions).reduce((sum, count) => sum + count, 0);
-  };
-
-  const relatedVideos = videoData.filter(
-    (_, index) => index !== currentVideoIndex
-  );
-
   const handleNavigate = (id: string) => {
     router.push(`music/${id}`);
   };
@@ -358,7 +358,7 @@ const TrendingPage = () => {
       const target = event.target as HTMLElement;
       const tag = target.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA" || target.isContentEditable) {
-        return; // đừng điều khiển video
+        return;
       }
       if (!videoRef.current) return;
 
@@ -394,13 +394,97 @@ const TrendingPage = () => {
       if (event.key.toLowerCase() === "m") {
         setIsMuted((prev) => !prev);
       }
-      // ArrowUp/ArrowDown: đã có xử lý ở useEffect khác
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isPlaying, isMuted]);
+  const onCommentAdded = () => {
+    if (currentVideo) {
+      setCurrentVideo({
+        ...currentVideo,
+        totalComment: (currentVideo.totalComment || 0) + 1,
+      });
 
+      setVideoData((prevVideos) =>
+        prevVideos.map((video) =>
+          video._id === currentVideo._id
+            ? { ...video, totalComment: (video.totalComment || 0) + 1 }
+            : video
+        )
+      );
+    }
+  };
+  const createViewingHistory = async () => {
+    try {
+      const res = await sendRequest<IBackendRes<IVideo[]>>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/viewinghistory`,
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: {
+          userId: user._id,
+          videoId: currentVideo?._id,
+        },
+      });
+    } catch (error) {
+      console.error("Failed to create Viewing History:", error);
+    }
+  };
+  const onCommentRemove = () => {
+    if (currentVideo) {
+      setCurrentVideo({
+        ...currentVideo,
+        totalComment: (currentVideo.totalComment || 0) - 1,
+      });
+
+      setVideoData((prevVideos) =>
+        prevVideos.map((video) =>
+          video._id === currentVideo._id
+            ? { ...video, totalComment: (video.totalComment || 0) - 1 }
+            : video
+        )
+      );
+    }
+  };
+  const onReactionAdded = () => {
+    if (currentVideo) {
+      setCurrentVideo({
+        ...currentVideo,
+        totalReaction: (currentVideo.totalReaction || 0) + 1,
+      });
+
+      setVideoData((prevVideos) =>
+        prevVideos.map((video) =>
+          video._id === currentVideo._id
+            ? { ...video, totalComment: (video.totalReaction || 0) + 1 }
+            : video
+        )
+      );
+    }
+  };
+  const onReactionRemove = () => {
+    if (currentVideo) {
+      setCurrentVideo({
+        ...currentVideo,
+        totalReaction: (currentVideo.totalReaction || 0) - 1,
+      });
+
+      setVideoData((prevVideos) =>
+        prevVideos.map((video) =>
+          video._id === currentVideo._id
+            ? { ...video, totalComment: (video.totalReaction || 0) + 1 }
+            : video
+        )
+      );
+    }
+  };
+
+  const handleSearch = () => {
+    if (!searchValue.trim()) return;
+    router.push(`/page/search-user-video?q=${encodeURIComponent(searchValue)}`);
+  };
   return (
     <div className="relative max-h-screen bg-black text-white">
       <Header
