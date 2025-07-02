@@ -63,3 +63,20 @@ export const timeAgo = (dateString: string): string => {
 
     return `${Math.floor(diffInSeconds / secondsInYear)} years ago`;
 };
+
+export const formatCurrencyVND = (number: number) => {
+    return new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND',
+    }).format(number);
+};
+
+export const formatMonthYear = (dateStr: string) => {
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return "Invalid date";
+
+    return new Intl.DateTimeFormat("en-US", {
+        month: "long",
+        year: "numeric",
+    }).format(date);
+};
