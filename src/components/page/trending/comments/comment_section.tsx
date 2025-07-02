@@ -5,10 +5,13 @@ import { sendRequest } from "@/utils/api";
 import { AuthContext } from "@/context/AuthContext";
 import { ThumbsUp, ChevronDown, ChevronUp } from "lucide-react";
 import { Avatar, Button } from "antd";
+import Comment from "./comment";
 
 interface CommentSectionProps {
   videoId: string | undefined;
   showComments: boolean;
+  user: any;
+  userAvatar: string;
   onCommentAdded?: () => void;
 }
 
@@ -40,19 +43,8 @@ const CommentItem: React.FC<{
 }) => {
   return (
     <div className={depth === 0 ? "space-y-3" : `space-y-3 ml-${depth * 4}`}>
-      {/* indent */}
       <div className="flex gap-3">
-        <Avatar className="w-8 h-8 shrink-0">
-          {/* <AvatarImage
-            src={comment.image || "/placeholder.svg?height=32&width=32"}
-          />
-          <AvatarFallback>
-            {comment.username?.charAt(0).toUpperCase() || "U"}
-          </AvatarFallback> */}
-        </Avatar>
-
         <div className="flex-1 min-w-0">
-          {/* Username & time */}
           <div className="flex items-center gap-2 mb-1 truncate">
             <span className="text-white font-medium text-sm truncate">
               {comment.username}
@@ -63,13 +55,10 @@ const CommentItem: React.FC<{
               </span>
             )}
           </div>
-
-          {/* Content */}
           <p className="text-gray-300 text-sm break-words mb-2">
             {comment.CommentDescription}
           </p>
 
-          {/* Actions */}
           <div className="flex items-center gap-4 text-xs select-none">
             <Button
               size="small"
@@ -168,25 +157,35 @@ const CommentSection: React.FC<CommentSectionProps> = ({
       }
     }
   };
-
+  const handleDeleteComment = (commentId: string, parentId: string | null) => {
+    setComments((prev) => prev.filter((c) => c._id !== commentId));
+    if (parentId) {
+      setChildComments((prev) => {
+        const updated = new Map(prev);
+        const arr = updated.get(parentId) || [];
+        updated.set(
+          parentId,
+          arr.filter((c) => c._id !== commentId)
+        );
+        return updated;
+      });
+    }
+  };
   const renderCommentTree = (comment: CommentI, depth = 0): React.ReactNode => {
-    const children = childComments.get(comment._id) || [];
-    const isExpanded = expandedComments.has(comment._id);
-    const hasReplies = comment.totalOfChildComments > 0;
-
     return (
-      <Fragment key={comment._id}>
-        <CommentItem
-          comment={comment}
-          depth={depth}
-          canExpand={hasReplies}
-          childCount={comment.totalOfChildComments}
-          isExpanded={isExpanded}
-          onToggleReplies={toggleReplies}
-        />
-        {isExpanded &&
-          children.map((child) => renderCommentTree(child, depth + 1))}
-      </Fragment>
+      <Comment
+        key={comment._id}
+        comment={comment}
+        user={comment.username}
+        userAvatar={comment.image || ""}
+        toggleChildComments={toggleReplies}
+        expandedComments={expandedComments}
+        childComments={childComments}
+        videoId={videoId}
+        setChildComments={setChildComments}
+        onCommentAdded={onCommentAdded}
+        onDeleteComment={handleDeleteComment}
+      />
     );
   };
   if (!showComments) return null;
