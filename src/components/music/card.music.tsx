@@ -20,6 +20,7 @@ interface IProps {
     isPlaying: boolean,
     item: IMusic
     ref?: any,
+    isInUserPage?: boolean
 }
 
 const CardMusic = (props: IProps) => {
@@ -36,7 +37,7 @@ const CardMusic = (props: IProps) => {
     }
 
     const handleNavigate = (id: string) => {
-        router.push(`music/${id}`)
+        router.push(`/page/music/${id}`)
     }
 
     useEffect(() => {

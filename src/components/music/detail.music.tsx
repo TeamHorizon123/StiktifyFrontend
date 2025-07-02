@@ -29,6 +29,8 @@ const DisplayMusicDetail = ({ item }: IProps) => {
   const [isLiked, setIsLiked] = useState(false);
   const [totalFavorite, setTotalFavorite] = useState(item.totalFavorite);
   const { accessToken, user } = useContext(AuthContext) || {};
+  const [copied, setCopied] = useState(false);
+
 
   useEffect(() => {
     const checkLikeStatus = async () => {
@@ -109,8 +111,17 @@ const DisplayMusicDetail = ({ item }: IProps) => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
-  const handleShareClick = () => {
-    router.push(`/page/shareMusic/${item._id}`);
+  const handleShareClick = async () => {
+
+    const link = `${process.env.NEXT_PUBLIC_BASE_URL}/page/music/${item._id}`;
+
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy: ", err);
+    }
   };
 
   return (
@@ -146,7 +157,7 @@ const DisplayMusicDetail = ({ item }: IProps) => {
                       className="relative group"
                     >
                       <span className="cursor-pointer after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-full after:h-[2px] after:bg-white after:scale-x-0 after:transition-transform after:duration-300 group-hover:after:scale-x-100">
-                        {capitalizeWords(tag?.fullname)}
+                        {tag?.fullname}
                       </span>
                     </div>
                   </div>
@@ -181,9 +192,11 @@ const DisplayMusicDetail = ({ item }: IProps) => {
                   onClick={handleShareClick}
                 >
                   <RiShareForwardLine size={20} className="text-gray-400" />
-                  <span className="text-gray-400">
+                  {/* <span className="text-gray-400">
                     {formatNumber(item.totalShare)}
-                  </span>
+                  </span> */}
+                  {copied && <div style={{ color: 'green', marginTop: '8px' }}>Copied Link Successfully</div>}
+
                 </div>
                 <div
                   className="flex gap-2 items-center cursor-pointer"
