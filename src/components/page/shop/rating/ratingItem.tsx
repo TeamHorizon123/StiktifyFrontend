@@ -3,7 +3,7 @@ import React from 'react'
 import { IoIosStar, IoIosStarHalf, IoIosStarOutline } from "react-icons/io";
 import { BiLike, BiDislike } from "react-icons/bi";
 
-const RatingItem = () => {
+const RatingItem = ({ data }: IProductRating) => {
     return (
         <div className='p-2 bg-[#FFFFFF0D] border border-[#FFFFFF1A] rounded-md flex space-x-4'>
             <div className='w-16'>

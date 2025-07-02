@@ -1,3 +1,4 @@
+import { formatCurrencyVND } from "@/utils/utils";
 import { Image } from "antd";
 import Link from "next/link";
 import React from "react";
@@ -9,14 +10,6 @@ interface IData {
 }
 
 const Product: React.FC<IData> = ({ data }) => {
-
-    const toCurrencyVND = (number: number) => {
-        return new Intl.NumberFormat('vi-VN', {
-            style: 'currency',
-            currency: 'VND',
-        }).format(number);
-    };
-
     return (
         <div className="bg-[#1C1B33] rounded-md overflow-hidden">
             <div className="h-56 bg-gray-500 relative overflow-hidden">
@@ -42,25 +35,27 @@ const Product: React.FC<IData> = ({ data }) => {
                 />
             </div>
             <div className="p-2 text-white">
-                <Link href={`/page/shop/product/${data.Id}`} >{data.Name}</Link>
-                <div className="my-2 flex items-center space-x-1">
-                    <FaStar className="text-sm text-[#FACC15]" />
-                    <p className="text-xs">{data.Rating}</p>
-                    <p className="text-xs">({data.Order} sold)</p>
-                </div>
-                <div className="my-4 flex space-x-2 flex-wrap">
-                    <p className="text-xl font-bold text-red-500">
+                <Link href={`/page/shop/product/${data.Id}`} >
+                    <Link href={`/page/shop/product/${data.Id}`} >{data.Name}</Link>
+                    <div className="my-2 flex items-center space-x-1">
+                        <FaStar className="text-sm text-[#FACC15]" />
+                        <p className="text-xs">{data.Rating}</p>
+                        <p className="text-xs">({data.Order} sold)</p>
+                    </div>
+                    <div className="my-4 flex space-x-2 flex-wrap">
+                        <p className="text-xl font-bold text-red-500">
+                            {
+                                formatCurrencyVND(data.Price - (data.Discount * data.Price))
+                            }
+                        </p>
                         {
-                            toCurrencyVND(data.Price - (data.Discount * data.Price))
+                            (data.Discount > 0) ? (
+                                <span className="font-light line-through">{formatCurrencyVND(data.Price)}</span>
+                            ) : (<></>)
                         }
-                    </p>
-                    {
-                        (data.Discount > 0) ? (
-                            <span className="font-light line-through">{toCurrencyVND(data.Price)}</span>
-                        ) : (<></>)
-                    }
 
-                </div>
+                    </div>
+                </Link>
                 <button
                     className="w-full h-fit p-2 justify-center items-center bg-gradient-to-r from-[#A855F7] to-[#EC4899] flex space-x-2 rounded-lg"
                     type="button">

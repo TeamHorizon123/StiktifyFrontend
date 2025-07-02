@@ -14,11 +14,11 @@ interface IListOdata<T> {
 }
 
 interface IProduct {
-    Id: string?,
-    ShopId: string?,
-    Name: string?,
-    Thumbnail: string?,
-    Description: string?,
+    Id: string,
+    ShopId: string,
+    Name: string,
+    Thumbnail: string,
+    Description: string,
     Price: number,
     Discount: number,
     Rating: number,
@@ -26,4 +26,38 @@ interface IProduct {
     IsActive: boolean,
     CreateAt: Date,
     UpdateAt: Date,
+}
+
+interface Product {
+    id: string,
+    shopId: string,
+    name: string,
+    thumbnail: string,
+    description: string,
+    price: number,
+    discount: number,
+    rating: number,
+    order: number,
+    isActive: boolean,
+    createAt: Date,
+    updateAt: Date,
+}
+
+interface Id {
+    id: string
+}
+
+interface IProductOption {
+    Id: string,
+    ProductId: string,
+    Image: string,
+    Quantity: number,
+    Attribute: string,
+    Value: string,
+    CreateAt: Date,
+    UpdateAt: Date
+}
+
+interface Images {
+    listImage: string[]
 }

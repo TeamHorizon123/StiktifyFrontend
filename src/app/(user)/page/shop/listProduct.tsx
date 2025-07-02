@@ -3,7 +3,7 @@
 import { FaArrowRightLong, FaBolt } from "react-icons/fa6";
 import Link from "next/link";
 import Product from "@/components/page/shop/product/product";
-import useFetchListOData from "@/modules/shop/useFetchList";
+import useFetchListOData from "@/modules/shop/useFetchOdataList";
 interface IQueryParam {
     page: number
 }

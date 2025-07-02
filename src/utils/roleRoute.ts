@@ -26,6 +26,8 @@ const roleRoutes: Record<string, (string | RegExp)[]> = {
     "/page/purchasehistory",
     "/page/shop",
     /^\/page\/shop\/product\/[\w-]+$/,
+    /^\/page\/shop\/store\/[\w-]+$/,
+    /^\/page\/shop\/cart\/[\w-]+$/,
     "/page/karaoke",
   ],
   GUEST: [
