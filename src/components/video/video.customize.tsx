@@ -1,21 +1,21 @@
 import { Tooltip } from "antd";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
-import ModalWatchVideo from "../modal/modal.video";
 interface IProps {
-    videoUrl: string,
+    videoId: string,
     videoThumbnail: string
 }
 
 const VideoCustomize = (props: IProps) => {
-    const { videoThumbnail, videoUrl } = props
+    const { videoThumbnail, videoId } = props
     const [watchVideo, setWatchVideo] = useState(false)
+    const router = useRouter()
 
     return (
         <>
-            <ModalWatchVideo videoThumbnail={videoThumbnail} videoUrl={videoUrl} isModalOpen={watchVideo} setIsModalOpen={setWatchVideo} />
             <Tooltip overlayInnerStyle={{ background: "white", color: "#1e272e" }} title="Watch Video" >
                 <div
-                    onClick={() => setWatchVideo(true)}
+                    onClick={() => router.push(`/page/trending?id=${videoId}`)}
                     style={{
                         width: "150px",
                         aspectRatio: "16/9",

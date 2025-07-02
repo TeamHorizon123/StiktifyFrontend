@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useContext } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { AuthContext } from "@/context/AuthContext";
 import { sendRequest } from "@/utils/api";
 import { FaLock, FaUnlock } from "react-icons/fa"; // Biểu tượng ổ khóa
@@ -27,6 +27,7 @@ const LikedVideo = () => {
   const [error, setError] = useState("");
   const [areVideosHidden, setAreVideosHidden] = useState(false); // Trạng thái ẩn/hiện tất cả nội dung
 
+  const router = useRouter()
   useEffect(() => {
     if (id && accessToken) {
       fetchLikedVideos();
@@ -97,7 +98,8 @@ const LikedVideo = () => {
           !areVideosHidden ? (
             <div
               key={video._id}
-              className="p-2 border rounded-lg shadow-md hover:shadow-lg transition-shadow"
+              className="p-2 border rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer"
+              onClick={() => router.push(`/page/trending?id=${video._id}`)}
             >
               <video controls className="w-full h-40 object-cover">
                 <source src={video.videoURL} type="video/mp4" />
@@ -114,10 +116,10 @@ const LikedVideo = () => {
                   <span className="flex flex-wrap">
                     {Array.isArray(video.videoTag)
                       ? video.videoTag.map((tag, index) => (
-                          <span key={index} className="mr-2">
-                            #{tag}
-                          </span>
-                        ))
+                        <span key={index} className="mr-2">
+                          #{tag}
+                        </span>
+                      ))
                       : video.videoTag}
                   </span>
                 </p>

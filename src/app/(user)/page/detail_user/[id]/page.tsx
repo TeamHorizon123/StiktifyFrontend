@@ -62,9 +62,11 @@ const UserDetail = () => {
   const [friendRequestSent, setFriendRequestSent] = useState(false);
   const [isFriend, setIsFriend] = useState(false);
   const [isFollow, setFollow] = useState(false);
+  const [copied, setCopied] = useState(false);
+
 
   useEffect(() => {
-    if(!id || !accessToken) return;
+    if (!id || !accessToken) return;
     (async () => {
       const res = await checkFollowAction(user?._id, id + "")
       if (res?.statusCode === 201) {
@@ -76,8 +78,8 @@ const UserDetail = () => {
   }, [])
 
   useEffect(() => {
-      fetchUserDetail();
-      checkFriend();
+    fetchUserDetail();
+    checkFriend();
   }, [id, accessToken]);
 
   const fetchRequestById = async () => {
@@ -263,6 +265,18 @@ const UserDetail = () => {
     }
   }
 
+  const handleShareClick = async () => {
+    const link = `${process.env.NEXT_PUBLIC_BASE_URL}/page/detail_user/${id}`;
+    console.log(link);
+
+    try {
+      await navigator.clipboard.writeText(link);
+      notification.success({ message: "Copied Link Successfully" })
+    } catch (err) {
+      console.error("Failed to copy: ", err);
+    }
+  };
+
 
   return (
     <div className="max-w-screen-xl mx-auto p-6 bg-white border rounded-2xl shadow-2xl transition-shadow duration-300 min-h-screen max-h-screen overflow-hidden flex flex-col">
@@ -329,6 +343,7 @@ const UserDetail = () => {
               <Button
                 icon={<FiShare2 />}
                 text="Share"
+                onClick={handleShareClick}
                 className="bg-gray-200 hover:bg-gray-300 text-gray-700"
               />
               <div>
@@ -403,7 +418,7 @@ const UserDetail = () => {
                   ? "bg-gray-400"
                   : "bg-blue-500 hover:bg-blue-600"
                   } text-white`}
-                onClick={user?(isFriend ? unfriend : sendFriendRequest) : () => {
+                onClick={user ? (isFriend ? unfriend : sendFriendRequest) : () => {
                   notification.warning({
                     message: "Please create an account to send friend request.",
                   });
@@ -427,6 +442,7 @@ const UserDetail = () => {
               <Button
                 icon={<FiShare2 />}
                 text="Share"
+                onClick={handleShareClick}
                 className="bg-gray-200 hover:bg-gray-300 text-gray-700"
               />
               <Button
