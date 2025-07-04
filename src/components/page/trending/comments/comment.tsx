@@ -197,21 +197,7 @@ const Comment: React.FC<CommentProps> = ({
           </p>
           {/* Actions */}
           <div className="flex items-center gap-6 text-sm">
-            <button className="flex items-center gap-1 text-gray-300 hover:text-purple-400 bg-transparent border-none shadow-none p-0">
-              <ReactSection
-                commentId={comment._id}
-                onReactionAdded={onReactionAdded}
-                onReactionRemove={onReactionRemove}
-              />
-              <span>{thisComment.totalReactions || 0}</span>
-            </button>
-            <button
-              className="flex items-center gap-1 text-gray-300 hover:text-purple-400 bg-transparent border-none shadow-none p-0"
-              onClick={() => setReplyModalOpen(true)}
-            >
-              Reply
-            </button>
-            {user && comment?.user?._id === user?._id && (
+            {user && comment?.user?._id === user?._id ? (
               <>
                 <button
                   className="flex items-center gap-1 text-gray-300 hover:text-blue-400 bg-transparent border-none shadow-none p-0"
@@ -226,6 +212,23 @@ const Comment: React.FC<CommentProps> = ({
                 >
                   <FiTrash2 />
                   Delete
+                </button>
+              </>
+            ) : (
+              <>
+                <button className="flex items-center gap-1 text-gray-300 hover:text-purple-400 bg-transparent border-none shadow-none p-0">
+                  <ReactSection
+                    commentId={comment._id}
+                    onReactionAdded={onReactionAdded}
+                    onReactionRemove={onReactionRemove}
+                  />
+                  <span>{thisComment.totalReactions || 0}</span>
+                </button>
+                <button
+                  className="flex items-center gap-1 text-gray-300 hover:text-purple-400 bg-transparent border-none shadow-none p-0"
+                  onClick={() => setReplyModalOpen(true)}
+                >
+                  Reply
                 </button>
               </>
             )}

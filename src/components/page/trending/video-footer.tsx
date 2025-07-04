@@ -27,6 +27,20 @@ const VideoFooter: React.FC<VideoFooterProps> = ({
         </div>
       </div>
     </div>
+    // <div className="flex-1">
+    //   <h4 className="text-white text-sm font-medium line-clamp-2 mb-1">
+    //     {videoDescription}
+    //   </h4>
+    //   <div className="text-xs text-gray-400 space-y-1">
+    //     <div className="flex items-center gap-2">
+    //       <span>{`#${videoTag.join(" #")}`}</span>
+    //       <span>{`${totalView} views`}</span>
+    //       <span>•</span>
+    //       <span>{new Date(createdAt).toLocaleDateString()}</span>
+    //       <span>{`Uploaded on: ${formatDateTimeVn(createdAt)}`}</span>
+    //     </div>
+    //   </div>
+    // </div>
   );
 };
 

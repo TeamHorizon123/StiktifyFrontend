@@ -3,9 +3,10 @@
 import React, { useState, useEffect, useContext, Fragment } from "react";
 import { sendRequest } from "@/utils/api";
 import { AuthContext } from "@/context/AuthContext";
-import { ThumbsUp, ChevronDown, ChevronUp } from "lucide-react";
-import { Avatar, Button } from "antd";
+import { ThumbsUp, ChevronDown, ChevronUp, User } from "lucide-react";
+import { Button } from "antd";
 import Comment from "./comment";
+import TickedUser from "@/components/ticked-user/TickedUser";
 
 interface CommentSectionProps {
   videoId: string | undefined;
@@ -94,6 +95,7 @@ const CommentItem: React.FC<{
 };
 const CommentSection: React.FC<CommentSectionProps> = ({
   videoId,
+  user,
   showComments,
   onCommentAdded,
 }) => {
@@ -176,14 +178,14 @@ const CommentSection: React.FC<CommentSectionProps> = ({
       <Comment
         key={comment._id}
         comment={comment}
-        user={comment.username}
+        user={user}
         userAvatar={comment.image || ""}
         toggleChildComments={toggleReplies}
         expandedComments={expandedComments}
         childComments={childComments}
         videoId={videoId}
         setChildComments={setChildComments}
-        onCommentAdded={onCommentAdded}
+        onCommentAdded={onCommentAdded ?? (() => {})}
         onDeleteComment={handleDeleteComment}
       />
     );

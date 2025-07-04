@@ -266,6 +266,17 @@ const UserDetail = () => {
       setFollow(!isFollow);
     }
   };
+  const handleShareClick = async () => {
+    const link = `${process.env.NEXT_PUBLIC_BASE_URL}/page/detail_user/${id}`;
+    console.log(link);
+
+    try {
+      await navigator.clipboard.writeText(link);
+      notification.success({ message: "Copied Link Successfully" });
+    } catch (err) {
+      console.error("Failed to copy: ", err);
+    }
+  };
 
   return (
     <div className="max-w-screen-xl mx-auto p-6 bg-white border rounded-2xl shadow-2xl transition-shadow duration-300 min-h-screen max-h-screen overflow-hidden flex flex-col">

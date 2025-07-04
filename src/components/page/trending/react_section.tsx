@@ -448,63 +448,58 @@ const ReactSection: React.FC<ReactionSectionProp> = ({
   };
 
   return (
-    <div className="relative inline-block">
+    <div className="relative inline-block align-middle">
       {loading ? (
-        <FaThumbsUp className="text-gray-400 mr-3" size={24} />
+        <FaThumbsUp className="text-gray-400" size={22} />
       ) : (
         <>
           {showReactions && (
             <div
-              className="absolute bottom-full left-1/3 transform -translate-x-1/2 -translate-y-2 bg-white border p-2 rounded-md shadow-md flex gap-2"
+              className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-white border p-1 rounded-md shadow-md flex gap-1"
+              style={{ minWidth: 0, whiteSpace: "nowrap", zIndex: 100 }} // tăng zIndex
               onMouseEnter={() => setShowReactions(true)}
               onMouseLeave={() => setShowReactions(false)}
             >
               {reactions.map((reaction) => (
-                <div
+                <button
                   key={reaction._id}
-                  className="cursor-pointer p-1 flex items-center justify-center"
+                  className="p-1 flex items-center justify-center bg-transparent border-none outline-none"
+                  style={{ width: 32, height: 32 }}
                   onClick={() => handleAddReaction(reaction)}
+                  tabIndex={-1}
+                  type="button"
                 >
                   {reaction.icon}
-                </div>
+                </button>
               ))}
             </div>
           )}
           <div
-            className="cursor-pointer w-auto h-auto pr-3 flex items-center justify-center"
+            className="cursor-pointer flex items-center gap-2"
+            style={{ minHeight: 32 }}
             onMouseEnter={() => setShowReactions(true)}
             onMouseLeave={() => setShowReactions(false)}
-            onClick={() => handleRemoveReaction}
           >
             {selectedReaction ? (
-              <div onClick={handleRemoveReaction} className="flex items-center">
-                {selectedReaction.icon}{" "}
-                <p className="ml-1">{selectedReaction.type}</p>
+              <div
+                onClick={handleRemoveReaction}
+                className="flex items-center gap-1"
+                style={{ minHeight: 32 }}
+                title={`Remove ${selectedReaction.type}`}
+              >
+                <span className="w-6 h-6 flex items-center justify-center">
+                  {selectedReaction.icon}
+                </span>
+                <span className="text-base font-medium">
+                  {selectedReaction.type}
+                </span>
               </div>
             ) : (
-              <div className="flex items-center box-border">
-                <div className="relative w-8 h-8">
-                  <FaThumbsUp
-                    className="text-gray-400 scale-[2] ml-2 mb-5"
-                    size={15}
-                  />
-                </div>
-                <p className="ml-1 mb-2">Like</p>
-              </div>
+              <span className="w-6 h-6 flex items-center justify-center">
+                <FaThumbsUp className="text-gray-400" size={22} />
+              </span>
             )}
           </div>
-          {thisReactions.length > 0 && (
-            <div className="flex items-center mt-1">
-              <div className="flex items-center mr-2">
-                {thisReactions.slice(-3).map((reaction) => (
-                  <div key={reaction._id} className="ml-1">
-                    {reaction.icon}
-                  </div>
-                ))}
-              </div>
-              {numberReaction}
-            </div>
-          )}
         </>
       )}
     </div>
