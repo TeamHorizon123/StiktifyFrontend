@@ -456,7 +456,7 @@ const ReactSection: React.FC<ReactionSectionProp> = ({
           {showReactions && (
             <div
               className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-white border p-1 rounded-md shadow-md flex gap-1"
-              style={{ minWidth: 0, whiteSpace: "nowrap", zIndex: 100 }} // tăng zIndex
+              style={{ minWidth: 0, whiteSpace: "nowrap" }}
               onMouseEnter={() => setShowReactions(true)}
               onMouseLeave={() => setShowReactions(false)}
             >
