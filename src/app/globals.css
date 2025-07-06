@@ -3,14 +3,18 @@
   padding: 0;
   box-sizing: border-box;
 }
-
+html,
+body {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #393b6a 0%, #222442 80%, #18182c 100%);
+}
 :root {
-  --mint-green: #80EE98;
-  --seafoam: #46DFB1;
-  --tropical-teal: #09D1C7;
-  --ocean-deep: #15919B;
-  --aqua-twilight: #0C6478;
-  --midnight-blue: #213A58;
+  --mint-green: #80ee98;
+  --seafoam: #46dfb1;
+  --tropical-teal: #09d1c7;
+  --ocean-deep: #15919b;
+  --aqua-twilight: #0c6478;
+  --midnight-blue: #213a58;
 }
 
 /* ::before,
@@ -20,8 +24,6 @@
   border-style: none !important;
   border-color: none !important;
 } */
-
-
 
 @tailwind base;
 @tailwind components;
@@ -60,5 +62,4 @@
   animation: marquee 5s linear infinite;
 }
 
-
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");

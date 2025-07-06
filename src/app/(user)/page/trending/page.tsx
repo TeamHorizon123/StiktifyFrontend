@@ -471,6 +471,7 @@ const TrendingPage = () => {
     if (!searchValue.trim()) return;
     router.push(`/page/search-user-video?q=${encodeURIComponent(searchValue)}`);
   };
+
   return (
     <div className="relative max-h-screen bg-black text-white">
       <Header
