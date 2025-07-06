@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { Modal, Avatar, Row, Col, Typography, Spin, message } from "antd";
+import { Modal, Avatar, Row, Col, Typography, message } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 import { handleGetFollowerUser } from "@/actions/follow.action";
 import { AuthContext } from "@/context/AuthContext";
@@ -12,47 +12,39 @@ interface Follower {
   image?: string;
   email: string;
 }
-
 const FollowerModal = ({
   visible,
   onClose,
+  userId,
+  isOwner = true,
 }: {
   visible: boolean;
   onClose: () => void;
+  userId?: string;
+  isOwner?: boolean;
 }) => {
   const { user, accessToken } = useContext(AuthContext)!;
   const [followers, setFollowers] = useState<Follower[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
   const router = useRouter();
 
   useEffect(() => {
-    console.log("User from AuthContext:", user);
-    if (visible && user) {
+    if (visible && (isOwner ? user : userId)) {
       const fetchFollowersData = async () => {
         try {
-          const response = await handleGetFollowerUser(user._id);
-          console.log("API response:", response);
+          const targetUserId = isOwner ? user._id : userId;
+          const response = await handleGetFollowerUser(targetUserId!);
           if (response && response.data) {
-            setFollowers(response.data); // Set danh sách followers
+            setFollowers(response.data);
           } else {
             message.error("Failed to fetch followers.");
           }
-        } catch (error) {
+        } catch {
           message.error("Error fetching followers data.");
         }
-        setLoading(false);
       };
       fetchFollowersData();
     }
-  }, [visible, user, accessToken]);
-
-  if (loading) {
-    return <Spin size="large" />;
-  }
-
-  if (!followers.length) {
-    return <div>No followers found</div>;
-  }
+  }, [visible, user, userId, isOwner, accessToken]);
 
   const handleFollowerClick = (followerId: string) => {
     router.push(`/page/detail_user/${followerId}`);

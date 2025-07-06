@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { Modal, Avatar, Row, Col, Typography, Spin, message } from "antd";
+import { Modal, Avatar, Row, Col, Typography, message } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 import { handleGetFollowingUser } from "@/actions/follow.action";
 import { AuthContext } from "@/context/AuthContext";
@@ -17,45 +17,40 @@ interface Following {
 const FollowingModal = ({
   visible,
   onClose,
+  userId,
+  isOwner = true,
 }: {
   visible: boolean;
   onClose: () => void;
+  userId?: string;
+  isOwner?: boolean;
 }) => {
   const { user, accessToken } = useContext(AuthContext)!;
   const [following, setFollowing] = useState<Following[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
   const router = useRouter();
 
   useEffect(() => {
-    if (visible && user) {
+    if (visible && (isOwner ? user : userId)) {
       const fetchFollowingData = async () => {
         try {
-          const response = await handleGetFollowingUser(user._id);
+          const targetUserId = isOwner ? user._id : userId;
+          const response = await handleGetFollowingUser(targetUserId!);
           if (response && response.data) {
-            setFollowing(response.data); 
+            setFollowing(response.data);
           } else {
             message.error("Failed to fetch following data.");
           }
-        } catch (error) {
+        } catch {
           message.error("Error fetching following data.");
         }
-        setLoading(false);
       };
       fetchFollowingData();
     }
-  }, [visible, user, accessToken]);
+  }, [visible, user, userId, isOwner, accessToken]);
 
   const handleUserClick = (userId: string) => {
     router.push(`/page/detail_user/${userId}`);
   };
-
-  if (loading) {
-    return <Spin size="large" />;
-  }
-
-  if (!following.length) {
-    return <div>No following found</div>;
-  }
 
   return (
     <Modal
@@ -66,7 +61,6 @@ const FollowingModal = ({
       width={400}
       className="rounded-2xl shadow-xl"
     >
-
       <div className="flex flex-col space-y-4">
         {following.map((followed, index) => (
           <Row

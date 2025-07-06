@@ -12,6 +12,8 @@ import MyVideo from "@/components/page/myvideo/MyVideo";
 import ListMyMusic from "@/components/page/mymusic/list-my-music";
 import LikedVideo from "@/components/page/likedVideoPost/LikedVideo";
 import ListFavoriteMusic from "@/components/music/music-favorite/list.favorite";
+import FollowerModal from "@/components/modal/modal.follower";
+import FollowingModal from "@/components/modal/modal.following";
 
 const TABS = [
   { key: "video", label: "Video", icon: <Video size={18} /> },
@@ -47,6 +49,8 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("video");
   const [showEdit, setShowEdit] = useState(false);
+  const [showFollowerModal, setShowFollowerModal] = useState(false);
+  const [showFollowingModal, setShowFollowingModal] = useState(false);
   const { accessToken, user } = useContext(AuthContext) ?? {};
 
   useEffect(() => {
@@ -133,7 +137,7 @@ const ProfilePage = () => {
             </div>
             <div className="flex gap-3 mt-4 md:mt-0">
               <Button
-                className="bg-black text-white font-semibold px-4 py-2 rounded-lg flex items-center gap-2 border-none shadow"
+                className="bg-purple-600 hover:bg-purple-800 text-white font-semibold px-4 py-2 rounded-lg flex items-center gap-2 border-none shadow"
                 onClick={() => setShowEdit(true)}
                 icon={<FiEdit />}
                 text="Edit Profile"
@@ -173,13 +177,19 @@ const ProfilePage = () => {
               Statistics
             </h3>
             <div className="grid grid-cols-2 gap-4">
-              <div>
+              <div
+                className="cursor-pointer hover:bg-purple-800/20 p-2 rounded-lg transition-colors"
+                onClick={() => setShowFollowerModal(true)}
+              >
                 <div className="text-2xl font-bold text-white">
                   {profileData?.totalFollowers || 0}
                 </div>
                 <div className="text-purple-300 text-xs">Followers</div>
               </div>
-              <div>
+              <div
+                className="cursor-pointer hover:bg-purple-800/20 p-2 rounded-lg transition-colors"
+                onClick={() => setShowFollowingModal(true)}
+              >
                 <div className="text-2xl font-bold text-white">
                   {profileData?.totalFollowings || 0}
                 </div>
@@ -220,17 +230,11 @@ const ProfilePage = () => {
           </div>
           {/* Tab Content */}
           <div className="flex-1 p-4 overflow-y-auto">
-            {activeTab === "video" && profileData?._id && (
-              <MyVideo userId={profileData._id} isOwner={true} />
-            )}
-            {activeTab === "music" && profileData?._id && (
-              <ListMyMusic userId={profileData._id} isOwner={true} />
-            )}
-            {activeTab === "liked-video" && profileData?._id && (
-              <LikedVideo userId={profileData._id} isOwner={true} />
-            )}
+            {activeTab === "video" && profileData?._id && <MyVideo />}
+            {activeTab === "music" && profileData?._id && <ListMyMusic />}
+            {activeTab === "liked-video" && profileData?._id && <LikedVideo />}
             {activeTab === "liked-music" && profileData?._id && (
-              <ListFavoriteMusic userId={profileData._id} isOwner={true} />
+              <ListFavoriteMusic />
             )}
           </div>
         </div>
@@ -255,6 +259,22 @@ const ProfilePage = () => {
           <p className="text-red-500">User profile not found</p>
         )}
       </Modal>
+
+      {/* Follower Modal */}
+      <FollowerModal
+        visible={showFollowerModal}
+        onClose={() => setShowFollowerModal(false)}
+        userId={profileData?._id}
+        isOwner={true}
+      />
+
+      {/* Following Modal */}
+      <FollowingModal
+        visible={showFollowingModal}
+        onClose={() => setShowFollowingModal(false)}
+        userId={profileData?._id}
+        isOwner={true}
+      />
     </div>
   );
 };

@@ -186,14 +186,18 @@ const UserDetail = () => {
         {/* Profile Header */}
         <div className="relative flex flex-col items-center md:flex-row md:items-end gap-6 px-6 pb-8">
           <div className="relative">
-            <div className="w-28 h-28 rounded-full bg-gradient-to-br from-purple-400 to-purple-900 flex items-center justify-center border-4 border-purple-700 shadow-lg">
-              <FaUser className="w-20 h-20 text-white" />
-              <span
-                className={`absolute bottom-2 right-2 w-4 h-4 border-2 border-white rounded-full ${
-                  userData.isActive ? "bg-green-400" : "bg-gray-400"
-                }`}
-              ></span>
-            </div>
+            {userData?.image ? (
+              <img
+                src={userData.image}
+                className="w-28 h-28 rounded-full object-cover"
+                alt="Profile"
+              />
+            ) : (
+              <div className="w-28 h-28 rounded-full bg-gradient-to-br from-purple-400 to-purple-900 flex items-center justify-center border-4 border-purple-700 shadow-lg">
+                <FaUser className="w-20 h-20 text-white" />
+              </div>
+            )}
+            <span className="absolute bottom-2 right-2 w-4 h-4 bg-green-400 border-2 border-white rounded-full"></span>
           </div>
           <div className="flex-1 flex flex-col md:flex-row md:items-end md:justify-between w-full">
             <div>
@@ -234,7 +238,7 @@ const UserDetail = () => {
                     className={`${
                       friendRequestSent
                         ? "bg-gray-400"
-                        : "bg-blue-500 hover:bg-blue-600"
+                        : "bg-purple-600 hover:bg-purple-800"
                     } text-white`}
                     onClick={
                       user
@@ -251,7 +255,7 @@ const UserDetail = () => {
                     disabled={friendRequestSent}
                   />
                   <Button
-                    onClick={() => handleFollow()}
+                    onClick={() => handleFollow(user?._id, id as string)}
                     icon={<LuBellRing />}
                     text={`${isFollow ? "Unfollow" : "Follow"}`}
                     className="bg-gray-200 hover:bg-gray-300 text-gray-700"
@@ -306,13 +310,19 @@ const UserDetail = () => {
               Statistics
             </h3>
             <div className="grid grid-cols-2 gap-4">
-              <div>
+              <div
+                className="cursor-pointer hover:bg-purple-800/20 p-2 rounded-lg transition-colors"
+                onClick={() => setShowFollowerModal(true)}
+              >
                 <div className="text-2xl font-bold text-white">
                   {userData.totalFollowers || 0}
                 </div>
                 <div className="text-purple-300 text-xs">Followers</div>
               </div>
-              <div>
+              <div
+                className="cursor-pointer hover:bg-purple-800/20 p-2 rounded-lg transition-colors"
+                onClick={() => setShowFollowingModal(true)}
+              >
                 <div className="text-2xl font-bold text-white">
                   {userData.totalFollowings || 0}
                 </div>

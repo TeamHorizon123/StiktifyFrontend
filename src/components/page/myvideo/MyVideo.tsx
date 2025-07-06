@@ -167,7 +167,7 @@ const MyVideo = ({ userId }: MyVideoProps) => {
                 {user?._id === currentUserId && (
                   <button
                     onClick={() => handleDelete(video._id)}
-                    className="absolute top-3 right-3 bg-red-500 hover:bg-red-600 text-white p-2 rounded-full shadow transition"
+                    className="absolute top-3 right-3  hover:bg-red-600 text-white p-2 rounded-full shadow transition"
                     title="Delete"
                   >
                     <Trash2 size={18} />
