@@ -61,8 +61,8 @@ const ReactPostNotification: React.FC<ReactPostNotificationProps> = ({
   const handlePostClick = async () => {
     // setUnreadCount((prev: any) => Math.max(0, prev - 1));
     await markAsRead(notification._id!);
-    router.replace(`/page/trending-user?id=${notification.postId}`);
-    if (typeof window !== "undefined" && pathname === "/page/trending-user") {
+    router.replace(`/page/trending?id=${notification.postId}`);
+    if (typeof window !== "undefined" && pathname === "/page/trending") {
       setTimeout(() => {
         if (typeof window !== "undefined") {
           window.location.reload();

@@ -7,8 +7,7 @@ const MusicReportPage = async ({ searchParams }: any) => {
     const result = current ? current : 1;
     const LIMIT = pageSize ? pageSize : 5;
 
-    const res = await handleGetAllReportMusicAction(result, LIMIT)
-
+    const res = await handleGetAllReportMusicAction(result, LIMIT,searchParams.search || "", searchParams.filterReq || "")
     const data = res?.data
 
     const meta = {

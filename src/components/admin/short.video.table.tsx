@@ -1,7 +1,7 @@
 "use client";
 import { ColumnsType } from "antd/es/table";
 import { useEffect, useState } from "react";
-import { formatNumber } from "@/utils/utils";
+import { formatDateTimeVn, formatNumber } from "@/utils/utils";
 import {
   FilterOutlined,
   FlagTwoTone,
@@ -12,8 +12,8 @@ import {
 import { notification, Popconfirm } from "antd";
 import {
   handleFlagShortVideoAction,
-  handleSearchShortVideos,
   handleFilterByCategory,
+  handleGetAllShortVideo,
 } from "@/actions/manage.short.video.action";
 import InputCustomize from "../input/input.customize";
 import DropdownCustomizeFilterVideo from "../dropdown/dropdownFilterVide";
@@ -47,12 +47,15 @@ const ManageShortVideoTable = (props: IProps) => {
     (async () => {
       if (search.length > 0 || filterReq.length > 0) {
         if (search.length > 0) {
-          const res = await handleSearchShortVideos(
+          let res = await handleGetAllShortVideo(
             search,
+            filterReq,
             meta.current,
             meta.pageSize
           );
-
+            if(res?.data?.meta?.current>=1 && res?.data?.meta?.total<=meta.pageSize){
+               res=await handleGetAllShortVideo(search, filterReq, 1, meta.pageSize);
+            }
           if (res?.data?.result && Array.isArray(res.data.result)) {
             const sortedVideos = [...res.data.result].sort((a, b) => {
               const aMatch = a.videoDescription
@@ -75,12 +78,15 @@ const ManageShortVideoTable = (props: IProps) => {
             setMetaTable(meta);
           }
         } else if (filterReq.length > 0) {
-          const res = await handleFilterByCategory(
+          let res = await handleGetAllShortVideo(
+            search,
             filterReq,
             meta.current,
             meta.pageSize
           );
-
+           if(res?.data?.meta?.current>=1 && res?.data?.meta?.total<=meta.pageSize){
+               res=await handleGetAllShortVideo(search, filterReq, 1, meta.pageSize);
+            }
           if (res?.statusCode === 200) {
             setDataTable(res.data.result);
             setMetaTable(res.data.meta);
@@ -95,7 +101,7 @@ const ManageShortVideoTable = (props: IProps) => {
 
   const columns: ColumnsType<IShortVideo> = [
     {
-      title: "Username",
+      title: "Creator",
       dataIndex: "userId",
       key: "userId",
       render: (value) => {
@@ -113,15 +119,15 @@ const ManageShortVideoTable = (props: IProps) => {
         />
       ),
     },
+     {
+      title: "Description",
+      dataIndex: "videoDescription",
+      key: "videoDescription",
+    },
     {
       title: "Views",
       dataIndex: "totalViews",
       key: "totalViews",
-      render: (value) => <div>{formatNumber(value ?? 0)}</div>,
-    },
-    {
-      title: "Reactions",
-      dataIndex: "totalReaction",
       render: (value) => <div>{formatNumber(value ?? 0)}</div>,
     },
     {
@@ -131,15 +137,23 @@ const ManageShortVideoTable = (props: IProps) => {
       render: (value) => <div>{formatNumber(value ?? 0)}</div>,
     },
     {
-      title: "Favorite",
-      dataIndex: "totalFavorite",
-      key: "totalFavorite",
-      render: (value) => <div>{formatNumber(value ?? 0)}</div>,
-    },
+        title: "Blocked",
+        key: "isBlock",
+        render: (_, record) => (
+          <div>
+            {record?.isBlock ? (
+              <LockTwoTone style={{ fontSize: "24px" }} twoToneColor="#d63031" />
+            ) : (
+              <UnlockTwoTone style={{ fontSize: "24px" }} twoToneColor="#00b894" />
+            )}
+          </div>
+        ),
+      },
     {
-      title: "Description",
-      dataIndex: "videoDescription",
-      key: "videoDescription",
+      title: "Created At",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (value) => <div>{value?formatDateTimeVn(value+""):""}</div>,
     },
     {
       title: "Action",

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useContext } from "react";
-import { usePathname, useSearchParams } from "next/navigation"; 
+import { usePathname, useSearchParams } from "next/navigation";
 import { fetchMyVideos } from "@/actions/videoPosted.video.action";
 import { formatNumber } from "@/utils/utils";
 import VideoCustomize from "@/components/video/video.customize";
@@ -102,7 +102,7 @@ const MyVideo = () => {
             video._id === videoId ? { ...video, isDelete: true } : video
           )
         );
-        addDeletedVideoId(videoId); 
+        addDeletedVideoId(videoId);
       } catch (error) {
         console.error("Error in handleDelete:", error);
       }
@@ -137,7 +137,7 @@ const MyVideo = () => {
                   <td className="border px-4 py-2">
                     <VideoCustomize
                       videoThumbnail={video.videoThumbnail}
-                      videoUrl={video.videoUrl}
+                      videoId={video._id}
                     />
                   </td>
                   <td className="border px-4 py-2 text-gray-700">

@@ -1,14 +1,15 @@
 "use client"
 import { ColumnsType } from "antd/es/table";
-import { Popconfirm } from "antd";
-import { FilterOutlined, FlagTwoTone, SearchOutlined } from "@ant-design/icons";
+import { notification, Popconfirm } from "antd";
+import { FilterOutlined, FlagTwoTone, LockTwoTone, SearchOutlined, UnlockTwoTone } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import InputCustomize from "../input/input.customize";
 import DropdownCustomize from "../dropdown/dropdown.customize";
 import TagMusic from "../music/tag.music";
-import { formatNumber } from "@/utils/utils";
+import { formatDateTimeVn, formatNumber } from "@/utils/utils";
 import { handleFilterAndSearchMusicAction } from "@/actions/music.action";
 import TableCustomize from "../ticked-user/table/table.dashboard";
+import { handleFlagMusicAction } from "@/actions/manage.report.action";
 interface IProps {
     dataSource: IMusic[];
     meta: {
@@ -30,11 +31,22 @@ const ManageMusicTable = (props: IProps) => {
     const [search, setSearch] = useState("")
     const [filterReq, setFilterReq] = useState("")
 
+      const handleFlagMusic = async (record: IMusic) => {
+        const res = await handleFlagMusicAction(record._id, !record.flag);
+        if (res?.statusCode === 201) {
+          return notification.success({ message: res?.message });
+        }
+        return notification.error({ message: res?.message });
+      };
+    
 
     useEffect(() => {
         (async () => {
             if (search.length > 0 || filterReq.length > 0) {
-                const res = await handleFilterAndSearchMusicAction(metaDefault.current, metaDefault.LIMIT, search, filterReq)
+                let res = await handleFilterAndSearchMusicAction(metaDefault.current, metaDefault.LIMIT, search, filterReq)
+                  if(res?.data?.meta?.current>=1 && res?.data?.meta?.total<=meta.pageSize){
+                      res=await handleFilterAndSearchMusicAction(1, metaDefault.LIMIT, search, filterReq);
+                }
                 setDataTable(res?.data?.result)
                 setMetaTable(res?.data?.meta)
             } else {
@@ -45,10 +57,13 @@ const ManageMusicTable = (props: IProps) => {
     }, [search, dataSource, filterReq, meta])
 
     const columns: ColumnsType<IMusic> = [
-        {
-            title: 'Name',
-            dataIndex: 'musicDescription',
-            key: 'musicDescription',
+          {
+            title: "Creator",
+            dataIndex: "userId",
+            key: "userId",
+            render: (value) => {
+                return <div>{value?.userName ?? "Unknown"}</div>;
+            },
         },
         {
             title: 'Music',
@@ -60,6 +75,11 @@ const ManageMusicTable = (props: IProps) => {
                 </div>
             ),
         },
+          {
+            title: 'Description',
+            dataIndex: 'musicDescription',
+            key: 'musicDescription',
+        },
         {
             title: 'Listeners',
             dataIndex: 'totalListener',
@@ -69,36 +89,44 @@ const ManageMusicTable = (props: IProps) => {
             )
         },
         {
-            title: 'Favorites',
-            dataIndex: 'totalFavorite',
-            key: 'totalFavorite',
-            render: (value, record, index) => (
-                <div>{formatNumber(value ?? 0)}</div>
-            )
+              title: "Comments",
+              dataIndex: "totalComment",
+              key: "totalComment",
+              render: (value) => <div>{formatNumber(value ?? 0)}</div>,
         },
         {
-            title: 'Reactions',
-            dataIndex: 'totalReactions',
-            key: 'totalReactions',
-            render: (value, record, index) => (
-                <div>{formatNumber(value ?? 0)}</div>
-            )
+            title: "Blocked",
+            key: "isBlock",
+            render: (_, record) => (
+            <div>
+                {record?.isBlock ? (
+                <LockTwoTone style={{ fontSize: "24px" }} twoToneColor="#d63031" />
+                ) : (
+                <UnlockTwoTone style={{ fontSize: "24px" }} twoToneColor="#00b894" />
+                )}
+            </div>
+            ),
         },
+     {
+              title: "Created At",
+              dataIndex: "createdAt",
+              key: "createdAt",
+              render: (value) => <div>{value?formatDateTimeVn(value+""):""}</div>,
+            },
         {
             title: 'Action',
-            dataIndex: 'flag',
-            key: 'flag',
+            key: 'action',
             render: (value, record, index) => (
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <Popconfirm
-                        title="Sure to flag video?"
-                        onConfirm={() => { }}
+                        title="Sure to flag music?"
+                        onConfirm={() => handleFlagMusic(value)}
                         okText="Yes"
                         cancelText="No"
                     >
                         <FlagTwoTone
                             style={{ fontSize: "20px" }}
-                            twoToneColor={value ? "#ff7675" : ""} />
+                            twoToneColor={value?.flag ? "#ff7675" : ""} />
                     </Popconfirm>
                 </div>
             )

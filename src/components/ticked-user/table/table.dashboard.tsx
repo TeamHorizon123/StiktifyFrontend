@@ -13,19 +13,28 @@ interface IProps<T> {
         pageSize: number,
         total: number,
     }
+    filterReq?: string;
+    searchData?: string;
+    isLoadingProp?: boolean;
 }
 
 const TableCustomize = <T,>(props: IProps<T>) => {
-    const { dataSource, meta, columns } = props
+    const { dataSource, meta, columns, isLoadingProp } = props
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const { replace } = useRouter();
-    const [isLoading, setIsLoading] = useState(false)
+    const [isLoading, setIsLoading] = useState(isLoadingProp);
 
     const onChange = (pagination: TablePaginationConfig, filters: Record<string, FilterValue | null>, sorter: SorterResult<T> | SorterResult<T>[], extra: TableCurrentDataSource<T>) => {
         if (pagination && pagination.current) {
             const params = new URLSearchParams(searchParams);
             params.set('current', pagination.current.toString());
+            if (props.filterReq) {
+                params.set('filterReq', props.filterReq);
+            }
+            if (props.searchData) {
+            params.set('searchData', props.searchData);
+            }
             replace(`${pathname}?${params.toString()}`);
             setIsLoading(true)
         }

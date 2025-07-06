@@ -238,7 +238,6 @@ const SideBar: React.FC<SideBarProps> = () => {
               <hr />
             </>) : (<></>)
           }
-
           {/* setting account */}
           <ul className="w-full space-y-2 text-base text-center flex flex-col items-center lg:items-start">
             <li className="w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">

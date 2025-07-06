@@ -26,8 +26,9 @@ const Header: React.FC<HeaderProps> = ({
 
   const handleLogout = () => {
     logout!();
-    router.replace("/page/trending-guest");
+    window.location.href = "/page/trending"; // hard reload
   };
+
 
   // State quản lý modal upload video
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
@@ -43,7 +44,7 @@ const Header: React.FC<HeaderProps> = ({
             router.push("/page/profile");
           }}
         >
-          My Profile
+          Edit Profile
         </a>
       ),
     },

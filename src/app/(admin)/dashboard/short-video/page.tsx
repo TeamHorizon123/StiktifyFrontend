@@ -7,7 +7,7 @@ const ShortVideoPage = async ({ searchParams }: any) => {
     const result = current ? current : 1;
     const LIMIT = pageSize ? pageSize : 5;
 
-    const res = await handleGetAllShortVideo(result, LIMIT)
+    const res = await handleGetAllShortVideo(searchParams?.search || "", searchParams?.filterReq || "",result, LIMIT)
 
     const data = res?.data
 

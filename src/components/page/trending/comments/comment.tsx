@@ -51,6 +51,12 @@ const Comment: React.FC<CommentProps> = ({
     comment.CommentDescription
   );
   const [isDeleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [showAllReplies, setShowAllReplies] = useState(false);
+  const [replyText, setReplyText] = useState("");
+  const [replyLoading, setReplyLoading] = useState(false);
+
+  const replies = childComments.get(comment._id) || [];
+  const replyCount = thisComment.totalOfChildComments || replies.length;
 
   const handleDeleteConfirm = async () => {
     try {
@@ -62,22 +68,17 @@ const Comment: React.FC<CommentProps> = ({
       });
 
       if (res.data) {
-        // Gọi hàm xóa từ component cha
         onDeleteComment(comment._id, comment.parentId);
-
-        // Đóng form xác nhận xóa
         setDeleteConfirmOpen(false);
       }
     } catch (error) {
       console.error("Error deleting comment:", error);
     }
   };
-  // Xử lý khi người dùng nhấn nút "Edit"
   const handleEditClick = () => {
     setEditModalOpen(true);
   };
 
-  // Xử lý khi người dùng submit chỉnh sửa comment
   const handleEditSubmit = async () => {
     try {
       const res = await sendRequest<IBackendRes<any>>({
@@ -102,23 +103,11 @@ const Comment: React.FC<CommentProps> = ({
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleEditSubmit();
-    }
-  };
-
   const handleNewReply = (newReply: any) => {
     setChildComments((prev: Map<string, any[]>) => {
       const updatedMap = new Map(prev);
       const existingReplies: any[] = updatedMap.get(comment._id) || [];
       updatedMap.set(comment._id, [...existingReplies, newReply]);
-
-      // // Tự động mở comment con nếu chưa mở
-      // if (!expandedComments.has(comment._id)) {
-      //   toggleChildComments(comment._id);
-      // }
       setThisComment((prevState) => ({
         ...prevState,
         totalOfChildComments: prevState.totalOfChildComments + 1,
@@ -145,147 +134,256 @@ const Comment: React.FC<CommentProps> = ({
     }
   };
 
-  const handleReplyClick = () => {
-    setReplyModalOpen((prev) => !prev);
-    toggleChildComments(comment._id);
+  const handleReplySubmit = async () => {
+    if (!replyText.trim()) return;
+    setReplyLoading(true);
+    try {
+      const res = await sendRequest<any>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/comments/reply/${comment._id}`,
+        method: "POST",
+        headers: { Authorization: `Bearer ${accessToken}` },
+        body: {
+          parentId: comment._id,
+          videoId,
+          CommentDescription: replyText,
+        },
+      });
+      if (res.statusCode === 201) {
+        setReplyText("");
+        setReplyModalOpen(false);
+        setShowAllReplies(true);
+        handleNewReply({
+          _id: res.data._id,
+          username: user?.name || "Unknown",
+          avatar: userAvatar,
+          parentId: comment._id,
+          CommentDescription: replyText,
+          totalOfChildComments: 0,
+          totalReactions: 0,
+          createdAt: new Date().toISOString(),
+        });
+      }
+    } catch (error) {
+    } finally {
+      setReplyLoading(false);
+    }
   };
 
-  const handleCancel = () => {
-    setReplyModalOpen((prev) => !prev);
-    toggleChildComments(comment._id);
+  const stopPropagationForKeys = (
+    e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    if (e.key === "Enter") {
+      e.stopPropagation();
+    }
   };
 
   return (
     <div key={comment._id} className="mb-4">
-      <div className="comment flex gap-3 p-3 rounded-lg group transition-all">
+      <div className="comment flex gap-3 p-3 rounded-lg transition-all">
         <img
           src={comment.userImage ? comment.userImage : comment.image}
           alt="Avatar"
           className="w-10 h-10 rounded-full object-cover"
         />
         <div>
-          <p className="font-medium">
-            {comment.username}
-            <TickedUser userId={comment.user._id} />
+          <div className="flex items-center gap-2">
+            <p className="font-medium text-white text-base">
+              {comment.username}
+              <TickedUser userId={comment.user?._id} />
+            </p>
+          </div>
+          <p className="text-white text-sm mt-1 mb-2">
+            {thisComment.CommentDescription}
           </p>
-          <p>{thisComment.CommentDescription}</p>
-          {user && comment?.user?._id === user?._id ? (
-            <div className="flex justify-end w-full opacity-0 group-hover:opacity-100">
-              <button
-                className="flex  p-1 hover:bg-gray-200"
-                onClick={handleEditClick}
-              >
-                <FiEdit />
-              </button>
-              <button
-                className="flex p-1 hover:bg-red-200"
-                onClick={() => setDeleteConfirmOpen(true)}
-              >
-                <FiTrash2 />
-              </button>
-            </div>
-          ) : (
-            user && (
-              <div className="flex justify-start opacity-0 group-hover:opacity-100">
-                <button className="text-blue-500 flex items-center">
-                  <ReactSection
-                    commentId={comment._id}
-                    onReactionAdded={onReactionAdded}
-                    onReactionRemove={onReactionRemove}
-                  />
-                  <p className="text-gray-400 text-xl">
-                    {thisComment.totalReactions
-                      ? thisComment.totalReactions
-                      : 0}
-                  </p>
-                </button>
-
-                <button
-                  className="text-green-500 flex items-center ml-5 text-2xl"
-                  onClick={handleReplyClick}
-                >
-                  <FiMessageCircle />
-                  <p className="text-gray-400 text-xl ">
-                    {thisComment.totalOfChildComments
-                      ? thisComment.totalOfChildComments
-                      : 0}
-                  </p>
-                </button>
-              </div>
-            )
-          )}
-
-          {/* {comment.totalOfChildComments > 0 && (
-            <button
-              className="text-sm text-gray-500 mt-2 hover:underline"
-              onClick={() => toggleChildComments(comment._id)}
-            >
-              {expandedComments.has(comment._id)
-                ? "Hide replies"
-                : `View ${comment.totalOfChildComments} replies`}
+          {/* Actions */}
+          <div className="flex items-center gap-6 text-sm">
+            <button className="flex items-center gap-1 text-gray-300 hover:text-purple-400 bg-transparent border-none shadow-none p-0">
+              <ReactSection
+                commentId={comment._id}
+                onReactionAdded={onReactionAdded}
+                onReactionRemove={onReactionRemove}
+              />
+              <span>{thisComment.totalReactions || 0}</span>
             </button>
-          )} */}
+            <button
+              className="flex items-center gap-1 text-gray-300 hover:text-purple-400 bg-transparent border-none shadow-none p-0"
+              onClick={() => setReplyModalOpen(true)}
+            >
+              Reply
+            </button>
+            {user && comment?.user?._id === user?._id && (
+              <>
+                <button
+                  className="flex items-center gap-1 text-gray-300 hover:text-blue-400 bg-transparent border-none shadow-none p-0"
+                  onClick={handleEditClick}
+                >
+                  <FiEdit />
+                  Edit
+                </button>
+                <button
+                  className="flex items-center gap-1 text-gray-300 hover:text-red-400 bg-transparent border-none shadow-none p-0"
+                  onClick={() => setDeleteConfirmOpen(true)}
+                >
+                  <FiTrash2 />
+                  Delete
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
-      {expandedComments.has(comment._id) &&
-        childComments.get(comment._id)?.map((child) => (
-          <div key={child._id} className="ml-10">
-            <div className="comment flex gap-3 p-3 bg-gray-100 rounded-lg group hover:bg-gray-200 transition-all">
-              <img
-                src={child.avatar || userAvatar}
-                alt="Avatar"
-                className="w-10 h-10 rounded-full object-cover"
-              />
-              <div>
-                <p className="font-medium">{child.username}</p>
-                <p>{child.CommentDescription}</p>
-                {/* <div className="flex justify-between mt-2 space-x-10 opacity-0 group-hover:opacity-100">
-                  {comment.username !== user.username ? (
-                    <div className="flex">
-                      <button className="text-blue-500 flex items-center">
-                        <FiThumbsUp />
-                      </button>
-                      <button className="text-green-500 flex items-center ml-3">
-                        <FiMessageCircle />
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="flex">
-                      <button className="flex items-center gap-1 w-full p-1 hover:bg-gray-200">
-                        <FiEdit />
-                      </button>
-                      <button className="flex items-center gap-1 w-full p-1 hover:bg-red-200">
-                        <FiTrash2 />
-                      </button>
-                    </div>
-                  )}
-                </div> */}
-              </div>
-            </div>
+      {user && isReplyModalOpen && (
+        <div className="flex items-center gap-3 ml-12 mt-2">
+          <img
+            src={userAvatar}
+            alt="User Avatar"
+            className="w-8 h-8 rounded-full object-cover"
+          />
+          <div className="flex-1 relative">
+            <input
+              value={replyText}
+              onChange={(e) => setReplyText(e.target.value)}
+              onKeyDown={(e) => {
+                stopPropagationForKeys(e);
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleReplySubmit();
+                }
+              }}
+              className="w-full bg-transparent border border-purple-400 text-white placeholder-gray-400 rounded-xl py-2 pl-4 pr-10 focus:outline-none focus:border-purple-500 transition"
+              placeholder="Write your reply..."
+            />
+            <button
+              onClick={handleReplySubmit}
+              disabled={!replyText.trim() || replyLoading}
+              className={`absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full
+              ${
+                replyText.trim()
+                  ? "bg-purple-500 hover:bg-purple-600"
+                  : "bg-purple-900/60"
+              }
+              text-white transition`}
+            >
+              <FiMessageCircle className="h-4 w-4" />
+            </button>
           </div>
-        ))}
-
+          <button
+            onClick={() => setReplyModalOpen(false)}
+            className="text-gray-400 hover:text-white ml-2"
+          >
+            Cancel
+          </button>
+        </div>
+      )}
+      {replyCount > 0 && (
+        <button
+          className="ml-12 text-purple-400 text-sm hover:underline bg-transparent border-none p-0 mt-1"
+          onClick={() => {
+            if (!showAllReplies) {
+              if (!expandedComments.has(comment._id)) {
+                toggleChildComments(comment._id);
+              }
+              setShowAllReplies(true);
+            } else {
+              setShowAllReplies(false);
+            }
+          }}
+        >
+          {showAllReplies ? "Hide" : `View ${replyCount} comment`}
+        </button>
+      )}
+      {showAllReplies &&
+        expandedComments.has(comment._id) &&
+        replyCount > 0 && (
+          <div className="ml-12 mt-2">
+            {replies.map((child, idx) => (
+              <div
+                key={child._id}
+                className="flex gap-3 p-3 rounded-lg bg-white/5 mb-2"
+              >
+                <img
+                  src={userAvatar}
+                  alt="Avatar"
+                  className="w-8 h-8 rounded-full object-cover"
+                />
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium text-white text-sm">
+                      {child.username}
+                    </span>
+                    {child.createdAt && (
+                      <span className="text-gray-400 text-xs ml-2">
+                        {new Date(child.createdAt).toLocaleDateString()}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-white text-sm mt-1">
+                    {child.CommentDescription}
+                  </p>
+                  <div className="flex items-center gap-6 text-sm mt-1">
+                    <button className="flex items-center gap-1 text-gray-300 hover:text-purple-400 bg-transparent border-none shadow-none p-0">
+                      <ReactSection
+                        commentId={child._id}
+                        onReactionAdded={() => {
+                          setChildComments((prev: Map<string, any[]>) => {
+                            const updated = new Map(prev);
+                            const arr = [...(updated.get(comment._id) || [])];
+                            arr[idx] = {
+                              ...arr[idx],
+                              totalReactions:
+                                (arr[idx].totalReactions || 0) + 1,
+                            };
+                            updated.set(comment._id, arr);
+                            return updated;
+                          });
+                        }}
+                        onReactionRemove={() => {
+                          setChildComments((prev: Map<string, any[]>) => {
+                            const updated = new Map(prev);
+                            const arr = [...(updated.get(comment._id) || [])];
+                            arr[idx] = {
+                              ...arr[idx],
+                              totalReactions: Math.max(
+                                (arr[idx].totalReactions || 1) - 1,
+                                0
+                              ),
+                            };
+                            updated.set(comment._id, arr);
+                            return updated;
+                          });
+                        }}
+                      />
+                      <span>{child.totalReactions || 0}</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       {isEditModalOpen && (
         <div className="flex gap-3 p-3 mt-2">
-          {/* Avatar */}
           <img
-            src={comment.userImage || userAvatar}
+            src={userAvatar}
             alt="Avatar"
             className="w-10 h-10 rounded-full object-cover"
           />
 
-          {/* Form chỉnh sửa */}
           <div className="flex-1">
             <textarea
               value={editedCommentDescription}
               onChange={(e) => setEditedCommentDescription(e.target.value)}
-              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              // rows={3}
+              className="w-full p-2 border border-purple-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
               placeholder="Edit your comment..."
-              onKeyDown={handleKeyDown}
+              onKeyDown={(e) => {
+                stopPropagationForKeys(e);
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleReplySubmit();
+                }
+              }}
             />
 
-            {/* Nút Save và Cancel */}
             <div className="flex justify-end gap-2 mt-2">
               <button
                 className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors"
@@ -294,7 +392,7 @@ const Comment: React.FC<CommentProps> = ({
                 Cancel
               </button>
               <button
-                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+                className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors"
                 onClick={handleEditSubmit}
               >
                 Save
@@ -303,21 +401,17 @@ const Comment: React.FC<CommentProps> = ({
           </div>
         </div>
       )}
-
       {isDeleteConfirmOpen && (
         <div className="flex gap-3 p-3 mt-2">
-          {/* Avatar */}
           <img
-            src={comment.userImage || userAvatar}
+            src={userAvatar}
             alt="Avatar"
             className="w-10 h-10 rounded-full object-cover"
           />
 
-          {/* Form xác nhận xóa */}
           <div className="flex-1">
             <p className="text-gray-700">Do you want to delete this comment?</p>
 
-            {/* Nút Xác nhận và Hủy */}
             <div className="flex justify-end gap-2 mt-2">
               <button
                 className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors"
@@ -334,17 +428,6 @@ const Comment: React.FC<CommentProps> = ({
             </div>
           </div>
         </div>
-      )}
-
-      {user && isReplyModalOpen && (
-        <ReplyCommentModal
-          onCancel={handleCancel}
-          parentId={comment._id}
-          userId={user._id}
-          videoId={videoId}
-          userAvatar={userAvatar}
-          onReplySuccess={handleNewReply} // Cập nhật UI
-        />
       )}
     </div>
   );

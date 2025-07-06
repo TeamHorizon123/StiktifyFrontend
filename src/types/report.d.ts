@@ -7,7 +7,10 @@ interface IReport {
 interface IDataReport {
     _id: string,
     userName: string,
-    reasons: string
+    reasons: string,
+    createdAt: string,
+    updatedAt: string
+    
 }
 
 interface IReportMusic {

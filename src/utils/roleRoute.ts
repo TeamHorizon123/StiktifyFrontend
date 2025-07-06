@@ -1,6 +1,6 @@
 const roleRoutes: Record<string, (string | RegExp)[]> = {
   USERS: [
-    "/page/trending-user",
+    "/page/trending",
     /^\/page\/detail_user\/[\w-]+$/, // Chấp nhận chữ cái, số và dấu -
     "/page/music-favorite",
     "/page/my-music",
@@ -24,13 +24,17 @@ const roleRoutes: Record<string, (string | RegExp)[]> = {
     "/page/order",
     "/page/order-confirmation",
     "/page/purchasehistory",
-    "/page/sticktify-shop",
-    /^\/page\/product-detail\/[\w-]+$/,
+    "/page/shop",
+    /^\/page\/shop\/product\/[\w-]+$/,
+    /^\/page\/shop\/store\/[\w-]+$/,
+    /^\/page\/shop\/cart\/[\w-]+$/,
     "/page/karaoke",
   ],
   GUEST: [
-    "/page/trending-guest",
+    "/page/trending",
     "/page/rankings",
+     /^\/page\/detail_user\/[\w-]+$/, 
+     "/page/search-user-video",
     /^\/page\/rankings\/music\/[\w-]+$/,
     /^\/page\/rankings\/video\/[\w-]+$/,
     /^\/page\/rankings\/creator\/[\w-]+$/,
@@ -45,8 +49,9 @@ const roleRoutes: Record<string, (string | RegExp)[]> = {
     /^\/page\/shareMusic\/[\w-]+$/,
     /^\/page\/detail_user\/[\w-]+$/,
     /^\/page\/store\/[\w-]+$/,
-    "/page/sticktify-shop",
+    "/page/shop",
     /^\/page\/product-detail\/[\w-]+$/,
+    "/page/trending-new-ui",
   ],
   ADMIN: [
     "/dashboard/user",
@@ -60,13 +65,13 @@ const roleRoutes: Record<string, (string | RegExp)[]> = {
     "/dashboard/ticked",
     "/dashboard/statistic/users",
     "/dashboard/statistic/videos",
-    "/dashboard/statistic/musics"
+    "/dashboard/statistic/musics",
   ],
 };
 
 const defaultRoutes: Record<string, string> = {
-  USERS: "/page/trending-user",
-  GUEST: "/page/trending-guest",
+  USERS: "/page/trending",
+  GUEST: "/page/trending",
   ADMIN: "/dashboard/user",
 };
 
