@@ -16,7 +16,7 @@ import { BsPlusSquareFill } from "react-icons/bs";
 import { PiBellSimpleFill } from "react-icons/pi";
 import { FaCircleUser } from "react-icons/fa6";
 import { IoSettings } from "react-icons/io5";
-import { MdReport, MdHelp, MdFeedback } from "react-icons/md";
+import { MdReport, MdHelp, MdFeedback, MdDashboard } from "react-icons/md";
 import SearchBar from "@/components/page/searchBar";
 import BtnSignIn from "@/components/button/btnSignIn";
 
@@ -231,9 +231,13 @@ const SideBar: React.FC<SideBarProps> = () => {
           {
             !isGuest ? (<>
 
-              <Link href="" className="test-base flex items-center space-x-2 w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
+              <Link href="/page/shop" className="test-base flex items-center space-x-2 w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
                 <AiFillShop />
                 <p className="text-base sm:hidden max-[600px]:hidden lg:block">Shop</p>
+              </Link>
+              <Link href="/page/manage-shop" className="test-base flex items-center space-x-2 w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
+                <MdDashboard />
+                <p className="text-base sm:hidden max-[600px]:hidden lg:block">Manage Shop</p>
               </Link>
               <hr />
             </>) : (<></>)
