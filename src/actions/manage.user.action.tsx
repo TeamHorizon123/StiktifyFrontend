@@ -6,22 +6,6 @@ import { cookies } from "next/headers";
 const cookieStore = cookies()
 const token = cookieStore.get("token")?.value
 
-export const handleGetAllUser = async (current: string, pageSize: string) => {
-    try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/list-user?current=${current}&pageSize=${pageSize}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            next: { tags: ["list-user"] }
-        })
-        const result: IBackendRes<any> = await res.json();
-        return result
-    } catch (error) {
-        return null
-    }
-}
 
 export const handleBanUserAction = async (id: string, isBan: boolean) => {
     try {
@@ -105,9 +89,9 @@ export const handleUpdateUserAction = async (data: IUpdateUserByManager) => {
     }
 }
 
-export const handleFilterAndSearchAction = async (current: number, pageSize: number, search: string, filterRes: string) => {
+export const handleGetAllUser = async (current: number, pageSize: number, search: string, filterRes: string) => {
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/filter-search?current=${current}&pageSize=${pageSize}&search=${search}&filterReq=${filterRes}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/list-user?current=${current}&pageSize=${pageSize}&search=${search}&filterReq=${filterRes}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",

@@ -7,7 +7,7 @@ import CreateUserModal from "./create.user.model";
 import UpdateUserModal from "./edit.user.modal";
 import InputCustomize from "../input/input.customize";
 import DropdownCustomize from "../dropdown/dropdown.customize";
-import { handleFilterAndSearchAction } from "@/actions/manage.user.action";
+import { handleGetAllUser } from "@/actions/manage.user.action";
 import SendEmailModal from "./send.email.modal";
 import { ActionManagerUser, FormatDateTime, StyleStatus } from "../ticked-user/table/user.render.table";
 import TableCustomize from "../ticked-user/table/table.dashboard";
@@ -38,10 +38,10 @@ const ManageUserTable = (props: IProps) => {
 
     const dataFilter = [
             {
-                value: "lock",
+                value: "block",
                 title: "Block"
             }, {
-                value: "unlock",
+                value: "unblock",
                 title: "Unblock"
             }, {
                 value: "USERS",
@@ -60,7 +60,10 @@ const ManageUserTable = (props: IProps) => {
     useEffect(() => {
         (async () => {
             if (search.length > 0 || filterReq.length > 0) {
-                const res = await handleFilterAndSearchAction(metaDefault.current, metaDefault.LIMIT, search, filterReq)
+                let res = await handleGetAllUser(metaDefault.current, metaDefault.LIMIT, search, filterReq)
+                   if(res?.data?.meta?.current>=1 && res?.data?.meta?.total<=meta.pageSize){
+                            res=await handleGetAllUser(1, metaDefault.LIMIT, search, filterReq);
+                }
                 setDataTable(res?.data?.result)
                 setMetaTable(res?.data?.meta)
             } else {
@@ -74,9 +77,9 @@ const ManageUserTable = (props: IProps) => {
 
     const columns: ColumnsType<IUser> = [
         {
-            title: 'Full name',
-            dataIndex: 'fullname',
-            key: 'fullname',
+            title: 'UserName',
+            dataIndex: 'userName',
+            key: 'userName',
         },
         {
             title: 'Email',
@@ -151,7 +154,7 @@ const ManageUserTable = (props: IProps) => {
                     <DropdownCustomize data={dataFilter} title="Filter" selected={filterReq} setSelect={setFilterReq} icon={<FilterOutlined />} />
                 </div>
             </div>
-            <TableCustomize columns={columns} dataSource={dataTable} meta={metaTable} />
+            <TableCustomize columns={columns} dataSource={dataTable} meta={metaTable} filterReq={filterReq} searchData={search} />
             <CreateUserModal isCreateModalOpen={isCreateModalOpen} setIsCreateModalOpen={setIsCreateModalOpen} />
             <UpdateUserModal setDataUser={setDataUser} dataUser={dataUser} isUpdateModalOpen={isUpdateModalOpen} setIsUpdateModalOpen={setIsUpdateModalOpen} />
             {isEmailModalOpen && <SendEmailModal user={dataUser} onClose={() => setIsEmailModalOpen(false)} />}

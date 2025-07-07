@@ -1,5 +1,4 @@
-import { handleGetAllCategoryAction } from "@/actions/category.action";
-import { handleGetMusic } from "@/actions/music.action";
+import { handleFilterAndSearchMusicAction } from "@/actions/music.action";
 import ManageMusicTable from "@/components/admin/music.table";
 
 const ManageUserPage = async ({ searchParams }: any) => {
@@ -7,7 +6,7 @@ const ManageUserPage = async ({ searchParams }: any) => {
   const result = current ? current : 1;
   const LIMIT = pageSize ? pageSize : 10;
 
-  const res = await handleGetMusic(result, LIMIT);
+  const res = await handleFilterAndSearchMusicAction(result, LIMIT,searchParams?.search || "", searchParams?.filterReq || "");
 
   const data = res?.data;
 
@@ -17,21 +16,14 @@ const ManageUserPage = async ({ searchParams }: any) => {
     total: data?.meta?.total || 1,
   };
 
-  const cate = await handleGetAllCategoryAction()
-  const dataCate: {
-    _id: string,
-    categoryName: string
-  }[] = cate?.data
+ const dataConfig: { value: string, title: string }[] = [
+  { value: "recent", title: "Most Recent" },
+  { value: "oldest", title: "Oldest" },
+  { value: "blocked", title: "Blocked" },
+  { value: "flagged", title: "Flagged" },
+  { value: "mostListend", title: "Most Listened" },
+];
 
-  const dataConfig: { value: string, title: string }[] = []
-
-  dataCate && dataCate.length > 0 && dataCate.map(item => {
-    const data = {
-      value: item._id,
-      title: item.categoryName
-    }
-    dataConfig.push(data)
-  })
 
   return (
     <div>

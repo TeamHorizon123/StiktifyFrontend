@@ -18,8 +18,8 @@ const PersonalSideBar: React.FC<PersonalSideBarProps> = () => {
         <ul className="space-y-4">
         <li>
             <Link
-              href="/page/trending-user"
-              className={getLinkClass("/page/trending-user")}
+              href="/page/trending"
+              className={getLinkClass("/page/trending")}
             >
               Home
             </Link>

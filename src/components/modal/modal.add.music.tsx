@@ -12,7 +12,7 @@ import { useContext, useEffect, useState } from 'react';
 import { MinusCircleOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
 import { AuthContext } from '@/context/AuthContext';
 import { handleCreateMusicAction } from '@/actions/music.action';
-import { handleFilterAndSearchAction } from '@/actions/manage.user.action';
+import { handleGetAllUser } from '@/actions/manage.user.action';
 import { lyricMusicAction, separateMusicAction } from '@/actions/ai.action';
 import { useGlobalContext } from '@/library/global.context';
 
@@ -42,7 +42,7 @@ const AddMusicModal = (props: IProps) => {
 
     const handleSearch = async (value: string) => {
         if (value.length > 0) {
-            const res = await handleFilterAndSearchAction(1, 10, value, "USERS");
+            const res = await handleGetAllUser(1, 10, value, "USERS");
             if (res?.statusCode === 200) {
                 const data: IUser[] = res.data.result;
                 if (data && data.length > 0) {
