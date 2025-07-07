@@ -1,20 +1,18 @@
 "use client";
 
 import { useEffect, useState, useContext } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
 import CardMusic from "@/components/music/card.music";
 import { handleGetAllFavoriteMusic } from "@/actions/music.action";
 import { FaLock, FaUnlock } from "react-icons/fa";
 import { AuthContext } from "@/context/AuthContext";
 
-const ListFavoriteMusic = () => {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const { user } = useContext(AuthContext) ?? {};
+interface ListFavoriteMusicProps {
+  userId?: string;
+}
 
-  const userIdFromURL = pathname.split("/").pop();
-  const queryUserId = searchParams.get("userId");
-  const currentUserId = userIdFromURL || queryUserId || user?._id;
+const ListFavoriteMusic = ({ userId }: ListFavoriteMusicProps) => {
+  const { user } = useContext(AuthContext) ?? {};
+  const currentUserId = userId || user?._id;
 
   const [favoriteMusic, setFavoriteMusic] = useState<any[]>([]);
   const [areItemsHidden, setAreItemsHidden] = useState(false);

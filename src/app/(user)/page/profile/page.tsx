@@ -1,12 +1,10 @@
 "use client";
 
 import { useState, useEffect, useContext } from "react";
-import UserProfile from "@/components/page/profile/UserProfile";
 import { AuthContext } from "@/context/AuthContext";
-import { sendRequest } from "@/utils/api";
-import { Modal } from "antd";
 import { FiEdit, FiShare2, FiMapPin, FiCalendar } from "react-icons/fi";
 import { Heart, Video, Music } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { FaUser } from "react-icons/fa";
 import MyVideo from "@/components/page/myvideo/MyVideo";
 import ListMyMusic from "@/components/page/mymusic/list-my-music";
@@ -32,7 +30,7 @@ const Button = ({
   icon: JSX.Element;
   text?: string;
   className: string;
-  onClick?: any;
+  onClick?: () => void;
   disabled?: boolean;
 }) => (
   <button
@@ -44,19 +42,34 @@ const Button = ({
   </button>
 );
 
+interface IProfile {
+  _id: string;
+  image: string;
+  fullname: string;
+  email: string;
+  bio: string;
+  address: string;
+  createdAt: string;
+  totalFollowers: number;
+  totalFollowings: number;
+  views: number;
+  likes: number;
+  dob?: string;
+  userName?: string;
+  phone?: string;
+}
+
 const ProfilePage = () => {
-  const [profileData, setProfileData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const [profileData, setProfileData] = useState<IProfile | null>(null);
   const [activeTab, setActiveTab] = useState("video");
-  const [showEdit, setShowEdit] = useState(false);
   const [showFollowerModal, setShowFollowerModal] = useState(false);
   const [showFollowingModal, setShowFollowingModal] = useState(false);
-  const { accessToken, user } = useContext(AuthContext) ?? {};
+  const router = useRouter();
+  const { accessToken } = useContext(AuthContext) ?? {};
 
   useEffect(() => {
     const fetchProfileData = async () => {
       if (!accessToken) {
-        setLoading(false);
         return;
       }
       try {
@@ -74,30 +87,11 @@ const ProfilePage = () => {
         const result = await response.json();
         setProfileData(result.data);
       } catch (error) {
-      } finally {
-        setLoading(false);
+        console.error("Failed to fetch profile data:", error);
       }
     };
     fetchProfileData();
   }, [accessToken]);
-
-  const handleUpdateProfile = async (updatedProfile: any) => {
-    try {
-      const accessToken = localStorage.getItem("accessToken");
-      if (!accessToken) {
-        return;
-      }
-      const res = await sendRequest<any>({
-        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/update-profile`,
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: updatedProfile,
-      });
-      setProfileData(res.data);
-    } catch (error) {}
-  };
 
   return (
     <div className="min-h-screen w-full flex flex-col items-center px-0 py-0">
@@ -138,7 +132,7 @@ const ProfilePage = () => {
             <div className="flex gap-3 mt-4 md:mt-0">
               <Button
                 className="bg-purple-600 hover:bg-purple-800 text-white font-semibold px-4 py-2 rounded-lg flex items-center gap-2 border-none shadow"
-                onClick={() => setShowEdit(true)}
+                onClick={() => router.push("/page/profile/edit")}
                 icon={<FiEdit />}
                 text="Edit Profile"
               />
@@ -195,13 +189,13 @@ const ProfilePage = () => {
                 </div>
                 <div className="text-purple-300 text-xs">Following</div>
               </div>
-              <div>
+              <div className="p-2 rounded-lg transition-colors">
                 <div className="text-2xl font-bold text-white">
                   {profileData?.views || 0}
                 </div>
                 <div className="text-purple-300 text-xs">Total Views</div>
               </div>
-              <div>
+              <div className="p-2 rounded-lg transition-colors">
                 <div className="text-2xl font-bold text-white">
                   {profileData?.likes || 0}
                 </div>
@@ -239,27 +233,6 @@ const ProfilePage = () => {
           </div>
         </div>
       </div>
-      {/* Modal Edit Profile */}
-      <Modal
-        open={showEdit}
-        onCancel={() => setShowEdit(false)}
-        footer={null}
-        title="Edit Profile"
-        destroyOnClose
-        centered
-      >
-        {loading ? (
-          <p className="text-gray-500">Loading profile...</p>
-        ) : profileData ? (
-          <UserProfile
-            profile={profileData}
-            onUpdateProfile={handleUpdateProfile}
-          />
-        ) : (
-          <p className="text-red-500">User profile not found</p>
-        )}
-      </Modal>
-
       {/* Follower Modal */}
       <FollowerModal
         visible={showFollowerModal}

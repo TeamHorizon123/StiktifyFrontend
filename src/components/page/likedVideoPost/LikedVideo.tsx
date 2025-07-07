@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useContext } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { AuthContext } from "@/context/AuthContext";
 import { sendRequest } from "@/utils/api";
 import { FaLock, FaUnlock } from "react-icons/fa"; // Biểu tượng ổ khóa
@@ -19,25 +19,29 @@ interface ShortVideo {
   totalReaction: number;
 }
 
-const LikedVideo = () => {
-  const { id } = useParams();
-  const { accessToken } = useContext(AuthContext) ?? {};
+interface LikedVideoProps {
+  userId?: string;
+}
+
+const LikedVideo = ({ userId }: LikedVideoProps) => {
+  const { user, accessToken } = useContext(AuthContext) ?? {};
+  const targetId = userId || user?._id;
   const [likedVideos, setLikedVideos] = useState<ShortVideo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [areVideosHidden, setAreVideosHidden] = useState(false); // Trạng thái ẩn/hiện tất cả nội dung
 
-  const router = useRouter()
+  const router = useRouter();
   useEffect(() => {
-    if (id && accessToken) {
+    if (targetId && accessToken) {
       fetchLikedVideos();
     }
-  }, [id, accessToken]);
+  }, [targetId, accessToken]);
 
   const fetchLikedVideos = async () => {
     try {
       const res = await sendRequest<{ data: LikedVideoReaction[] }>({
-        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/video-reactions/user/${id}`,
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/video-reactions/user/${targetId}`,
         method: "GET",
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -116,10 +120,10 @@ const LikedVideo = () => {
                   <span className="flex flex-wrap">
                     {Array.isArray(video.videoTag)
                       ? video.videoTag.map((tag, index) => (
-                        <span key={index} className="mr-2">
-                          #{tag}
-                        </span>
-                      ))
+                          <span key={index} className="mr-2">
+                            #{tag}
+                          </span>
+                        ))
                       : video.videoTag}
                   </span>
                 </p>

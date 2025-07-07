@@ -1,14 +1,36 @@
 "use client";
 
 import { useContext, useState } from "react";
-import { AuthContext } from "@/context/AuthContext";
+import { AuthContext } from "../../../context/AuthContext";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { parseISO, format } from "date-fns";
 import ChangePasswordModal from "./ChangePasswordModal";
 import { useRouter } from "next/navigation";
 import { Button, Modal, notification } from "antd";
-import { handleUploadImage } from "@/actions/manage.user.action";
+import { handleUploadImage } from "../../../actions/manage.user.action";
+import {
+  UserOutlined,
+  HomeOutlined,
+  UploadOutlined,
+  LockOutlined,
+  LogoutOutlined,
+  SaveOutlined,
+  BellOutlined,
+  EyeOutlined,
+  BarChartOutlined,
+  MessageOutlined,
+  CameraFilled,
+} from "@ant-design/icons";
+
+interface IUpdateProfile {
+  fullname?: string;
+  dob?: string;
+  phone?: string;
+  address?: string;
+  image?: string;
+  _id?: string;
+}
 
 interface UserProfileProps {
   profile?: {
@@ -20,48 +42,48 @@ interface UserProfileProps {
     phone: string;
     address: string;
   };
-  onUpdateProfile: (updatedProfile: any) => void;
+  onUpdateProfile: (updatedProfile: IUpdateProfile) => void;
 }
 
 const UserProfile: React.FC<UserProfileProps> = ({
   profile,
   onUpdateProfile,
 }) => {
+  const context = useContext(AuthContext);
+  const router = useRouter();
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
+
+  const [editProfile, setEditProfile] = useState({
+    image: profile?.image || "",
+    fullname: profile?.fullname || "",
+    dob: profile?.dob ? parseISO(profile.dob) : null,
+    email: profile?.email || "",
+    phone: profile?.phone || "",
+    address: profile?.address || "",
+    userName: profile?.userName || "",
+    bio: "81/1500 characters",
+    website: "https://yourwebsite.com",
+  });
+
   if (!profile) {
     return (
       <div className="text-center text-red-500">Profile data is missing.</div>
     );
   }
 
-  const context = useContext(AuthContext);
   if (!context) {
     console.error("AuthContext is not available");
     return <div>Error: AuthContext is not available</div>;
   }
 
   const { user, logout } = context;
-  const router = useRouter();
-  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
-  const [isImageModalOpen, setIsImageModalOpen] = useState(false); // Modal for image upload
-  const [file, setFile] = useState(null);
 
   const handleLogout = () => {
     logout();
     router.replace("/page/trending");
   };
-
-  const [editProfile, setEditProfile] = useState({
-    image: profile.image,
-    fullname: profile.fullname || "",
-    dob: profile.dob ? parseISO(profile.dob) : null,
-    email: profile.email || "",
-    phone: profile.phone || "",
-    address: profile.address || "",
-    userName: profile.userName || ""
-  });
-
-  const [successMessage, setSuccessMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
 
   const handleDateChange = (date: Date | null) => {
     setEditProfile({
@@ -70,51 +92,14 @@ const UserProfile: React.FC<UserProfileProps> = ({
     });
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setEditProfile({
       ...editProfile,
       [name]: value,
     });
-  };
-
-  const validateInputs = () => {
-    setErrorMessage("");
-    if (!editProfile.dob) {
-      setErrorMessage("Date of Birth cannot be empty.");
-      return false;
-    }
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const year = editProfile.dob.getFullYear();
-    if (year < 1900) {
-      setErrorMessage("Date of Birth must be after the year 1900.");
-      return false;
-    }
-    if (editProfile.dob >= today) {
-      setErrorMessage("Date of Birth cannot be today or in the future.");
-      return false;
-    }
-
-    if (!editProfile.phone) {
-      setErrorMessage("Phone number cannot be empty.");
-      return false;
-    }
-    if (!/^\d{10}$/.test(editProfile.phone)) {
-      setErrorMessage("Phone number must be exactly 10 digits.");
-      return false;
-    }
-    if (profile.phone?.includes(editProfile.phone)) {
-      setErrorMessage("Phone number already exists.");
-      return false;
-    }
-
-    if (editProfile.address.split(" ").length > 150) {
-      setErrorMessage("Address cannot exceed 150 words.");
-      return false;
-    }
-
-    return true;
   };
 
   const handleSave = () => {
@@ -125,25 +110,21 @@ const UserProfile: React.FC<UserProfileProps> = ({
 
     if (editProfile.phone !== profile.phone) {
       if (!/^\d{10}$/.test(editProfile.phone)) {
-        setErrorMessage("Phone number must be exactly 10 digits.");
-        notification.error({ message: errorMessage });
-        return;
-      }
-      if (profile.phone?.includes(editProfile.phone)) {
-        setErrorMessage("Phone number already exists.");
-        notification.error({ message: errorMessage });
+        notification.error({
+          message: "Phone number must be exactly 10 digits.",
+        });
         return;
       }
     }
 
-    const updateFields: any = {};
+    const updateFields: IUpdateProfile = {};
     if (editProfile.fullname !== profile.fullname) {
       updateFields.fullname = editProfile.fullname;
     }
     if (
       editProfile.dob &&
-      profile.dob &&
-      editProfile.dob.getTime() !== new Date(profile.dob).getTime()
+      (!profile.dob ||
+        editProfile.dob.getTime() !== new Date(profile.dob).getTime())
     ) {
       updateFields.dob = format(editProfile.dob, "yyyy-MM-dd");
     }
@@ -157,14 +138,13 @@ const UserProfile: React.FC<UserProfileProps> = ({
       updateFields.image = editProfile.image;
     }
 
-    // Gửi yêu cầu chỉ với các trường đã thay đổi
     if (Object.keys(updateFields).length > 0) {
       const profileWithId = {
         ...updateFields,
         _id: user._id,
       };
       onUpdateProfile(profileWithId);
-      setSuccessMessage("Profile updated successfully!");
+      notification.success({ message: "Profile updated successfully!" });
     } else {
       notification.info({
         message: "No changes detected.",
@@ -178,10 +158,9 @@ const UserProfile: React.FC<UserProfileProps> = ({
   const handleOpenPasswordModal = () => setIsPasswordModalOpen(true);
   const handleClosePasswordModal = () => setIsPasswordModalOpen(false);
 
-  const handleFileChange = (e: any) => {
-    const selectedFile = e.target.files[0];
-    if (selectedFile) {
-      setFile(selectedFile);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFile(e.target.files[0]);
     }
   };
 
@@ -208,7 +187,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
             message: "No download URL returned from the upload.",
           });
         }
-      } catch (error) {
+      } catch {
         notification.error({
           message: "Error uploading image.",
         });
@@ -217,23 +196,39 @@ const UserProfile: React.FC<UserProfileProps> = ({
   };
 
   return (
-    <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-2xl">
-      <div className="flex flex-col items-center">
+    <div className=" text-white rounded-lg w-full">
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold text-purple-500">EDIT PROFILE</h1>
+        <p className="text-gray-400">
+          Customize your profile information and settings
+        </p>
+      </div>
+
+      <div className="flex flex-col items-center mb-8">
         <div
-          className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center mb-4 cursor-pointer"
+          className="w-32 h-32 bg-gray-700 rounded-full flex items-center justify-center mb-4 cursor-pointer relative"
           onClick={handleOpenImageModal}
         >
-          {profile.image ? (
+          {editProfile.image ? (
             <img
-              src={profile.image}
+              src={editProfile.image}
               alt="Profile"
-              className="w-24 h-24 rounded-full object-cover"
+              className="w-32 h-32 rounded-full object-cover"
             />
           ) : (
-            <span className="text-xl text-gray-500">Choose</span>
+            <UserOutlined className="text-5xl text-gray-400" />
           )}
+          <div className="absolute bottom-0 right-0 bg-purple-500 pl-1 pr-1 rounded-full border-2">
+            <CameraFilled />
+          </div>
         </div>
-        <p className="text-gray-500">@{editProfile.userName || "No username"}</p>
+        {/* <Button
+          icon={<UploadOutlined />}
+          onClick={handleOpenImageModal}
+          className="bg-gray-700 hover:bg-gray-600"
+        >
+          Upload New Photo
+        </Button> */}
       </div>
 
       <Modal
@@ -241,102 +236,268 @@ const UserProfile: React.FC<UserProfileProps> = ({
         open={isImageModalOpen}
         onCancel={handleCloseImageModal}
         footer={null}
+        className="dark-modal"
       >
-        <input type="file" onChange={handleFileChange} className="mb-4" />
-        <Button onClick={handleUpImage} disabled={!file}>
+        <input
+          type="file"
+          onChange={handleFileChange}
+          className="mb-4 w-full"
+        />
+        <Button
+          onClick={handleUpImage}
+          disabled={!file}
+          className="w-full bg-blue-500 hover:bg-blue-600"
+        >
           Upload Image
         </Button>
       </Modal>
 
-      <div className="mt-6 space-y-4">
-        <div className="flex items-center gap-2">
-          <span className="text-gray-600">Fullname:</span>
-          <input
-            type="text"
-            name="fullname"
-            value={editProfile.fullname}
-            onChange={handleChange}
-            className="flex-1 p-2 border border-gray-300 rounded-md text-gray-900"
-          />
-        </div>
-
-        <div className="flex items-center gap-2">
-          <span className="text-gray-600">Email:</span>
-          <input
-            type="email"
-            name="email"
-            value={editProfile.email}
-            onChange={handleChange}
-            className="flex-1 p-2 border border-gray-300 rounded-md text-gray-900"
-            disabled
-          />
-        </div>
-
-        <div className="flex items-center gap-2">
-          <span className="text-gray-600">Date of Birth:</span>
-          <DatePicker
-            selected={editProfile.dob}
-            onChange={handleDateChange}
-            dateFormat="dd/MM/yyyy"
-            className="p-2 border border-gray-300 rounded-md text-gray-900 w-full"
-            placeholderText="Select a date"
-          />
-        </div>
-
-        <div className="flex items-center gap-2">
-          <span className="text-gray-600">Phone:</span>
-          <input
-            type="text"
-            name="phone"
-            value={editProfile.phone}
-            onChange={handleChange}
-            className="flex-1 p-2 border border-gray-300 rounded-md text-gray-900"
-          />
-        </div>
-
-        <div className="flex items-center gap-2">
-          <span className="text-gray-600">Address:</span>
-          <input
-            type="text"
-            name="address"
-            value={editProfile.address}
-            onChange={handleChange}
-            className="flex-1 p-2 border border-gray-300 rounded-md text-gray-900"
-          />
-        </div>
-
-        <div className="mt-6 flex justify-between">
-          <div className="mt-6 flex justify-start">
-            <button
-              onClick={handleOpenPasswordModal}
-              className="bg-blue-500 text-white mr-4 px-4 py-2 rounded"
-            >
-              Change Password
-            </button>
-          </div>
-
-          <div className="mt-6 flex justify-end">
-            <button
-              onClick={handleLogout}
-              className="bg-orange-500 text-white mr-4 px-4 py-2 rounded"
-            >
-              Logout
-            </button>
-
-            <button
-              onClick={handleSave}
-              className="bg-green-500 text-white px-4 py-2 rounded"
-            >
-              Save Profile
-            </button>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+        <div className="bg-[#24243e] p-6 rounded-lg">
+          <h2 className="text-xl font-semibold mb-4 flex items-center">
+            <UserOutlined className="mr-2" /> Basic Information
+          </h2>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-400">
+                Full Name
+              </label>
+              <input
+                type="text"
+                name="fullname"
+                value={editProfile.fullname}
+                onChange={handleChange}
+                className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md mt-1"
+                placeholder="Enter your full name"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-400">
+                Username
+              </label>
+              <input
+                type="text"
+                name="userName"
+                value={editProfile.userName}
+                className="w-full p-2 bg-gray-800 border border-gray-600 rounded-md mt-1"
+                disabled
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-400">
+                Email Address
+              </label>
+              <input
+                type="email"
+                name="email"
+                value={editProfile.email}
+                className="w-full p-2 bg-gray-800 border border-gray-600 rounded-md mt-1"
+                disabled
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-400">
+                Phone Number
+              </label>
+              <input
+                type="text"
+                name="phone"
+                value={editProfile.phone}
+                onChange={handleChange}
+                className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md mt-1"
+                placeholder="+1 (555) 123-4567"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-400">
+                Date of Birth
+              </label>
+              <DatePicker
+                selected={editProfile.dob}
+                onChange={handleDateChange}
+                dateFormat="dd/MM/yyyy"
+                className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md mt-1"
+                placeholderText="Select a date"
+              />
+            </div>
           </div>
         </div>
 
-        {successMessage && (
-          <div className="mt-4 text-center text-green-500">
-            {successMessage}
+        <div className="bg-[#24243e] p-6 rounded-lg">
+          <h2 className="text-xl font-semibold mb-4 flex items-center">
+            <HomeOutlined className="mr-2" /> Additional Information
+          </h2>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-400">
+                Bio
+              </label>
+              <textarea
+                name="bio"
+                value={editProfile.bio}
+                onChange={handleChange}
+                className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md mt-1 h-24"
+                placeholder="Tell us about yourself"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                {editProfile.bio.length}/1500 characters
+              </p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-400">
+                Location
+              </label>
+              <input
+                type="text"
+                name="address"
+                value={editProfile.address}
+                onChange={handleChange}
+                className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md mt-1"
+                placeholder="City, Country"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-400">
+                Website
+              </label>
+              <input
+                type="text"
+                name="website"
+                value={editProfile.website}
+                onChange={handleChange}
+                className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md mt-1"
+                placeholder="https://yourwebsite.com"
+              />
+            </div>
           </div>
-        )}
+        </div>
+      </div>
+
+      {/* <div className="bg-[#24243e] p-6 rounded-lg mb-8">
+        <h2 className="text-xl font-semibold mb-4 flex items-center">
+          <LockOutlined className="mr-2" /> Privacy & Security
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-gray-700 p-4 rounded-md">
+            <h3 className="font-semibold flex items-center">
+              <EyeOutlined className="mr-2" /> Profile Visibility
+            </h3>
+            <p className="text-sm text-gray-400 mb-2">
+              Who can see your profile
+            </p>
+            <select className="w-full p-2 bg-gray-800 border border-gray-600 rounded-md">
+              <option>Public</option>
+              <option>Friends</option>
+              <option>Private</option>
+            </select>
+          </div>
+          <div className="bg-gray-700 p-4 rounded-md">
+            <h3 className="font-semibold flex items-center">
+              <BarChartOutlined className="mr-2" /> Activity Status
+            </h3>
+            <p className="text-sm text-gray-400 mb-2">
+              Show when you're online
+            </p>
+            <Button className="w-full bg-green-500 hover:bg-green-600">
+              Enabled
+            </Button>
+          </div>
+          <div className="bg-gray-700 p-4 rounded-md">
+            <h3 className="font-semibold flex items-center">
+              <MessageOutlined className="mr-2" /> Messages
+            </h3>
+            <p className="text-sm text-gray-400 mb-2">Who can message you</p>
+            <select className="w-full p-2 bg-gray-800 border border-gray-600 rounded-md">
+              <option>Everyone</option>
+              <option>Friends</option>
+              <option>No one</option>
+            </select>
+          </div>
+        </div>
+      </div> */}
+
+      {/* <div className="bg-[#24243e] p-6 rounded-lg mb-8">
+        <h2 className="text-xl font-semibold mb-4 flex items-center">
+          <BellOutlined className="mr-2" /> Notification Preferences
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div>
+            <h3 className="font-semibold mb-2">Email Notifications</h3>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span>New Followers</span>
+                <Button className="bg-green-500 w-16">On</Button>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>Likes on Content</span>
+                <Button className="bg-green-500 w-16">On</Button>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>Comments</span>
+                <Button className="bg-red-500 w-16">Off</Button>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>Direct Messages</span>
+                <Button className="bg-green-500 w-16">On</Button>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3 className="font-semibold mb-2">Push Notifications</h3>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span>New Followers</span>
+                <Button className="bg-green-500 w-16">On</Button>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>Likes on Content</span>
+                <Button className="bg-red-500 w-16">Off</Button>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>Comments</span>
+                <Button className="bg-green-500 w-16">On</Button>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>Direct Messages</span>
+                <Button className="bg-green-500 w-16">On</Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div> */}
+
+      <div className="flex justify-between items-center">
+        <div>
+          <Button
+            icon={<LockOutlined />}
+            onClick={handleOpenPasswordModal}
+            className="bg-blue-500 hover:bg-blue-600 mr-2"
+          >
+            Change Password
+          </Button>
+          <Button
+            icon={<LogoutOutlined />}
+            onClick={handleLogout}
+            className="bg-red-500 hover:bg-red-600"
+          >
+            Logout
+          </Button>
+        </div>
+        <div>
+          <Button
+            onClick={() => router.back()}
+            className="bg-gray-600 hover:bg-gray-700 mr-2"
+          >
+            Cancel
+          </Button>
+          <Button
+            icon={<SaveOutlined />}
+            onClick={handleSave}
+            className="bg-green-500 hover:bg-green-600"
+          >
+            Save Changes
+          </Button>
+        </div>
       </div>
 
       {isPasswordModalOpen && (

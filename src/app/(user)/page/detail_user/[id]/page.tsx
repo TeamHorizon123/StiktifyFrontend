@@ -19,8 +19,6 @@ import MyVideo from "@/components/page/myvideo/MyVideo";
 import LikedVideo from "@/components/page/likedVideoPost/LikedVideo";
 import ListFavoriteMusic from "@/components/music/music-favorite/list.favorite";
 import ListMyMusic from "@/components/page/mymusic/list-my-music";
-import { CheckCircleTwoTone } from "@ant-design/icons";
-import BusinessAccountModal from "@/components/modal/modal.upgrade.to.business.account";
 import FollowerModal from "@/components/modal/modal.follower";
 import FollowingModal from "@/components/modal/modal.following";
 import {
@@ -28,18 +26,31 @@ import {
   handleFollow,
 } from "@/actions/manage.follow.action";
 import { Heart, Video, Music } from "lucide-react";
-import { message, notification } from "antd";
+import { notification } from "antd";
+
+interface IUserDetail {
+  _id: string;
+  image: string;
+  fullname: string;
+  email: string;
+  isActive: boolean;
+  bio: string;
+  address: string;
+  createdAt: string;
+  totalFollowers: number;
+  totalFollowings: number;
+  totalViews: number;
+  totalLikes: number;
+  isShop: boolean;
+}
 
 const UserDetail = () => {
-  const [isUpgraded, setIsUpgraded] = useState(false);
   const [showFollowerModal, setShowFollowerModal] = useState(false);
   const [showFollowingModal, setShowFollowingModal] = useState(false);
-  const [showBusinessModal, setShowBusinessModal] = useState(false);
   const router = useRouter();
   const { id } = useParams();
   const { accessToken, user } = useContext(AuthContext) ?? {};
-  const [userData, setUserData] = useState<any>(null);
-  const [requestData, setRequestData] = useState<any>(null);
+  const [userData, setUserData] = useState<IUserDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState<
@@ -85,11 +96,6 @@ const UserDetail = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleOpenBusinessModal = () => {
-    setShowBusinessModal(false);
-    setTimeout(() => setShowBusinessModal(true), 0);
   };
 
   const sendFriendRequest = async () => {
@@ -166,20 +172,13 @@ const UserDetail = () => {
   if (!userData)
     return <p className="text-center text-gray-600">No user data</p>;
 
-  const tabLabels: Record<
-    "video" | "music" | "likedVideo" | "likedMusic",
-    { label: string; icon: JSX.Element }
-  > = {
+  const tabConfig = {
     video: { label: "Video", icon: <Video size={18} /> },
     music: { label: "Music", icon: <Music size={18} /> },
     likedVideo: { label: "Liked Video", icon: <Heart size={18} /> },
     likedMusic: { label: "Liked Music", icon: <Heart size={18} /> },
   };
-  const handleUpgradeSuccess = () => {
-    setIsUpgraded(true);
-    setShowBusinessModal(true);
-    router.refresh();
-  };
+
   return (
     <div className="min-h-screen w-full flex flex-col items-center px-0 py-0">
       <div className="w-full max-w-6xl mx-auto pt-10 pb-16">
@@ -328,13 +327,13 @@ const UserDetail = () => {
                 </div>
                 <div className="text-purple-300 text-xs">Following</div>
               </div>
-              <div>
+              <div className="p-2 rounded-lg transition-colors">
                 <div className="text-2xl font-bold text-white">
                   {userData.totalViews || 0}
                 </div>
                 <div className="text-purple-300 text-xs">Total Views</div>
               </div>
-              <div>
+              <div className="p-2 rounded-lg transition-colors">
                 <div className="text-2xl font-bold text-white">
                   {userData.totalLikes || 0}
                 </div>
@@ -357,25 +356,19 @@ const UserDetail = () => {
                   }`}
                   onClick={() => setActiveTab(tab)}
                 >
-                  {tabLabels[tab].icon}
-                  <span>{tabLabels[tab].label}</span>
+                  {tabConfig[tab].icon}
+                  <span>{tabConfig[tab].label}</span>
                 </button>
               )
             )}
           </div>
           {/* Tab Content */}
           <div className="flex-1 p-4 overflow-y-auto">
-            {activeTab === "video" && (
-              <MyVideo userId={id} isOwner={isCurrent} />
-            )}
-            {activeTab === "music" && (
-              <ListMyMusic userId={id} isOwner={isCurrent} />
-            )}
-            {activeTab === "likedVideo" && (
-              <LikedVideo userId={id} isOwner={isCurrent} />
-            )}
+            {activeTab === "video" && <MyVideo userId={id as string} />}
+            {activeTab === "music" && <ListMyMusic userId={id as string} />}
+            {activeTab === "likedVideo" && <LikedVideo userId={id as string} />}
             {activeTab === "likedMusic" && (
-              <ListFavoriteMusic userId={id} isOwner={isCurrent} />
+              <ListFavoriteMusic userId={id as string} />
             )}
           </div>
         </div>
@@ -384,15 +377,14 @@ const UserDetail = () => {
       <FollowerModal
         visible={showFollowerModal}
         onClose={() => setShowFollowerModal(false)}
+        userId={id as string}
+        isOwner={isCurrent}
       />
       <FollowingModal
         visible={showFollowingModal}
         onClose={() => setShowFollowingModal(false)}
-      />
-      <BusinessAccountModal
-        totalFollowers={userData.totalFollowers}
-        onClose={() => setShowBusinessModal(false)}
-        onUpgradeSuccess={() => setShowBusinessModal(false)}
+        userId={id as string}
+        isOwner={isCurrent}
       />
     </div>
   );
@@ -408,7 +400,7 @@ const Button = ({
   icon: JSX.Element;
   text?: string;
   className: string;
-  onClick?: any;
+  onClick?: () => void;
   disabled?: boolean;
 }) => (
   <button
@@ -419,15 +411,5 @@ const Button = ({
     {icon} {text && <span>{text}</span>}
   </button>
 );
-
-const tabLabels: Record<
-  "video" | "music" | "likedVideo" | "likedMusic",
-  { label: string; icon: JSX.Element }
-> = {
-  video: { label: "Video", icon: <Video size={18} /> },
-  music: { label: "Music", icon: <Music size={18} /> },
-  likedVideo: { label: "Liked Video", icon: <Heart size={18} /> },
-  likedMusic: { label: "Liked Music", icon: <Heart size={18} /> },
-};
 
 export default UserDetail;
