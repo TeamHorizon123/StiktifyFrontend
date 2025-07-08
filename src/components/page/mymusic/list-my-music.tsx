@@ -1,18 +1,19 @@
 "use client";
 
 import { useEffect, useState, useContext } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
 import CardMusic from "@/components/music/card.music";
 import { handleGetMyMusic } from "@/actions/music.action";
 import { AuthContext } from "@/context/AuthContext";
 
-const MyMusic = () => {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+interface MyMusicProps {
+  userId?: string;
+  isOwner?: boolean;
+}
+
+const MyMusic = ({ userId, isOwner }: MyMusicProps) => {
   const { user } = useContext(AuthContext) ?? {};
-  const userIdFromURL = pathname.split("/").pop();
-  const queryUserId = searchParams.get("userId");
-  const currentUserId = userIdFromURL || queryUserId || user?._id;
+  // Ưu tiên prop userId, fallback context
+  const currentUserId = userId || user?._id;
 
   const [myMusic, setMyMusic] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,24 +39,28 @@ const MyMusic = () => {
   }, [currentUserId]);
 
   return (
-    <div className="p-6 bg-white shadow-md rounded-lg mb-40 mt-[-22px]">
+    <div className="p-0 bg-transparent">
       {loading ? (
-        <p className="text-gray-500 text-center">Loading...</p>
+        <p className="text-gray-300 text-center">Loading...</p>
       ) : myMusic.length > 0 ? (
-        <div className="flex flex-wrap justify-start gap-5 my-3 mx-20">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 px-4 py-6">
           {myMusic.map((item: any) => (
-            <CardMusic
-              isEdit={true}
-              showPlaying={false}
+            <div
               key={item._id}
-              handlePlayer={() => { }}
-              isPlaying={false}
-              item={item}
-            />
+              className="bg-[#2d2250cc] rounded-2xl shadow-xl overflow-hidden flex flex-col transition-all duration-300 hover:scale-[1.02]"
+            >
+              <CardMusic
+                isEdit={!!isOwner}
+                showPlaying={false}
+                handlePlayer={() => {}}
+                isPlaying={false}
+                item={item}
+              />
+            </div>
           ))}
         </div>
       ) : (
-        <p className="text-gray-500 text-center w-full">No music found.</p>
+        <p className="text-gray-300 text-center w-full">No music found.</p>
       )}
     </div>
   );

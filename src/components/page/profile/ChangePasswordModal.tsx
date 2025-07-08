@@ -1,13 +1,18 @@
 "use client";
 
 import { useContext, useState } from "react";
-import { AuthContext } from "@/context/AuthContext";
-import { sendRequest } from "@/utils/api";
+import { AuthContext } from "../../../context/AuthContext";
+import { sendRequest } from "../../../utils/api";
 import { useRouter } from "next/navigation";
 import { notification } from "antd";
 
 interface ChangePasswordModalProps {
   onClose: () => void;
+}
+
+interface ApiResponse {
+  statusCode: number;
+  message: string;
 }
 
 const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
@@ -31,7 +36,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
     }
 
     try {
-      const res = await sendRequest<any>({
+      const res = await sendRequest<ApiResponse>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/retry-password`,
         method: "POST",
         body: { email },
@@ -48,7 +53,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
           res.message || "Failed to send verification code. Please try again!"
         );
       }
-    } catch (err) {
+    } catch {
       setError("An error occurred! Please try again.");
     }
   };
@@ -70,7 +75,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
     }
 
     try {
-      const res = await sendRequest<any>({
+      const res = await sendRequest<ApiResponse>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/change-password`,
         method: "POST",
         body: {
@@ -95,67 +100,75 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
       } else {
         setError(res.message || "Password change failed. Please try again!");
       }
-    } catch (err) {
+    } catch {
       setError("An error occurred! Please try again.");
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div className="bg-white rounded-lg p-6 w-1/3">
-        <h2 className="text-xl font-bold mb-4 text-center">
+    <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center">
+      <div className="bg-[#1a1a2e] text-white rounded-lg p-8 w-full max-w-md">
+        <h2 className="text-2xl font-bold mb-6 text-center">
           {step === 1 ? "Verify Email" : "Change Password"}
         </h2>
         {success && (
-          <p className="text-green-500 text-sm text-center">{success}</p>
+          <p className="text-green-500 text-sm text-center mb-4">{success}</p>
         )}
-        {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+        {error && (
+          <p className="text-red-500 text-sm text-center mb-4">{error}</p>
+        )}
 
         {step === 1 ? (
           <div>
-            <label className="block mb-2">Email:</label>
+            <label className="block mb-2 text-gray-400">Email:</label>
             <input
               type="email"
               value={email}
               readOnly
-              className="w-full p-2 border rounded-md bg-gray-200"
+              className="w-full p-3 bg-gray-700 border border-gray-600 rounded-md"
             />
             <button
               onClick={handleSendCode}
-              className="w-full bg-blue-500 text-white p-2 mt-4 rounded-md"
+              className="w-full bg-blue-500 text-white p-3 mt-6 rounded-md hover:bg-blue-600"
             >
               Send Verification Code
             </button>
           </div>
         ) : (
           <div>
-            <label className="block mb-2">Verification Code:</label>
+            <label className="block mb-2 text-gray-400">
+              Verification Code:
+            </label>
             <input
               type="text"
               value={activeCode}
               onChange={(e) => setActiveCode(e.target.value)}
-              className="w-full p-2 border rounded-md"
+              className="w-full p-3 bg-gray-700 border border-gray-600 rounded-md"
             />
 
-            <label className="block mt-4 mb-2">New Password:</label>
+            <label className="block mt-4 mb-2 text-gray-400">
+              New Password:
+            </label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-2 border rounded-md"
+              className="w-full p-3 bg-gray-700 border border-gray-600 rounded-md"
             />
 
-            <label className="block mt-4 mb-2">Confirm Password:</label>
+            <label className="block mt-4 mb-2 text-gray-400">
+              Confirm Password:
+            </label>
             <input
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full p-2 border rounded-md"
+              className="w-full p-3 bg-gray-700 border border-gray-600 rounded-md"
             />
 
             <button
               onClick={handleChangePassword}
-              className="w-full bg-green-500 text-white p-2 mt-4 rounded-md"
+              className="w-full bg-green-500 text-white p-3 mt-6 rounded-md hover:bg-green-600"
             >
               Change Password
             </button>
@@ -164,7 +177,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
 
         <button
           onClick={onClose}
-          className="w-full bg-gray-500 text-white p-2 mt-4 rounded-md"
+          className="w-full bg-gray-600 text-white p-3 mt-4 rounded-md hover:bg-gray-700"
         >
           Close
         </button>

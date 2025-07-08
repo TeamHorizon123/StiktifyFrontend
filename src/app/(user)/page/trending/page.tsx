@@ -16,16 +16,13 @@ import {
   ChevronDown,
   Video,
   Heart,
-  MessageCircle,
-  Share2,
-  Flag,
   Send,
   X,
-  User,
   ChevronRight,
-  Plus,
 } from "lucide-react";
-import { Button, Input } from "antd";
+import { Button } from "antd";
+import InteractSideBar from "@/components/page/trending/interact_sidebar";
+import VideoFooter from "@/components/page/trending/video-footer";
 
 type SidebarMode = "videos" | "interactions" | "comments";
 
@@ -262,6 +259,7 @@ const TrendingPage = () => {
         },
       });
       Cookies.set("suggestVideoId", currentVideo?._id + "", { expires: 365 });
+      const isPause = Cookies.get("isPause");
       const res1 = await sendRequest<IBackendRes<IVideo>>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/update-view-by-viewing`,
         method: "POST",
@@ -276,6 +274,9 @@ const TrendingPage = () => {
           totalViews: res1?.data?.totalViews ?? prev.totalViews,
         };
       });
+      if (isPause == "true") return;
+      if (currentVideo?._id) handleAddUserAction(currentVideo?._id);
+      createViewingHistory();
     } catch (error) {
       console.error("Failed to fetch wishlist videos:", error);
     }
@@ -347,7 +348,9 @@ const TrendingPage = () => {
       });
       setNewComment("");
       setRefreshComments((v) => v + 1);
-    } catch (err) {}
+    } catch (error) {
+      console.error("Failed to post comment:", error);
+    }
   };
   const handleNavigate = (id: string) => {
     router.push(`music/${id}`);
@@ -373,23 +376,6 @@ const TrendingPage = () => {
           setIsPlaying(false);
         }
       }
-
-      // // ArrowRight: Forward 5s
-      // if (event.code === "ArrowRight") {
-      //   videoRef.current.currentTime = Math.min(
-      //     videoRef.current.duration,
-      //     videoRef.current.currentTime + 5
-      //   );
-      // }
-
-      // // ArrowLeft: Backward 5s
-      // if (event.code === "ArrowLeft") {
-      //   videoRef.current.currentTime = Math.max(
-      //     0,
-      //     videoRef.current.currentTime - 5
-      //   );
-      // }
-
       // M: Toggle mute
       if (event.key.toLowerCase() === "m") {
         setIsMuted((prev) => !prev);
@@ -485,18 +471,14 @@ const TrendingPage = () => {
     if (!searchValue.trim()) return;
     router.push(`/page/search-user-video?q=${encodeURIComponent(searchValue)}`);
   };
+
   return (
     <div className="relative max-h-screen bg-black text-white">
       <Header
         isGuest={user ? false : true}
         searchValue={searchValue}
         setSearchValue={setSearchValue}
-        onClick={() => {
-          if (!searchValue.trim()) return;
-          router.push(
-            `/page/search-user-video?q=${encodeURIComponent(searchValue)}`
-          );
-        }}
+        onClick={handleSearch}
       />
       <div className="h-[calc(100vh-64px)] overflow-hidden bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900">
         {/* Animated Background */}
@@ -515,6 +497,7 @@ const TrendingPage = () => {
             >
               {currentVideo ? (
                 <div className="relative w-[80%] h-[85%] max-w-3xl max-h-[90vh] flex items-center justify-center bg-black rounded-2xl border-4 border-purple-700 shadow-xl">
+                  {/* Video player */}
                   <video
                     ref={videoRef}
                     className="w-full h-full object-contain bg-black rounded-2xl"
@@ -665,86 +648,24 @@ const TrendingPage = () => {
                           </div>
                         </div>
                       </div>
+                      {/* <VideoFooter videoId={video._id} /> */}
                     </div>
                   ))}
                 </div>
               )}
               {sidebarMode === "interactions" && (
-                <div className="space-y-6">
-                  {currentVideo && (
-                    <div className="rounded-xl bg-white/10 p-4 flex items-center gap-4 mb-4">
-                      <img
-                        src={currentVideo.userId?.image}
-                        alt="avatar"
-                        className="w-14 h-14 rounded-full object-cover border-2 border-purple-400"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div className="text-white font-bold text-lg truncate">
-                          {currentVideo.userId?.fullname || "Unknown"}
-                        </div>
-                        <div className="text-purple-200 text-sm truncate">
-                          @{currentVideo.userId?.userName || "unknown"}
-                        </div>
-                      </div>
-                      <Button
-                        onClick={() => setIsFollowing(!isFollowing)}
-                        className={`rounded-full w-8 h-8 p-0 ${
-                          isFollowing
-                            ? "bg-gray-500 hover:bg-gray-600"
-                            : "bg-red-500 hover:bg-red-600"
-                        } text-white flex items-center justify-center`}
-                      >
-                        {isFollowing ? (
-                          <X className="h-4 w-4" />
-                        ) : (
-                          <Plus className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </div>
-                  )}
-                  <div className="rounded-xl bg-white/10 p-4 mb-4">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="font-semibold text-white text-lg">
-                        Total Reactions
-                      </span>
-                      <span className="font-bold text-2xl text-white">
-                        {currentVideo?.totalReaction?.toLocaleString() || 0}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <Button
-                      className="flex items-center gap-3 bg-transparent text-white hover:bg-purple-800/60 px-0 py-2 justify-start"
-                      icon={<Heart />}
-                      type="text"
-                    >
-                      Like
-                    </Button>
-                    <Button
-                      className="flex items-center gap-3 bg-transparent text-white hover:bg-purple-800/60 px-0 py-2 justify-start"
-                      icon={<MessageCircle />}
-                      type="text"
-                      onClick={() => setSidebarMode("comments")}
-                    >
-                      {currentVideo?.totalComment?.toLocaleString() || 0}{" "}
-                      Comment
-                    </Button>
-                    <Button
-                      className="flex items-center gap-3 bg-transparent text-white hover:bg-purple-800/60 px-0 py-2 justify-start"
-                      icon={<Share2 />}
-                      type="text"
-                    >
-                      Share
-                    </Button>
-                    <Button
-                      className="flex items-center gap-3 bg-transparent text-white hover:bg-purple-800/60 px-0 py-2 justify-start"
-                      icon={<Flag />}
-                      type="text"
-                    >
-                      Report
-                    </Button>
-                  </div>
-                </div>
+                <InteractSideBar
+                  creatorId={currentVideo?.userId?.fullname || ""}
+                  userId={currentVideo?.userId?._id || ""}
+                  avatarUrl={currentVideo?.userId?.image}
+                  videoId={currentVideo?._id}
+                  numberComment={currentVideo?.totalComment}
+                  numberReaction={currentVideo?.totalReaction}
+                  onReactionAdded={onReactionAdded}
+                  onReactionRemove={onReactionRemove}
+                  onCommentClick={() => setSidebarMode("comments")}
+                  isHidden={false}
+                />
               )}
               {sidebarMode === "comments" && (
                 <div className="flex flex-col h-full max-h-full">
@@ -773,11 +694,13 @@ const TrendingPage = () => {
                       enableReact={true}
                       user={user}
                       userAvatar={user?.image}
-                      onCommentAdded={() => setRefreshComments((v) => v + 1)}
+                      // onCommentAdded={() => setRefreshComments((v) => v + 1)}
+                      onCommentAdded={onCommentAdded}
+                      onCommentRemove={onCommentRemove}
                     />
                   </div>
                   {/* Comment Input */}
-                  <div className="p-4 border-t border-white/10 bg-black/30">
+                  <div className="rounded-xl bg-white/10 p-4 mb-4">
                     {user ? (
                       <div className="flex items-center gap-3">
                         <img
@@ -820,8 +743,8 @@ const TrendingPage = () => {
                           className="text-purple-400 font-semibold cursor-pointer"
                           onClick={() => router.push("/auth/login")}
                         >
-                          login
-                        </span>{" "}
+                          login{" "}
+                        </span>
                         to comment.
                       </div>
                     )}

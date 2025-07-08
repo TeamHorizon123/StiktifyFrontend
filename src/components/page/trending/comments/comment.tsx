@@ -6,6 +6,7 @@ import ReactSection from "./react-comment-section";
 import { sendRequest } from "@/utils/api";
 import { AuthContext } from "@/context/AuthContext";
 import TickedUser from "@/components/ticked-user/TickedUser";
+import { useRouter } from "next/navigation";
 
 interface CommentProps {
   comment: {
@@ -57,6 +58,7 @@ const Comment: React.FC<CommentProps> = ({
 
   const replies = childComments.get(comment._id) || [];
   const replyCount = thisComment.totalOfChildComments || replies.length;
+  const router = useRouter();
 
   const handleDeleteConfirm = async () => {
     try {
@@ -176,7 +178,10 @@ const Comment: React.FC<CommentProps> = ({
       e.stopPropagation();
     }
   };
-
+  const handleProfileClick = () => {
+    const userId = comment.user?._id;
+    router.push(`/page/detail_user/${userId}`);
+  };
   return (
     <div key={comment._id} className="mb-4">
       <div className="comment flex gap-3 p-3 rounded-lg transition-all">
@@ -184,10 +189,15 @@ const Comment: React.FC<CommentProps> = ({
           src={comment.userImage ? comment.userImage : comment.image}
           alt="Avatar"
           className="w-10 h-10 rounded-full object-cover"
+          onClick={handleProfileClick}
         />
         <div>
           <div className="flex items-center gap-2">
-            <p className="font-medium text-white text-base">
+            <p
+              className="font-medium text-white text-base"
+              onClick={handleProfileClick}
+              style={{ cursor: "pointer" }}
+            >
               {comment.username}
               <TickedUser userId={comment.user?._id} />
             </p>
@@ -197,21 +207,7 @@ const Comment: React.FC<CommentProps> = ({
           </p>
           {/* Actions */}
           <div className="flex items-center gap-6 text-sm">
-            <button className="flex items-center gap-1 text-gray-300 hover:text-purple-400 bg-transparent border-none shadow-none p-0">
-              <ReactSection
-                commentId={comment._id}
-                onReactionAdded={onReactionAdded}
-                onReactionRemove={onReactionRemove}
-              />
-              <span>{thisComment.totalReactions || 0}</span>
-            </button>
-            <button
-              className="flex items-center gap-1 text-gray-300 hover:text-purple-400 bg-transparent border-none shadow-none p-0"
-              onClick={() => setReplyModalOpen(true)}
-            >
-              Reply
-            </button>
-            {user && comment?.user?._id === user?._id && (
+            {user && comment?.user?._id === user?._id ? (
               <>
                 <button
                   className="flex items-center gap-1 text-gray-300 hover:text-blue-400 bg-transparent border-none shadow-none p-0"
@@ -226,6 +222,23 @@ const Comment: React.FC<CommentProps> = ({
                 >
                   <FiTrash2 />
                   Delete
+                </button>
+              </>
+            ) : (
+              <>
+                <button className="flex items-center gap-1 text-gray-300 hover:text-purple-400 bg-transparent border-none shadow-none p-0">
+                  <ReactSection
+                    commentId={comment._id}
+                    onReactionAdded={onReactionAdded}
+                    onReactionRemove={onReactionRemove}
+                  />
+                  <span>{thisComment.totalReactions || 0}</span>
+                </button>
+                <button
+                  className="flex items-center gap-1 text-gray-300 hover:text-purple-400 bg-transparent border-none shadow-none p-0"
+                  onClick={() => setReplyModalOpen(true)}
+                >
+                  Reply
                 </button>
               </>
             )}
