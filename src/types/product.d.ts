@@ -31,16 +31,17 @@ interface IProduct {
 interface Product {
     id: string,
     shopId: string,
+    shop: Shop,
     name: string,
     thumbnail: string,
     description: string,
-    price: number,
-    discount: number,
-    rating: number,
+    ratingPoint: number,
+    ratingTurn: number,
     order: number,
+    rangePrice: string,
     isActive: boolean,
     createAt: Date,
-    updateAt: Date,
+    updateAt: Date
 }
 
 interface Id {

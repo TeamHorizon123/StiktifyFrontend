@@ -21,7 +21,9 @@
   border-color: none !important;
 } */
 
-
+html{
+  background: var(--midnight-blue);
+}
 
 @tailwind base;
 @tailwind components;
