@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { AuthContext } from "@/context/AuthContext";
 import { sendRequest } from "@/utils/api";
 import { FaLock, FaUnlock } from "react-icons/fa"; // Biểu tượng ổ khóa
+import { Skeleton } from "antd";
 
 interface LikedVideoReaction {
   videoId: string;
@@ -26,12 +27,20 @@ interface LikedVideoProps {
 const LikedVideo = ({ userId }: LikedVideoProps) => {
   const { user, accessToken } = useContext(AuthContext) ?? {};
   const targetId = userId || user?._id;
+  const isOwner = user && user._id && user._id === targetId;
   const [likedVideos, setLikedVideos] = useState<ShortVideo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [areVideosHidden, setAreVideosHidden] = useState(false); // Trạng thái ẩn/hiện tất cả nội dung
+  const [areVideosHidden, setAreVideosHidden] = useState<boolean>(() => {
+    // Lưu trạng thái vào localStorage theo user
+    if (typeof window !== "undefined") {
+      return localStorage.getItem(`likedVideoHidden_${targetId}`) === "true";
+    }
+    return false;
+  });
 
   const router = useRouter();
+
   useEffect(() => {
     if (targetId && accessToken) {
       fetchLikedVideos();
@@ -39,6 +48,8 @@ const LikedVideo = ({ userId }: LikedVideoProps) => {
   }, [targetId, accessToken]);
 
   const fetchLikedVideos = async () => {
+    setLoading(true);
+    setError("");
     try {
       const res = await sendRequest<{ data: LikedVideoReaction[] }>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/video-reactions/user/${targetId}`,
@@ -49,89 +60,133 @@ const LikedVideo = ({ userId }: LikedVideoProps) => {
       });
 
       const reactions = res.data || [];
+      if (!Array.isArray(reactions) || reactions.length === 0) {
+        setLikedVideos([]);
+        setLoading(false);
+        return;
+      }
 
-      const videos: ShortVideo[] = await Promise.all(
-        reactions.map(async (reaction) => {
-          const videoRes = await sendRequest<{ data: ShortVideo }>({
-            url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/${reaction.videoId}`,
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          });
-          return videoRes.data;
-        })
-      );
+      const videos: ShortVideo[] = (
+        await Promise.all(
+          reactions.map(async (reaction) => {
+            try {
+              const videoRes = await sendRequest<{ data: ShortVideo }>({
+                url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/${reaction.videoId}`,
+                method: "GET",
+                headers: {
+                  Authorization: `Bearer ${accessToken}`,
+                },
+              });
+              return videoRes.data;
+            } catch {
+              return null;
+            }
+          })
+        )
+      ).filter(Boolean) as ShortVideo[];
 
       setLikedVideos(videos);
     } catch (err) {
-      setError("Failed to fetch liked videos");
-      console.error(err);
+      setError("Failed to fetch liked videos. Please try again.");
+      setLikedVideos([]);
+      console.error("Error fetching liked videos:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  // Hàm toggle ẩn/hiện tất cả nội dung
   const toggleAllVideos = () => {
-    setAreVideosHidden((prev) => !prev);
+    setAreVideosHidden((prev) => {
+      localStorage.setItem(`likedVideoHidden_${targetId}`, (!prev).toString());
+      return !prev;
+    });
   };
 
-  if (loading) return <p className="text-gray-600 text-center">Loading...</p>;
-  if (error) return <p className="text-red-600 text-center">{error}</p>;
-  if (likedVideos.length === 0)
-    return <p className="text-gray-600 text-center">No liked videos</p>;
-
   return (
-    <div>
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold">List of Liked Videos</h2>
-        <button
-          onClick={toggleAllVideos}
-          className="text-gray-600 hover:text-gray-800"
-          title={areVideosHidden ? "Show all videos" : "Hide all videos"}
-        >
-          {areVideosHidden ? <FaUnlock size={20} /> : <FaLock size={20} />}
-        </button>
+    <div className="p-6 shadow-md rounded-lg mb-40 mt-[-22px]">
+      <div className="flex justify-between items-center mb-4 mx-20">
+        {isOwner && (
+          <button
+            onClick={toggleAllVideos}
+            className="text-gray-600 hover:text-gray-800"
+            title={areVideosHidden ? "Show all videos" : "Hide all videos"}
+          >
+            {areVideosHidden ? (
+              <div className="flex items-center gap-2">
+                <FaLock className="text-purple-500" size={20} />
+                <span className="text-purple-500"> Private videos</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <FaUnlock className="text-purple-500" size={20} />
+                <span className="text-purple-500"> Public videos</span>
+              </div>
+            )}
+          </button>
+        )}
       </div>
-      <div
-        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4"
-        style={{ maxHeight: "calc(100vh - 300px)" }}
-      >
-        {likedVideos.map((video) =>
-          !areVideosHidden ? (
+      {loading ? (
+        /* 4 skeleton cards giả */
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton
+              key={i}
+              active
+              avatar={{ shape: "square", size: 160 }}
+              paragraph={{ rows: 2 }}
+            />
+          ))}
+        </div>
+      ) : areVideosHidden && !isOwner ? (
+        <p className="text-gray-500 text-center w-full">
+          This is user privacy.
+        </p>
+      ) : error ? (
+        <p className="text-red-600 text-center w-full">{error}</p>
+      ) : likedVideos.length > 0 ? (
+        <div className="flex flex-wrap justify-start gap-5 my-3 mx-20">
+          {likedVideos.map((video) => (
             <div
               key={video._id}
-              className="p-2 border rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer"
+              className="p-2 border rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer w-full sm:w-1/2 md:w-1/4"
               onClick={() => router.push(`/page/trending?id=${video._id}`)}
             >
-              <video controls className="w-full h-40 object-cover">
+              <video controls className="w-full h-40 object-cover rounded">
                 <source src={video.videoURL} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
               <div className="mt-2">
-                <p className="text-gray-800 font-medium text-sm">
+                <p className="text-gray-800 font-medium text-sm line-clamp-2">
                   {video.videoDescription}
                 </p>
                 <p className="text-gray-600 text-xs">
                   Views: {video.totalViews} - Reactions: {video.totalReaction}
                 </p>
-                <p className="text-gray-600 text-xs">
-                  <span className="flex flex-wrap">
-                    {Array.isArray(video.videoTag)
-                      ? video.videoTag.map((tag, index) => (
-                          <span key={index} className="mr-2">
-                            #{tag}
-                          </span>
-                        ))
-                      : video.videoTag}
-                  </span>
-                </p>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {Array.isArray(video.videoTag) ? (
+                    video.videoTag.map((tag, index) => (
+                      <span
+                        key={index}
+                        className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-xs"
+                      >
+                        #{tag}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-xs">
+                      #{video.videoTag}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
-          ) : null
-        )}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-gray-500 text-center w-full">
+          No liked videos found.
+        </p>
+      )}
     </div>
   );
 };

@@ -167,6 +167,16 @@ const UserDetail = () => {
     }
   };
 
+  const handleFollowClick = async () => {
+    if (!user || !accessToken) return;
+    try {
+      await handleFollow(user._id, id as string);
+      setFollow((prev) => !prev); // Đảo trạng thái follow
+    } catch (error) {
+      notification.error({ message: "Follow action failed" });
+    }
+  };
+
   if (loading) return <p className="text-center text-gray-600">Loading...</p>;
   if (error) return <p className="text-center text-red-600">{error}</p>;
   if (!userData)
@@ -254,10 +264,14 @@ const UserDetail = () => {
                     disabled={friendRequestSent}
                   />
                   <Button
-                    onClick={() => handleFollow(user?._id, id as string)}
+                    onClick={handleFollowClick}
                     icon={<LuBellRing />}
                     text={`${isFollow ? "Unfollow" : "Follow"}`}
-                    className="bg-gray-200 hover:bg-gray-300 text-gray-700"
+                    className={`${
+                      isFollow
+                        ? "bg-purple-600 hover:bg-purple-800 text-white"
+                        : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+                    }`}
                   />
                 </>
               )}
