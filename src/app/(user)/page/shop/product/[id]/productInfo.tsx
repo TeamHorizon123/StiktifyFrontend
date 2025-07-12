@@ -14,7 +14,6 @@ import { IoIosStarOutline } from "react-icons/io";
 import { formatCurrencyVND } from '@/utils/utils';
 import useFetchListOData from '@/modules/shop/useFetchOdataList';
 import useFetchItem from '@/modules/shop/useFetchItem';
-import { data } from 'framer-motion/client';
 
 const ProductInfo = ({ id }: Id) => {
     const [loading, setLoading] = useState(true);
@@ -82,15 +81,15 @@ const ProductInfo = ({ id }: Id) => {
                     <div >
                         <div className='grid grid-cols-2'>
                             <ProductImage
-                                default={defaultImg || product.thumbnail}
+                                default={defaultImg || product.ImageUri}
                                 listImage={images?.listImage || []} />
                             <div className='flex flex-col px-2 text-white'>
-                                <p className='text-3xl font-bold'>{product.name}</p>
+                                <p className='text-3xl font-bold'>{product.Name}</p>
                                 <div className='flex items-center space-x-3 font-light text-sm py-3'>
                                     <div className='flex items-center space-x-1'>
                                         <span className='flex text-yellow-500 space-x-1'>
                                             {
-                                                (product.rating <= 0) ? (<IoIosStarOutline />) : (<>
+                                                (product.AveragePoint <= 0) ? (<IoIosStarOutline />) : (<>
                                                     <FaStar />
                                                     <FaStar />
                                                     <FaStar />
@@ -100,26 +99,14 @@ const ProductInfo = ({ id }: Id) => {
                                                 </>)
                                             }
                                         </span>
-                                        <p>{product.rating}</p>
+                                        <p>{product.AveragePoint}</p>
                                         {/* <p>({product.Order})</p> */}
                                     </div>
                                     <GoDotFill />
-                                    <span>{product.order} orders</span>
+                                    <span>{product.Order} orders</span>
                                 </div>
                                 <div className='py-5 flex items-center space-x-3'>
-                                    {
-                                        (product.discount === 0) ? (
-                                            <>
-                                                <span className='text-4xl font-bold'>{formatCurrencyVND(product.price)}</span>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <span className='text-4xl font-bold'>{
-                                                    formatCurrencyVND(product.price - (product.discount * product.price))
-                                                }</span>
-                                                <span className='text-lg font-light line-through'>{formatCurrencyVND(product.price)}</span></>
-                                        )
-                                    }
+                                    <span className='text-4xl font-bold'>{formatCurrencyVND(product.Price || 0)}</span>
                                 </div>
                                 <div className='w-full py-4 flex space-x-2 justify-between'>
                                     {

@@ -1,9 +1,10 @@
 interface IQuery {
-    page?: number,
+    filter?: string,
     skip?: number,
     top?: number
     search?: string
-    count?: boolean
+    count?: boolean,
+    orderBy?: string
 }
 
 interface IListOdata<T> {
@@ -12,36 +13,21 @@ interface IListOdata<T> {
     '@odata.context'?: string;
     value: T[]
 }
-
-interface IProduct {
-    Id: string,
-    ShopId: string,
-    Name: string,
-    Thumbnail: string,
-    Description: string,
-    Price: number,
-    Discount: number,
-    Rating: number,
-    Order: number,
-    IsActive: boolean,
-    CreateAt: Date,
-    UpdateAt: Date,
-}
-
 interface Product {
-    id: string,
-    shopId: string,
-    shop: Shop,
-    name: string,
-    thumbnail: string,
-    description: string,
-    ratingPoint: number,
-    ratingTurn: number,
-    order: number,
-    rangePrice: string,
-    isActive: boolean,
-    createAt: Date,
-    updateAt: Date
+    ShopId: string?,
+    Name: string?,
+    Description: string?,
+    ImageUri: string?,
+    IsHidden: boolean?,
+    CategoryId: string?,
+    PriceRange: string?,
+    Price: number?,
+    AveragePoint: number?,
+    RateTurn: number?,
+    Order: number?,
+    Id: string?,
+    CreateAt: Date?,
+    UpdateAt: Date?
 }
 
 interface Id {
@@ -49,16 +35,27 @@ interface Id {
 }
 
 interface IProductOption {
-    Id: string,
-    ProductId: string,
-    Image: string,
-    Quantity: number,
-    Attribute: string,
-    Value: string,
-    CreateAt: Date,
-    UpdateAt: Date
+    ProductId: string?,
+    Image: string?,
+    Color: string?,
+    Type: string?,
+    Price: number?,
+    Quantity: number?,
+    Id: string?,
+    CreateAt: Date?,
+    UpdateAt: Date?
 }
 
 interface Images {
     listImage: string[]
+}
+
+interface ProductVariant {
+    SizeId: string?,
+    ProductOptionId: string?,
+    Quantity: number?,
+    Price: number?,
+    Id: string?,
+    CreateAt: Date?,
+    UpdateAt: Date?
 }

@@ -4,17 +4,33 @@ import { FaArrowRightLong, FaBolt } from "react-icons/fa6";
 import Link from "next/link";
 import Product from "@/components/page/shop/product/product";
 import useFetchListOData from "@/modules/shop/useFetchOdataList";
+import { useEffect, useState } from "react";
+import { Spin } from "antd";
+import { LoadingOutlined } from "@ant-design/icons";
 interface IQueryParam {
     page: number
 }
 
 export default function ListProduct({ page }: IQueryParam) {
-    const [products] = useFetchListOData<IProduct>({
+    const [loading, setLoading] = useState(true);
+    const [products] = useFetchListOData<Product>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_SHOP_URL}odata/product`,
         limit: 8,
         method: "GET",
         page: page
     });
+
+    useEffect(() => {
+        setLoading(false);
+    }, [products]);
+
+    if (loading)
+        return (
+            <div className="w-full h-[80vh] text-white flex flex-col items-center justify-center space-y-4">
+                <Spin indicator={<LoadingOutlined style={{ fontSize: 64, color: 'white' }} spin />} />
+                <span className="font-bold uppercase">Loading products...</span>
+            </div>
+        );
 
     return (
         <>
@@ -37,7 +53,7 @@ export default function ListProduct({ page }: IQueryParam) {
                     {products.length > 0 ? (
                         <div className="min-w-full grid grid-cols-4 gap-4">
                             {
-                                products.map((product: IProduct) => (
+                                products.map((product: Product) => (
                                     <Product key={product.Id} data={product} />
                                 ))
                             }

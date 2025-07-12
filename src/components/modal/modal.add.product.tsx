@@ -1,372 +1,351 @@
 "use client";
 
-import React, { useState, useEffect, useContext } from "react";
-import { notification, Select } from "antd";
-import { sendRequestFile, sendRequest } from "@/utils/api";
-import { AuthContext } from "@/context/AuthContext";
+import { AuthContext } from '@/context/AuthContext';
+import { sendRequest, sendRequestFile } from '@/utils/api';
+import { CloseOutlined, LoadingOutlined, ShopFilled, UploadOutlined } from '@ant-design/icons';
+import { Button, Form, Input, Select, Space, Upload, Card, InputNumber, message, Typography, Spin } from 'antd';
+import TextArea from 'antd/es/input/TextArea';
+import { UploadChangeParam, UploadFile } from 'antd/es/upload';
+import { fromPairs } from 'lodash';
+import React, { useContext, useEffect, useState } from 'react'
 
-interface ICategory {
-  _id: string;
-  categoryProductName: string;
+interface ICreateResponse {
+  statusCode: number;
+  message: string;
+  data?: any;
 }
 
-interface UploadProductProps {
-  isEditMode: boolean;
-  editingProduct: any;
-  onClose: () => void;
-  onProductUpdated: () => void;
-}
-
-const UploadProduct: React.FC<UploadProductProps> = ({
-  isEditMode,
-  editingProduct,
-  onClose,
-  onProductUpdated,
-}) => {
-  const { accessToken, user } = useContext(AuthContext) ?? {};
-  const userId = user?._id || user?.id;
-
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("");
-  const [stock, setStock] = useState("");
-  const [image, setImage] = useState<File | null>(null);
-  const [category, setCategory] = useState<string>("");
-  const [categories, setCategories] = useState<ICategory[]>([]);
+const ModalAddProduct = ({ id }: Id) => {
+  const { accessToken } = useContext(AuthContext) ?? {};
   const [loading, setLoading] = useState(false);
+  const [categoryOption, setCategoryOption] = useState<object[]>([]);
+  const [categories, setCategories] = useState<ICategory[]>([]);
+  const [categoryChoose, setCategoryChoose] = useState<string | null>(null);
+  const [cateSize, setCateSize] = useState<ICategorySize[]>([]);
+  const [cateSizes, setCateSizes] = useState<object[]>([]);
+  const [thumbnail, setThumbnail] = useState<File | null>(null);
+  const [optionImage, setOptionImage] = useState<File[]>([]);
+  const [name, setName] = useState<string | "">("");
+  const [desc, setDesc] = useState<string | "">("");
+  // const [option, setOption] = useState<object[]>([{}]);
+  const [productId, setProductId] = useState<string | "">("");
+  const [form] = Form.useForm();
+
+
 
   useEffect(() => {
-    const fetchCategories = async () => {
-      if (!accessToken) return;
-      try {
-        const res = await sendRequest<{
-          statusCode: number;
-          data: ICategory[];
-        }>({
-          url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/category-for-products`,
-          method: "GET",
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
-
-        if (res.statusCode === 200) {
-          setCategories(res.data);
-        } else {
-          notification.error({ message: "Failed to fetch categories." });
+    if (!accessToken) return;
+    const getCategories = async () => {
+      const res = await sendRequest<IListOdata<ICategory>>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_SHOP_URL}odata/category`,
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        queryParams: {
+          $filter: ("ParentId eq null")
         }
-      } catch {
-        notification.error({
-          message: "An error occurred while retrieving categories.",
-        });
-      }
+      });
+      // console.log(res.value);
+
+      if (res.value) setCategories(res.value);
     };
+    getCategories();
+  }, [accessToken])
 
-    fetchCategories();
+  const onChange = (value: string) => {
+    setCategoryChoose(value);
+  }
 
-    if (isEditMode && editingProduct) {
-      setName(editingProduct.productName);
-      setDescription(editingProduct.productDescription || "");
-      setPrice(editingProduct.productPrice.toString());
-      setStock(editingProduct.stock.toString());
-      setCategory(editingProduct.productCategory);
+  useEffect(() => {
+    if (!accessToken) return;
+    let query;
+    if (!categoryChoose) {
+      query = {
+        $filter: "CategoryId eq null"
+      }
+    } else {
+      query = {
+        $filter: `CategoryId eq '${categoryChoose}'`
+      }
     }
-  }, [accessToken, isEditMode, editingProduct]);
 
-  const validateInputs = () => {
-    if (!name.trim()) {
-      notification.error({ message: "Product name is required." });
-      return false;
-    }
-    if (!description.trim()) {
-      notification.error({ message: "Product description is required." });
-      return false;
-    }
-    if (!price || isNaN(Number(price)) || Number(price) <= 0) {
-      notification.error({
-        message: "Price is required and must be a positive number.",
+    const getCategorySize = async () => {
+      const res = await sendRequest<IListOdata<ICategorySize>>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_SHOP_URL}odata/product-size`,
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        queryParams: query
       });
-      return false;
+      if (res.value) setCateSize(res.value);
     }
-    if (
-      !stock ||
-      isNaN(Number(stock)) ||
-      Number(stock) < 0 ||
-      !Number.isInteger(Number(stock))
-    ) {
-      notification.error({
-        message: "Stock is required and must be a positive number.",
-      });
-      return false;
-    }
-    if (!category) {
-      notification.error({ message: "Please select a product category." });
-      return false;
-    }
-    if (!isEditMode && !image) {
-      notification.error({ message: "Please upload an image." });
-      return false;
-    }
-    return true;
+    getCategorySize();
+
+  }, [accessToken, categoryChoose]);
+
+  useEffect(() => {
+    setCategoryOption(categories.map((category) => (
+      {
+        value: category.Id,
+        label: category.Name,
+      }
+    )));
+    setCateSizes(cateSize.map((categorySize) => (
+      {
+        value: categorySize.Id,
+        label: categorySize.Size
+      }
+    )));
+  }, [categories, cateSize])
+
+  // start set file
+  const handleFileChange = (
+    e: UploadChangeParam<UploadFile>,
+    setFile: React.Dispatch<React.SetStateAction<File | null>>
+  ) => {
+    const file = e.file.originFileObj;
+    if (file) setFile(file);
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) setImage(file);
+  const handleOptionFileChange = (e, index) => {
+    const file = e.file.originFileObj;
+    if (!file) return;
+    const files = [...optionImage];
+    files[index] = file;
+    setOptionImage(files);
+    
+  }
+  // End set file
+
+  const beforeUpload = (file: File) => {
+    const isImage = file.type.startsWith("image/");
+    const isLt2M = file.size / 1024 / 1024 < 2;
+    if (!isImage) {
+      message.error("Only up load image!");
+    }
+    if (!isLt2M) {
+      message.error("Image must be smaller than 2MB!");
+    }
+    return isImage && isLt2M;
   };
 
-  const handleUpload = async () => {
-    if (!accessToken) {
-      notification.error({
-        message: "You are not logged in. Please log in again.",
-      });
-      return;
-    }
-
-    if (!validateInputs()) return;
-
-    setLoading(true);
+  // start Upload file
+  const UploadFile = async (file: File) => {
     try {
-      let imageUrl = editingProduct?.image || null;
-      if (image) {
+      let imageUrl = "";
+      if (file) {
         const uploadImageForm = new FormData();
-        uploadImageForm.append("file", image);
-        uploadImageForm.append("folder", "products");
-
-        const imageUploadRes = await sendRequestFile<{
-          statusCode: number;
-          data: string;
-        }>({
+        uploadImageForm.append("file", file);
+        uploadImageForm.append("folder", "thumbnails");
+        const thumbnailUploadRes = await sendRequestFile<ICreateResponse>({
           url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/upload/upload-image`,
           method: "POST",
           headers: { Authorization: `Bearer ${accessToken}` },
           body: uploadImageForm,
         });
-
-        if (imageUploadRes.statusCode === 201) {
-          imageUrl = imageUploadRes.data;
-        } else {
-          throw new Error("Image upload failed");
+        if (thumbnailUploadRes.statusCode === 201) {
+          imageUrl = thumbnailUploadRes.data;
         }
       }
+      return imageUrl;
+    } catch {
+      message.error("Upload image fail!")
+    }
+  }
+  // End upload file
 
-      const productData = {
-        userId,
-        productName: name,
-        productDescription: description,
-        productCategory: category,
-        productPrice: Number(price),
-        stock: Number(stock),
-        image: imageUrl,
+  // start post data
+  const handleSubmitCreate = async () => {
+    try {
+      setLoading(true);
+
+      const formData = form.getFieldsValue();
+
+      const thumbnailUri = thumbnail ? await UploadFile(thumbnail) : null;
+
+      const options = await Promise.all(
+        (formData.Options || []).map(async (opt, index) => {
+          const optionImageFile = optionImage[index]; // lấy file đã lưu trước đó
+          const imageUrl = optionImageFile ? await UploadFile(optionImageFile) : null;
+
+          return {
+            ...opt,
+            Image: imageUrl,
+            ProductVariants: opt.ProductVariants?.map(variant => ({
+              ...variant,
+              Quantity: Number(variant.Quantity),
+              Price: Number(variant.Price),
+            })) || []
+          };
+        })
+      );
+
+      const payload = {
+        Name: formData.Name,
+        ShopId: id,
+        Description: formData.Description,
+        ImageUri: thumbnailUri,
+        CategoryId: formData.CategoryId,
+        Options: options
       };
 
-      const url = isEditMode
-        ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/products/${editingProduct._id}`
-        : `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/products`;
-      const method = isEditMode ? "PUT" : "POST";
+      console.log("Payload:", payload);
 
-      const postRes = await sendRequest<{
-        statusCode: number;
-        message: string;
-      }>({
-        url,
-        method,
-        headers: { Authorization: `Bearer ${accessToken}` },
-        body: productData,
-      });
-
-      if (postRes.statusCode === 200 || postRes.statusCode === 201) {
-        notification.success({
-          message: isEditMode
-            ? "Product updated successfully!"
-            : "Product added successfully!",
-        });
-        onProductUpdated();
-        onClose();
-      } else {
-        notification.error({
-          message: postRes.message || "Product upload failed.",
-        });
-      }
-    } catch {
-      notification.error({ message: "An error occurred during upload." });
+      // await sendRequest({
+      //   url: `${process.env.NEXT_PUBLIC_BACKEND_SHOP_URL}odata/product`,
+      //   method: "POST",
+      //   headers: {
+      //     Authorization: `Bearer ${accessToken}`,
+      //   },
+      //   body: payload
+      // })
+    } catch (err) {
+      throw new Error(`Error: ${err}`);
     } finally {
       setLoading(false);
     }
-  };
+  }
+  // End post data
+
+  if (loading)
+    return (
+      <div className='flex flex-col items-center w-full '>
+        <Spin indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} />
+        <span>Creating product...</span>
+      </div>
+    )
 
   return (
-    <div className="form-container">
-      <h2 className="form-title">{isEditMode ? "Edit Product" : ""}</h2>
-
-      <div className="form-field">
-        <label className="form-label">Product Name</label>
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="form-input"
-        />
-      </div>
-
-      <div className="form-field">
-        <label className="form-label">Description</label>
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="form-textarea"
-          placeholder="Enter description..."
-        />
-      </div>
-
-      <div className="form-row">
-        <div className="form-field">
-          <label className="form-label">Price</label>
-          <input
-            type="number"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            className="form-input"
-          />
-        </div>
-        <div className="form-field">
-          <label className="form-label">Stock</label>
-          <input
-            type="number"
-            value={stock}
-            onChange={(e) => setStock(e.target.value)}
-            className="form-input"
-          />
-        </div>
-      </div>
-
-      <div className="form-field">
-        <label className="form-label">Image</label>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleFileChange}
-          className="form-input-file"
-        />
-      </div>
-
-      <div className="form-field">
-        <label className="form-label">Category</label>
-        <Select
-          placeholder="Select Category"
-          className="form-select"
-          value={category || undefined}
-          onChange={setCategory}
+    <Form layout="horizontal"
+      form={form}
+      labelCol={{ span: 4 }}
+      clearOnDestroy={true}>
+      <Form.Item label="Name" name={"Name"}>
+        <Input onChange={(e) => setName(e.target.value)} />
+      </Form.Item>
+      <Form.Item label="Description" name={"Description"}>
+        <TextArea rows={4} onChange={(e) => setDesc(e.target.value)} />
+      </Form.Item>
+      <Form.Item label="Image">
+        <Upload
+          listType="picture"
+          beforeUpload={beforeUpload}
+          onChange={(e) => handleFileChange(e, setThumbnail)}
+          maxCount={1}
         >
-          {categories.map((category) => (
-            <Select.Option
-              key={category._id}
-              value={category.categoryProductName}
-            >
-              {category.categoryProductName}
-            </Select.Option>
-          ))}
-        </Select>
-      </div>
+          <Button icon={<UploadOutlined />}>Upload image(Max: 1)</Button>
+        </Upload>
+      </Form.Item>
+      <Form.Item label="Category" name={"CategoryId"}>
+        <Select
+          allowClear
+          showSearch
+          placeholder="Select category of product"
+          optionFilterProp="label"
+          onChange={onChange}
+          // onSearch={onSearch}
+          options={categoryOption}
+        />
+      </Form.Item>
+      <Form.List name="Options">
+        {(fields, { add, remove }) => (
+          <div style={{ display: 'flex', rowGap: 16, flexDirection: 'column' }}>
+            {fields.map((field) => (
+              <Card
+                size="small"
+                title={`Option ${field.name + 1}`}
+                key={field.key}
+                extra={
+                  <CloseOutlined
+                    onClick={() => {
+                      remove(field.name);
+                    }}
+                  />
+                }
+              >
+                <Form.Item label="Color" name={[field.name, 'Color']}>
+                  <Input />
+                </Form.Item>
+                <Form.Item label="Type" name={[field.name, 'Type']}>
+                  <Input />
+                </Form.Item>
+                <Form.Item label="Image" name={[field.name, 'Image']}>
+                  <Upload
+                    listType="picture"
+                    key={field.key}
+                    beforeUpload={beforeUpload}
+                    onChange={(e) => handleOptionFileChange(e, field.name)}
+                    maxCount={1}
+                  >
+                    <Button icon={<UploadOutlined />}>Upload image(Max: 1)</Button>
+                  </Upload>
+                </Form.Item>
+                {/* Nest Form.List */}
+                <Form.Item label="Variant">
+                  <Form.List name={[field.name, 'ProductVariants']}>
+                    {(subFields, subOpt) => (
+                      <div style={{ display: 'flex', flexDirection: 'column', rowGap: 16 }}>
+                        {subFields.map((subField) => (
+                          <Card
+                            key={subField.key}
+                            extra={
+                              <CloseOutlined
+                                onClick={() => {
+                                  subOpt.remove(subField.name);
+                                }}
+                              />}>
+                            <Form.Item style={{ width: "100%" }} name={[subField.name, 'SizeId']}>
+                              <Select
+                                allowClear
+                                showSearch
+                                key={subField.key}
+                                placeholder="Select category size"
+                                // onChange={handleChange}
+                                options={cateSizes}
+                              />
+                            </Form.Item>
+                            <Form.Item className='mb-0 flex space-x-3'>
+                              <Form.Item noStyle name={[subField.name, 'Quantity']}>
+                                <InputNumber placeholder="Quantity" />
+                              </Form.Item>
+                              <Form.Item noStyle name={[subField.name, 'Price']}>
+                                <InputNumber placeholder="Price" />
+                              </Form.Item>
+                            </Form.Item>
+                          </Card>
+                        ))}
+                        <Button type="dashed" onClick={() => subOpt.add()} block>
+                          + Add Sub Item
+                        </Button>
+                      </div>
+                    )}
+                  </Form.List>
+                </Form.Item>
+              </Card>
+            ))}
 
-      <button
-        onClick={handleUpload}
-        disabled={loading}
-        className={`form-button ${
-          loading ? "button-disabled" : "button-active"
-        }`}
-      >
-        {loading ? "Saving..." : isEditMode ? "Save Changes" : "Add Product"}
-      </button>
+            <Button type="dashed" onClick={() => add()} block>
+              + Add option
+            </Button>
+          </div>
+        )}
+      </Form.List>
+      {/* <Form.Item noStyle shouldUpdate>
+        {() => (
+          <Typography>
+            <pre>{JSON.stringify(form.getFieldsValue(), null, 2)}</pre>
+          </Typography>
+        )}
+      </Form.Item> */}
+      <Form.Item style={{ marginTop: "20px" }}>
+        <Space>
+          <button onClick={() => handleSubmitCreate()} className='bg-black p-1.5 px-4 text-white rounded-md border hover:border-black hover:bg-white hover:text-black hover:shadow-md'>Submit</button>
+        </Space>
+      </Form.Item>
+    </Form>
+  )
+}
 
-      <style jsx>{`
-        .form-container {
-          max-width: 400px; /* Giảm chiều rộng */
-          margin: 20px auto; /* Giảm margin */
-          background-color: #ffffff;
-          padding: 16px; /* Giảm padding */
-          border-radius: 8px;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .form-title {
-          font-size: 18px; /* Giảm kích thước tiêu đề */
-          font-weight: 600;
-          color: #1f2937;
-          text-align: center;
-          margin-bottom: 12px; /* Giảm khoảng cách */
-        }
-
-        .form-row {
-          display: flex;
-          gap: 10px; /* Giảm khoảng cách giữa các field */
-          margin-bottom: 8px; /* Giảm khoảng cách dưới */
-        }
-
-        .form-field {
-          margin-bottom: 8px; /* Giảm khoảng cách giữa các trường */
-        }
-
-        .form-label {
-          display: block;
-          font-size: 12px; /* Giảm kích thước font */
-          font-weight: 500;
-          color: #374151;
-          margin-bottom: 2px; /* Giảm khoảng cách với input */
-        }
-
-        .form-input,
-        .form-textarea,
-        .form-input-file {
-          width: 100%;
-          padding: 6px; /* Giảm padding */
-          border: 1px solid #d1d5db;
-          border-radius: 4px; /* Giảm bo góc */
-          font-size: 12px; /* Giảm kích thước font */
-          color: #1f2937;
-          transition: border-color 0.2s ease;
-        }
-
-        .form-input:focus,
-        .form-textarea:focus,
-        .form-input-file:focus {
-          border-color: #3b82f6;
-          outline: none;
-        }
-
-        .form-textarea {
-          min-height: 40px; /* Giảm chiều cao textarea */
-          resize: vertical;
-        }
-
-        .form-select {
-          width: 100%;
-          height: 28px; /* Giảm chiều cao Select */
-        }
-
-        .form-button {
-          width: 100%;
-          padding: 8px; /* Giảm padding */
-          border-radius: 4px;
-          font-size: 13px; /* Giảm kích thước font */
-          font-weight: 500;
-          color: #ffffff;
-          transition: background-color 0.2s ease;
-        }
-
-        .button-active {
-          background-color: #3b82f6;
-        }
-
-        .button-active:hover {
-          background-color: #2563eb;
-        }
-
-        .button-disabled {
-          background-color: #9ca3af;
-          cursor: not-allowed;
-        }
-      `}</style>
-    </div>
-  );
-};
-
-export default UploadProduct;
+export default ModalAddProduct
