@@ -9,17 +9,7 @@ import Cookies from "js-cookie";
 import { useShowComment } from "@/context/ShowCommentContext";
 import { useSearchParams, useRouter } from "next/navigation";
 import TagMusic from "@/components/music/tag.music";
-import {
-  Play,
-  Volume2,
-  VolumeX,
-  ChevronUp,
-  ChevronDown,
-  Video,
-  Heart,
-  Send,
-  X,
-} from "lucide-react";
+import { Video, Heart, Send, X } from "lucide-react";
 import { Button } from "antd";
 import InteractSideBar from "@/components/page/trending/interact_sidebar";
 import VideoFooter from "@/components/page/trending/video-footer";
@@ -491,14 +481,14 @@ const TrendingPage = () => {
               style={{ minHeight: "100vh" }}
             >
               {currentVideo ? (
-                <div className="relative flex flex-col items-center justify-center w-full h-full rounded-2xl">
+                <div className="relative flex flex-col items-center justify-center w-full h-full rounded-2xl left-[4%]">
                   {/* Video player */}
                   <div
                     className="flex items-center justify-center w-full"
                     style={{ height: "85vh" }}
                   >
                     <div
-                      className="rounded-2xl shadow-xl flex items-center justify-center"
+                      className="rounded-2xl flex items-center justify-center "
                       style={{ marginTop: "-60px" }}
                     >
                       <MainVideo
@@ -563,10 +553,9 @@ const TrendingPage = () => {
                       }}
                     >
                       <div className="relative w-20 h-14 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-lg overflow-hidden">
-                        <video
+                        <img
                           className="w-full h-full object-cover"
                           src={video.videoThumbnail}
-                          muted
                         />
                       </div>
                       <div className="flex-1">
@@ -696,9 +685,19 @@ const TrendingPage = () => {
             </div>
           </div>
         </div>
-        {currentMusic && (
+        {/* {currentMusic && (
           <div className="fixed bottom-4 right-4 w-64 h-16 bg-gray-800/70 backdrop-blur-md rounded-lg flex items-center px-3 border border-white/10">
             <TagMusic onClick={handleNavigate} item={currentMusic} />
+          </div>
+        )} */}
+        {currentMusic && (
+          <div className="fixed bottom-4 left-4 w-80 h-20 bg-black/80 backdrop-blur-md rounded-xl flex px-3 border border-white/10 z-10">
+            <TagMusic
+              onClick={handleNavigate}
+              item={currentMusic}
+              // isPlaying={true}
+              // isCurrentTrack={true}
+            />
           </div>
         )}
       </div>
