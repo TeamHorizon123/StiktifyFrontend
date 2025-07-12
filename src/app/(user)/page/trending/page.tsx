@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
+import Image from "next/image";
 import Header from "@/components/page/trending/header";
 import CommentSection from "@/components/page/trending/comments/comment_section";
 import { AuthContext } from "@/context/AuthContext";
@@ -18,11 +19,11 @@ import {
   Heart,
   Send,
   X,
-  ChevronRight,
 } from "lucide-react";
 import { Button } from "antd";
 import InteractSideBar from "@/components/page/trending/interact_sidebar";
 import VideoFooter from "@/components/page/trending/video-footer";
+import MainVideo from "@/components/page/trending/main_video";
 
 type SidebarMode = "videos" | "interactions" | "comments";
 
@@ -467,109 +468,47 @@ const TrendingPage = () => {
     }
   };
 
-  const handleSearch = () => {
-    if (!searchValue.trim()) return;
-    router.push(`/page/search-user-video?q=${encodeURIComponent(searchValue)}`);
-  };
+  // const handleSearch = () => {
+  //   if (!searchValue.trim()) return;
+  //   router.push(`/page/search-user-video?q=${encodeURIComponent(searchValue)}`);
+  // };
 
   return (
-    <div className="relative max-h-screen bg-black text-white">
-      <Header
+    <div className="relative min-h-screen main-layout text-white">
+      {/* <Header
         isGuest={user ? false : true}
         searchValue={searchValue}
         setSearchValue={setSearchValue}
         onClick={handleSearch}
-      />
-      <div className="h-[calc(100vh-64px)] overflow-hidden bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900">
-        {/* Animated Background */}
-        <div className="absolute inset-0 pointer-events-none select-none z-0">
-          <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-20 right-20 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-cyan-500/20 rounded-full blur-3xl animate-pulse delay-500"></div>
-        </div>
+      /> */}
+      <div className="h-screen overflow-hidden">
         <div className="relative z-10 flex h-full flex-row">
           {/* Video Column (Left) */}
-          <div className="flex-1 flex items-center justify-center">
+          <div className="flex-1 flex items-center justify-center pl-8">
             <div
               onWheel={handleScroll}
-              className="relative w-full h-full flex items-center justify-center"
+              className="relative w-full h-full flex items-center justify-center pr-4"
               style={{ minHeight: "100vh" }}
             >
               {currentVideo ? (
-                <div className="relative w-[80%] h-[85%] max-w-3xl max-h-[90vh] flex items-center justify-center bg-black rounded-2xl border-4 border-purple-700 shadow-xl">
+                <div className="relative flex flex-col items-center justify-center w-full h-full rounded-2xl">
                   {/* Video player */}
-                  <video
-                    ref={videoRef}
-                    className="w-full h-full object-contain bg-black rounded-2xl"
-                    src={currentVideo.videoUrl}
-                    onClick={handleVideoClick}
-                    onEnded={nextVideo}
-                    onTimeUpdate={handleVideoWatched}
-                    autoPlay
-                    muted={isMuted}
-                    loop={false}
-                    style={{
-                      maxHeight: "100%",
-                      maxWidth: "100%",
-                      borderRadius: "1rem",
-                    }}
-                  />
-                  {!isPlaying && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                      <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center">
-                        <Play className="h-8 w-8 text-white ml-1" />
-                      </div>
+                  <div
+                    className="flex items-center justify-center w-full"
+                    style={{ height: "85vh" }}
+                  >
+                    <div
+                      className="rounded-2xl shadow-xl flex items-center justify-center"
+                      style={{ marginTop: "-60px" }}
+                    >
+                      <MainVideo
+                        videoUrl={currentVideo.videoUrl}
+                        onVideoWatched={handleVideoWatched}
+                        onVideoDone={nextVideo}
+                        onPlay={() => setIsPlaying(true)}
+                        onPause={() => setIsPlaying(false)}
+                      />
                     </div>
-                  )}
-                  {sidebarMode === "interactions" && (
-                    <div className="absolute bottom-6 left-6 right-6 p-4 bg-black/60 rounded-lg backdrop-blur-sm text-white text-shadow">
-                      <h3 className="text-lg font-semibold mb-2 line-clamp-2">
-                        {currentVideo.videoDescription}
-                      </h3>
-                      <div className="flex items-center gap-2 text-sm text-gray-300">
-                        <span>{currentVideo.totalViews} views</span>
-                        <span>•</span>
-                        <span>
-                          {new Date(
-                            currentVideo.createdAt
-                          ).toLocaleDateString()}
-                        </span>
-                      </div>
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {currentVideo.videoTag?.map((tag, index) => (
-                          <span
-                            key={index}
-                            className="bg-white/20 text-xs px-2 py-1 rounded-full"
-                          >
-                            #{tag}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  <div className="absolute left-4 top-1/2 transform -translate-y-1/2 flex flex-col gap-3">
-                    <Button
-                      shape="circle"
-                      icon={<ChevronUp />}
-                      onClick={prevVideo}
-                      disabled={currentVideoIndex === 0}
-                      className="text-white bg-black/30 hover:bg-white/20 w-10 h-10 p-0"
-                    />
-                    <Button
-                      shape="circle"
-                      icon={<ChevronDown />}
-                      onClick={nextVideo}
-                      disabled={currentVideoIndex === videoData.length - 1}
-                      className="text-white bg-black/30 hover:bg-white/20 w-10 h-10 p-0"
-                    />
-                  </div>
-                  <div className="absolute top-4 left-4">
-                    <Button
-                      shape="circle"
-                      icon={isMuted ? <VolumeX /> : <Volume2 />}
-                      onClick={() => setIsMuted(!isMuted)}
-                      className="text-white bg-black/30 hover:bg-white/20 w-10 h-10 p-0"
-                    />
                   </div>
                 </div>
               ) : (
@@ -580,7 +519,8 @@ const TrendingPage = () => {
               )}
             </div>
           </div>
-          <div className="w-[400px] max-w-full h-full bg-gradient-to-b from-purple-800/90 to-purple-900/90 border-l border-purple-700 flex flex-col">
+
+          <div className="w-[450px] max-w-full h-full bg-[#18182c] flex flex-col">
             <div className="flex gap-2 p-4">
               <button
                 className={`flex-1 px-4 py-2 rounded-lg font-semibold flex items-center justify-center gap-2 transition ${
@@ -604,23 +544,19 @@ const TrendingPage = () => {
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-4 pb-4">
+            <div className="flex-1 overflow-y-auto px-4 pb-4 h-[calc(100vh-120px)]">
               {sidebarMode === "videos" && (
                 <div>
-                  <div className="flex items-center gap-2 mb-4">
-                    <ChevronRight className="h-5 w-5 text-purple-400" />
-                    <h3 className="text-white font-semibold">Related Videos</h3>
-                  </div>
                   {videoData.map((video, index) => (
                     <div
                       key={index}
                       className={`flex gap-3 p-3 rounded-lg cursor-pointer transition-colors mb-2
-      ${
-        index === currentVideoIndex
-          ? "bg-purple-400/30 border-2 border-purple-400 shadow-lg"
-          : "hover:bg-white/5"
-      }
-    `}
+                                  ${
+                                    index === currentVideoIndex
+                                      ? "bg-purple-600/20 border-2 border-purple-400 shadow-lg"
+                                      : "hover:bg-white/5"
+                                  }
+                                `}
                       onClick={() => {
                         setCurrentVideoIndex(index);
                         setCurrentVideo(videoData[index]);
@@ -629,7 +565,7 @@ const TrendingPage = () => {
                       <div className="relative w-20 h-14 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-lg overflow-hidden">
                         <video
                           className="w-full h-full object-cover"
-                          src={video.videoUrl}
+                          src={video.videoThumbnail}
                           muted
                         />
                       </div>
@@ -653,22 +589,30 @@ const TrendingPage = () => {
                   ))}
                 </div>
               )}
+
               {sidebarMode === "interactions" && (
-                <InteractSideBar
-                  creatorId={currentVideo?.userId?.fullname || ""}
-                  userId={currentVideo?.userId?._id || ""}
-                  avatarUrl={currentVideo?.userId?.image}
-                  videoId={currentVideo?._id}
-                  numberComment={currentVideo?.totalComment}
-                  numberReaction={currentVideo?.totalReaction}
-                  onReactionAdded={onReactionAdded}
-                  onReactionRemove={onReactionRemove}
-                  onCommentClick={() => setSidebarMode("comments")}
-                  isHidden={false}
-                />
+                <div className="h-full">
+                  {/* User Info */}
+                  <InteractSideBar
+                    creatorId={currentVideo?.userId?.fullname || ""}
+                    userId={currentVideo?.userId?._id || ""}
+                    avatarUrl={currentVideo?.userId?.image}
+                    videoId={currentVideo?._id}
+                    numberComment={currentVideo?.totalComment}
+                    numberReaction={currentVideo?.totalReaction}
+                    onReactionAdded={onReactionAdded}
+                    onReactionRemove={onReactionRemove}
+                    onCommentClick={() => setSidebarMode("comments")}
+                    isHidden={false}
+                    videoDescription={currentVideo?.videoDescription}
+                    totalViews={currentVideo?.totalViews}
+                    createdAt={currentVideo?.createdAt?.toString()}
+                    videoTags={currentVideo?.videoTag}
+                  />
+                </div>
               )}
               {sidebarMode === "comments" && (
-                <div className="flex flex-col h-full max-h-full">
+                <div className="flex flex-col h-full">
                   {/* Header */}
                   <div className="p-4 border-b border-white/10 flex items-center justify-between">
                     <h3 className="text-white font-semibold text-lg">
@@ -690,22 +634,20 @@ const TrendingPage = () => {
                       key={currentVideo?._id + sidebarMode + refreshComments}
                       videoId={currentVideo?._id}
                       showComments={sidebarMode === "comments"}
-                      enableReply={true}
-                      enableReact={true}
                       user={user}
                       userAvatar={user?.image}
-                      // onCommentAdded={() => setRefreshComments((v) => v + 1)}
                       onCommentAdded={onCommentAdded}
-                      onCommentRemove={onCommentRemove}
                     />
                   </div>
                   {/* Comment Input */}
-                  <div className="rounded-xl bg-white/10 p-4 mb-4">
+                  <div className="rounded-xl bg-white/10 p-4">
                     {user ? (
                       <div className="flex items-center gap-3">
-                        <img
+                        <Image
                           src={user.image}
                           alt="User Avatar"
+                          width={36}
+                          height={36}
                           className="w-9 h-9 rounded-full object-cover"
                         />
                         <div className="flex-1 relative">
@@ -725,12 +667,12 @@ const TrendingPage = () => {
                             onClick={handlePostComment}
                             disabled={!newComment.trim()}
                             className={`absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full
-            ${
-              newComment.trim()
-                ? "bg-purple-500 hover:bg-purple-600"
-                : "bg-purple-900/60"
-            }
-            text-white transition`}
+                              ${
+                                newComment.trim()
+                                  ? "bg-purple-500 hover:bg-purple-600"
+                                  : "bg-purple-900/60"
+                              }
+                              text-white transition`}
                           >
                             <Send className="h-4 w-4" />
                           </button>
