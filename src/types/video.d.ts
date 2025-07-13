@@ -22,6 +22,8 @@ interface IVideo {
   createdAt: Date;
   isDelete: boolean;
   flag: boolean;
+  segments: string[];
+  m3u8_png: string;
 }
 interface IUser {
   _id: string;

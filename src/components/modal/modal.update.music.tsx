@@ -40,33 +40,6 @@ const UpdateMusic = (props: IProps) => {
     const [isLoading, setIsLoading] = useState(false)
     const [dataCreate, setDataCreate] = useState<any>(null)
 
-    const handleSearch = async (value: string) => {
-        if (value.length > 0) {
-            const res = await handleGetAllUser(1, 10, value, "USERS");
-            if (res?.statusCode === 200) {
-                const data: IUser[] = res.data.result;
-                if (data && data.length > 0) {
-                    const formattedData = data.map(item => ({
-                        value: JSON.stringify({ _id: item._id, fullname: item.fullname }),
-                        label: (
-                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                <img src={item.image} alt={item.fullname} style={{ width: 24, height: 24, borderRadius: "50%" }} />
-                                <span>{item.fullname}</span>
-                            </div>
-                        ),
-                        text: item.fullname.toLowerCase(),
-                    }));
-                    setDataSearch(formattedData);
-                } else {
-                    setDataSearch([]);
-                }
-            } else {
-                setDataSearch([]);
-            }
-        } else {
-            setDataSearch([]);
-        }
-    };
 
 
     const handleCloseCreateModal = () => {
@@ -356,30 +329,20 @@ const UpdateMusic = (props: IProps) => {
                                                 > */}
                                                 {/* <Input style={{ width: 100 }} placeholder="Enter tag" type='text' /> */}
                                                 {/* </Form.Item> */}
-                                                <Form.Item
-                                                    style={{ minWidth: "150px" }}
-
-                                                    hasFeedback
-                                                    {...field}
-                                                    validateTrigger={['onChange', 'onBlur']}
-                                                    rules={[{ required: true, message: 'Please choose your music tag!' }]}
+                                                 <Form.Item
+                                                style={{ minWidth: "150px" }}
+                                                hasFeedback
+                                                {...field}
+                                                validateTrigger={['onChange', 'onBlur']}
+                                                rules={[{ required: true, message: 'Please choose your music tag!' }]}
                                                 >
-                                                    <Select
-                                                        style={{ minWidth: "50px" }}
-                                                        showSearch
-                                                        placeholder="Search tag"
-                                                        onSearch={handleSearch}
-                                                        filterOption={(input, option) => option && "text" in option ? option.text.includes(input.toLowerCase()) : false}
-                                                        options={dataSearch}
-                                                    />
-
-
-                                                    {/* <Option value="demo">Demo</Option>
-                                                        <Option value="example">Example</Option>
-                                                        <Option value="test">Test</Option>
-                                                    </Select> */}
-
+                                                <Select
+                                                    style={{ minWidth: "50px" }}
+                                                    placeholder="Choose tag"
+                                                    options={dataSearch}
+                                                />
                                                 </Form.Item>
+
                                                 {fields.length > 1 && <MinusCircleOutlined
                                                     style={{
                                                         position: "absolute",
