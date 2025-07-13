@@ -94,7 +94,6 @@ const MainVideo: React.FC<MainVideoProps> = ({
       if (isFinite(current) && isFinite(total)) {
         setCurrentTime(current);
 
-        // Update buffered time
         if (videoRef.current.buffered.length > 0) {
           const buffered = videoRef.current.buffered.end(
             videoRef.current.buffered.length - 1
@@ -154,25 +153,18 @@ const MainVideo: React.FC<MainVideoProps> = ({
     return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
   };
 
-  // Handle wheel scroll for video navigation
   const handleWheel = useCallback(
     (e: React.WheelEvent) => {
-      // Prevent default scroll behavior
       e.preventDefault();
       e.stopPropagation();
 
-      // Check if scrolling on controls area - if so, allow normal behavior
       const target = e.target as HTMLElement;
       if (target.closest(".video-controls")) {
         return;
       }
-
-      // Navigate videos based on scroll direction
       if (e.deltaY > 0) {
-        // Scroll down - next video
         onScrollNext?.();
       } else {
-        // Scroll up - previous video
         onScrollPrev?.();
       }
     },
@@ -233,7 +225,6 @@ const MainVideo: React.FC<MainVideoProps> = ({
       setIsFullscreen(!!document.fullscreenElement);
     };
 
-    // Add all event listeners
     videoElement.addEventListener("loadstart", handleLoadStart);
     videoElement.addEventListener("canplay", handleCanPlay);
     videoElement.addEventListener("waiting", handleWaiting);
@@ -246,7 +237,6 @@ const MainVideo: React.FC<MainVideoProps> = ({
     videoElement.addEventListener("volumechange", handleVolumeChangeEvent);
     document.addEventListener("fullscreenchange", handleFullscreenChangeEvent);
 
-    // Initial state sync
     setIsPlaying(!videoElement.paused);
     setIsMuted(videoElement.muted);
     const initialVolume = videoElement.volume * 100;
@@ -272,7 +262,6 @@ const MainVideo: React.FC<MainVideoProps> = ({
     };
   }, [handleTimeUpdate, onVideoDone]);
 
-  // Keyboard controls for play/pause and mute
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement;
@@ -391,7 +380,7 @@ const MainVideo: React.FC<MainVideoProps> = ({
   return (
     <div
       className="flex justify-center items-center min-h-screen p-4 left-[15%] w-full max-w-[1000px] mx-auto"
-      onWheel={handleWheel} // Thêm wheel handler ở container level
+      onWheel={handleWheel}
     >
       <div
         className={`relative ${getVideoContainerClasses()} group shadow-2xl rounded-lg overflow-hidden bg-black`}
@@ -403,7 +392,7 @@ const MainVideo: React.FC<MainVideoProps> = ({
           ref={videoRef}
           src={videoUrl}
           autoPlay
-          muted={true}
+          muted={false}
           className={getVideoClasses()}
           loop={!isAutoNext}
           onClick={handleVideoClick}
@@ -438,18 +427,12 @@ const MainVideo: React.FC<MainVideoProps> = ({
             showControls || !isPlaying ? "opacity-100" : "opacity-0"
           }`}
         >
-          {/* Progress Bar with Buffered */}
           <div className="w-full mb-4 relative h-2 flex items-center">
-            {/* Background rail */}
             <div className="absolute w-full h-1 bg-white/30 rounded-full" />
-
-            {/* Buffered progress */}
             <div
               className="absolute h-1 bg-white/50 rounded-full transition-all duration-300"
               style={{ width: `${bufferedProgress}%` }}
             />
-
-            {/* Current progress with custom slider */}
             <div className="relative w-full h-2">
               <input
                 type="range"
@@ -463,7 +446,6 @@ const MainVideo: React.FC<MainVideoProps> = ({
                 className="absolute w-full h-1 opacity-0 cursor-pointer z-10"
               />
 
-              {/* Progress track */}
               <div className="absolute w-full h-1 rounded-full overflow-hidden top-[25%]">
                 <div
                   className="h-full bg-purple-500 rounded-full transition-all duration-300"
@@ -471,7 +453,6 @@ const MainVideo: React.FC<MainVideoProps> = ({
                 />
               </div>
 
-              {/* Progress handle */}
               <div
                 className="absolute w-3 h-3 bg-purple-500 rounded-full shadow-lg -mt-0.5 transition-all duration-300"
                 style={{ left: `calc(${currentProgress}% - 6px)` }}
@@ -480,7 +461,6 @@ const MainVideo: React.FC<MainVideoProps> = ({
           </div>
 
           <div className="flex items-center justify-between text-white">
-            {/* Left Controls */}
             <div className="flex items-center gap-4">
               <button
                 onClick={togglePlayPause}
@@ -504,8 +484,6 @@ const MainVideo: React.FC<MainVideoProps> = ({
                     <Volume2 className="h-5 w-5" />
                   )}
                 </button>
-
-                {/* Volume slider */}
                 <div className="w-24 relative h-2 flex items-center">
                   <div className="absolute w-full h-1 bg-white/30 rounded-full" />
 
@@ -542,7 +520,6 @@ const MainVideo: React.FC<MainVideoProps> = ({
               </span>
             </div>
 
-            {/* Right Controls */}
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <span className="text-sm">Auto-play</span>

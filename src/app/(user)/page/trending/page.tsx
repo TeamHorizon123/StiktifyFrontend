@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
-import Header from "@/components/page/trending/header";
 import CommentSection from "@/components/page/trending/comments/comment_section";
 import { AuthContext } from "@/context/AuthContext";
 import { sendRequest } from "@/utils/api";
@@ -12,7 +11,6 @@ import TagMusic from "@/components/music/tag.music";
 import { Video, Heart, Send, X } from "lucide-react";
 import { Button } from "antd";
 import InteractSideBar from "@/components/page/trending/interact_sidebar";
-import VideoFooter from "@/components/page/trending/video-footer";
 import MainVideo from "@/components/page/trending/main_video";
 import OtherVideos from "@/components/page/trending/otherVideo";
 

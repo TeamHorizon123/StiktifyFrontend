@@ -40,7 +40,6 @@ const OtherVideos: React.FC<OtherVideosProps> = ({
             <img
               className="w-full h-full object-cover"
               src={video.videoThumbnail}
-              alt="Video thumbnail"
             />
           </div>
           <div className="flex-1">
