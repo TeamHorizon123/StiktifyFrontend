@@ -16,9 +16,16 @@ import { BsPlusSquareFill } from "react-icons/bs";
 import { PiBellSimpleFill } from "react-icons/pi";
 import { FaCircleUser } from "react-icons/fa6";
 import { IoSettings } from "react-icons/io5";
+import { AiOutlineHistory } from "react-icons/ai";
+import { FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { AiFillCustomerService } from "react-icons/ai";
 import { MdReport, MdHelp, MdFeedback, MdDashboard } from "react-icons/md";
 import SearchBar from "@/components/page/searchBar";
 import BtnSignIn from "@/components/button/btnSignIn";
+import NotificationModel from "../notification/NotificationModal";
+import { usePathname } from "next/navigation";
+import { Modal } from "antd";
+import UploadVideoPost from "./trending/upload_video_post";
 
 interface SideBarProps {
   isHidden?: boolean;
@@ -29,7 +36,14 @@ const SideBar: React.FC<SideBarProps> = () => {
   const { user } = useContext(AuthContext) ?? {};
   const [isGuest, setIsGuest] = useState(true);
   const [showSearch, setShowSearch] = useState(false);
+  const [openHistory, setOpenHistory] = useState(false);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+
   const searchRef = useRef<HTMLDivElement>(null);
+
+  const pathname = usePathname();
+
+
 
   useEffect(() => {
     if (user && user._id) {
@@ -140,10 +154,10 @@ const SideBar: React.FC<SideBarProps> = () => {
     // </div>
     <div className="fixed z-20 flex">
       <div
-        className="w-[15rem] max-[600px]:w-[16vw] h-[100vh] flex flex-col bg-[#21201E] text-white items-center lg:items-start overflow-auto drop-shadow-sm lg:pl-4 lg:pr-4">
+        className="w-[15rem] max-[600px]:w-[16vw] h-[100vh] flex flex-col bg-[#18182c] text-white items-center lg:items-start overflow-auto drop-shadow-sm lg:pl-4 lg:pr-4">
         {/* logo */}
         <div className="w-full mt-8 mb-4 flex flex-col space-y-4">
-          <Link className="pl-2 flex items-center text-end text-lg space-x-3" href="/">
+          <Link className="pl-2 flex items-center text-end text-lg space-x-3" href="/page/trending">
             <FaHeadphonesSimple />
             <p className="sm:hidden max-[600px]:hidden lg:block">Stiktify</p>
           </Link>
@@ -158,17 +172,17 @@ const SideBar: React.FC<SideBarProps> = () => {
         <nav className="w-full space-y-6 relative bottom-0 overflow-y-scroll ">
           <ul className="w-full space-y-2 text-base text-center flex flex-col items-center lg:items-start">
             <li className="w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
-              <Link className="flex items-center space-x-2" href="">
-                <AiFillHome />
-                <p className="text-base sm:hidden max-[600px]:hidden lg:block">Home</p>
+              <Link className="flex items-center space-x-2" href="/page/trending">
+                <AiFillFire />
+                <p className="text-base sm:hidden max-[600px]:hidden lg:block">Trending</p>
               </Link>
             </li>
-            <li className="w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
+            {/* <li className="w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
               <Link href="" className="flex items-center space-x-2">
                 <FaGlobeAsia />
                 <p className="text-base sm:hidden max-[600px]:hidden lg:block">Explore</p>
               </Link>
-            </li>
+            </li> */}
             {
               !isGuest ? (
                 <>
@@ -179,30 +193,61 @@ const SideBar: React.FC<SideBarProps> = () => {
                     </Link>
                   </li>
                   <li className="w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
-                    <Link href="" className="flex items-center space-x-2">
-                      <FaUserGroup />
-                      <p className="text-base sm:hidden max-[600px]:hidden lg:block">Friends</p>
+                    <Link href="/page/music" className="flex items-center space-x-2">
+                      <AiFillCustomerService />
+                      <p className="text-base sm:hidden max-[600px]:hidden lg:block">Music</p>
                     </Link>
                   </li>
+
+                  {pathname === "/page/trending" && (
+                    <li className="w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
+                      <button onClick={() => setIsUploadModalOpen(true)} className="flex items-center space-x-2">
+                        <BsPlusSquareFill />
+                        <p className="text-base sm:hidden max-[600px]:hidden lg:block">Upload</p>
+                      </button>
+                    </li>
+                  )}
                   <li className="w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
-                    <Link href="" className="flex items-center space-x-2">
-                      <BsPlusSquareFill />
-                      <p className="text-base sm:hidden max-[600px]:hidden lg:block">Upload</p>
-                    </Link>
+                    <NotificationModel />
                   </li>
-                  <li className="relative w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
-                    <Link href="/page/following" className="flex items-center space-x-2">
-                      <PiBellSimpleFill />
-                      <div className="red-dot absolute hidden"></div>
-                      <p className="text-base sm:hidden max-[600px]:hidden lg:block">Notification</p>
-                    </Link>
-                  </li>
-                  <li className="relative w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
-                    <Link href="" className="flex items-center space-x-2">
-                      <AiFillMessage />
-                      <div className="red-dot absolute hidden"></div>
-                      <p className="text-base sm:hidden max-[600px]:hidden lg:block">Messages</p>
-                    </Link>
+                  <li className="relative w-full h-fit p-2 hover:bg-[#514f4b] rounded-md transition ease-in-out">
+                    <div
+                      onClick={() => setOpenHistory(!openHistory)}
+                      className="flex items-center justify-between cursor-pointer"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <AiOutlineHistory />
+                        <div className="red-dot absolute hidden"></div>
+                        <p className="text-base sm:hidden max-[600px]:hidden lg:block">History</p>
+                      </div>
+                      <div className="ml-2">
+                        {openHistory ? <FaChevronUp size={14} /> : <FaChevronDown size={14} />}
+                      </div>
+                    </div>
+
+                    <div
+                      className={`overflow-hidden transition-all duration-300 ease-in-out ${openHistory ? "max-h-40 mt-2" : "max-h-0"
+                        }`}
+                    >
+                      <ul className="rounded-md shadow-md w-40">
+                        <li className="p-2 hover:bg-[#3a3936] hover:rounded">
+                          <Link
+                            href="/page/videohistory"
+                            className={"/personal/videohistory"}
+                          >
+                            Video History
+                          </Link>
+                        </li>
+                        <li className="p-2 hover:bg-[#3a3936] hover:rounded">
+                          <Link
+                            href="/page/musichistory"
+                            className={"/personal/musichistory"}
+                          >
+                            Music History
+                          </Link>
+                        </li>
+                      </ul>
+                    </div>
                   </li>
                   <li className="w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
                     <Link href="" className="flex items-center space-x-2">
@@ -213,12 +258,12 @@ const SideBar: React.FC<SideBarProps> = () => {
                 </>
               ) : (<> </>)
             }
-            <li className="w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
+            {/* <li className="w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
               <Link href={isGuest ? "/page/trending-guest" : "/page/trending-user"} className="flex items-center space-x-2">
                 <AiFillFire />
                 <p className="text-base sm:hidden max-[600px]:hidden lg:block">Trending</p>
               </Link>
-            </li>
+            </li> */}
             {
               isGuest ? (<>
                 <li className="w-full h-fit p-2">
@@ -243,14 +288,14 @@ const SideBar: React.FC<SideBarProps> = () => {
             </>) : (<></>)
           }
           {/* setting account */}
-          <ul className="w-full space-y-2 text-base text-center flex flex-col items-center lg:items-start">
+          {/* <ul className="w-full space-y-2 text-base text-center flex flex-col items-center lg:items-start">
             <li className="w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
               <Link className="flex items-center space-x-2" href="">
                 <IoSettings />
                 <p className="text-base sm:hidden max-[600px]:hidden lg:block">Setting</p>
               </Link>
-            </li>
-            <li className="w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
+            </li> */}
+          {/* <li className="w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
               <Link href="" className="flex items-center space-x-2">
                 <MdReport />
                 <p className="text-base sm:hidden max-[600px]:hidden lg:block">Report</p>
@@ -267,8 +312,8 @@ const SideBar: React.FC<SideBarProps> = () => {
                 <MdFeedback />
                 <p className="text-base sm:hidden max-[600px]:hidden lg:block">Feedback</p>
               </Link>
-            </li>
-          </ul>
+            </li> */}
+          {/* </ul> */}
           {/* Term & Privacy */}
           <div className="mt-14 ext-sm max-[600px]:text-xs flex flex-col items-center justify-center space-y-1">
             <ul className="flex flex-wrap text-center items-center justify-center space-x-1 lg:text-[10px]" >
@@ -303,6 +348,32 @@ const SideBar: React.FC<SideBarProps> = () => {
           <SearchBar />
         </div>
       )}
+
+      {/* Modal hiển thị form Upload Video */}
+      <Modal
+        title="Upload Video"
+        visible={isUploadModalOpen}
+        footer={null}
+        onCancel={() => setIsUploadModalOpen(false)}
+        destroyOnClose
+      >
+        <UploadVideoPost />
+      </Modal>
+
+      <style jsx global>{`
+  .ant-modal-content,
+  .ant-modal-header,
+  .ant-modal-body {
+    background-color: #1f2937 !important;
+    color: #ffffff !important;
+  }
+
+  .ant-modal-title,
+  .ant-modal-close,
+  .ant-modal-body * {
+    color: #ffffff !important;
+  }
+`}</style>
     </div>
 
   );

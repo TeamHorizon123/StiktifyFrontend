@@ -72,36 +72,37 @@ const CommentPostNotification: React.FC<CommentPostNotificationProps> = ({
   };
 
   return (
-    <div className="flex flex-row justify-between items-center gap-3 p-3 bg-white border rounded-md shadow-sm cursor-pointer">
-      <div className="flex items-start" onClick={handlePostClick}>
-        {/* Avatar */}
-        <div className="relative mr-3">
-          <Image
-            src={
-              notification.sender.image ||
-              "https://firebasestorage.googleapis.com/v0/b/stiktify-bachend.firebasestorage.app/o/avatars%2Fdefault_avatar.png?alt=media&token=93109c9b-d284-41ea-95e7-4786e3c69328"
-            }
-            alt={notification.sender.fullname}
-            width={48}
-            height={48}
-            className="w-12 h-12 rounded-full object-cover"
-          />
-        </div>
+    <div
+      onClick={handlePostClick}
+      className="flex items-center gap-4 p-4 rounded-xl bg-zinc-800 border border-zinc-700 hover:bg-zinc-700 transition cursor-pointer"
+    >
+      {/* Avatar */}
+      <Image
+        src={
+          notification.sender.image ||
+          "https://firebasestorage.googleapis.com/v0/b/stiktify-bachend.firebasestorage.app/o/avatars%2Fdefault_avatar.png?alt=media&token=93109c9b-d284-41ea-95e7-4786e3c69328"
+        }
+        alt={notification.sender.fullname}
+        width={48}
+        height={48}
+        className="w-12 h-12 rounded-full object-cover flex-shrink-0"
+      />
 
-        {/* Nội dung */}
-        <div className="flex-1">
-          <p className="text-sm">
-            <span className="font-bold">
-              {notification.sender.fullname}{" "}
-              <TickedUser userId={notification.sender._id} />
-            </span>{" "}
-            <span className="text-gray-600">just comments in your post.</span>
-          </p>
-          <p className="text-xs text-blue-500 mt-1">{formattedTime}</p>
-        </div>
+      {/* Nội dung */}
+      <div className="flex flex-col">
+        <p className="text-sm text-gray-200">
+          <span className="font-semibold">
+            {notification.sender.fullname}
+            <TickedUser userId={notification.sender._id} />
+          </span>{" "}
+          <span className="text-gray-400">commented on your post.</span>
+        </p>
+        <p className="text-xs text-blue-400 mt-1">{formattedTime}</p>
       </div>
+
+      {/* Dot unread */}
       {status === "pending" && (
-        <span className=" w-3 h-3 bg-blue-500 rounded-full"></span>
+        <span className="ml-auto w-3 h-3 bg-blue-500 rounded-full"></span>
       )}
     </div>
   );

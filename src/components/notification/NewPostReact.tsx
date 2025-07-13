@@ -72,10 +72,10 @@ const ReactPostNotification: React.FC<ReactPostNotificationProps> = ({
   };
 
   return (
-    <div className="flex flex-row justify-between items-center gap-3 p-3 bg-white border rounded-md shadow-sm cursor-pointer">
-      <div className="flex items-start" onClick={handlePostClick}>
+    <div className="flex items-center gap-4 p-4 bg-white border border-zinc-200 rounded-lg shadow hover:shadow-md transition cursor-pointer">
+      <div className="flex items-center" onClick={handlePostClick}>
         {/* Avatar */}
-        <div className="relative mr-3">
+        <div className="relative flex-shrink-0">
           <Image
             src={
               notification.sender.image ||
@@ -89,21 +89,23 @@ const ReactPostNotification: React.FC<ReactPostNotificationProps> = ({
         </div>
 
         {/* Nội dung */}
-        <div className="flex-1">
-          <p className="text-sm">
-            <span className="font-bold">
+        <div className="ml-4">
+          <p className="text-sm text-zinc-800">
+            <span className="font-semibold hover:underline">
               {notification.sender.fullname}{" "}
               <TickedUser userId={notification.sender._id} />
             </span>{" "}
-            <span className="text-gray-600">just reacts in your post.</span>
+            <span className="text-zinc-500">just reacts in your post.</span>
           </p>
-          <p className="text-xs text-blue-500 mt-1">{formattedTime}</p>
+          <p className="text-xs text-blue-600 mt-1">{formattedTime}</p>
         </div>
       </div>
+
       {status === "pending" && (
-        <span className=" w-3 h-3 bg-blue-500 rounded-full"></span>
+        <span className="w-3 h-3 bg-blue-500 rounded-full flex-shrink-0"></span>
       )}
     </div>
+
   );
 };
 

@@ -58,7 +58,7 @@ const SettingHistory: React.FC<SettingHistoryProps> = ({
           className="w-[200px] mt-1"
           onChange={(e) => {
             if (onChange) {
-              onChange(e); 
+              onChange(e);
             }
           }}
         />

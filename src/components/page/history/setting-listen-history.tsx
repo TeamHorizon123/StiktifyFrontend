@@ -74,7 +74,7 @@ const SettingListenHistory: React.FC<SettingListenHistoryProps> = ({
   };
 
   return (
-    <div className="w-[25%] bg-white p-4 rounded-lg">
+    <div className="w-[100%] bg-white p-4 rounded-lg">
       <div className="mb-4 flex items-center gap-2">
         <label className="text-md font-medium">Date: </label>
         <DatePicker className="w-[200px] mt-1" onChange={handleDateChange} />
