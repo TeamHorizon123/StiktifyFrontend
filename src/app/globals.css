@@ -3,10 +3,9 @@
   padding: 0;
   box-sizing: border-box;
 }
-html,
-body {
+.main-layout {
   min-height: 100vh;
-  background: linear-gradient(135deg, #393b6a 0%, #222442 80%, #18182c 100%);
+  background: linear-gradient(135deg, #393b6a 10%, #222442 80%, #18182c 100%);
 }
 :root {
   --mint-green: #80ee98;

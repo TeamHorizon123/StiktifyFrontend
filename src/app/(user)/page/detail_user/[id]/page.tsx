@@ -190,7 +190,7 @@ const UserDetail = () => {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center px-0 py-0">
+    <div className="min-h-screen w-full flex flex-col items-center px-0 py-0 main-layout">
       <div className="w-full max-w-6xl mx-auto pt-10 pb-16">
         {/* Profile Header */}
         <div className="relative flex flex-col items-center md:flex-row md:items-end gap-6 px-6 pb-8">
