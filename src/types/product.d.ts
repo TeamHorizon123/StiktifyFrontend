@@ -27,7 +27,8 @@ interface Product {
     Order: number?,
     Id: string?,
     CreateAt: Date?,
-    UpdateAt: Date?
+    UpdateAt: Date?,
+    Category: ICategory?
 }
 
 interface Id {

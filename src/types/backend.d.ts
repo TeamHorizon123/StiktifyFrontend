@@ -41,9 +41,13 @@ declare global {
     url: string,
     method: string,
     page: number,
-    limit:number,
+    limit: number,
     useCredentials?: boolean,
     headers?,
     nextOption?,
+  }
+
+  interface IOdataRes<T> {
+    value: T?
   }
 }

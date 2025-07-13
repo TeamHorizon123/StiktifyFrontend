@@ -6,7 +6,6 @@ import { CloseOutlined, LoadingOutlined, ShopFilled, UploadOutlined } from '@ant
 import { Button, Form, Input, Select, Space, Upload, Card, InputNumber, message, Typography, Spin } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import { UploadChangeParam, UploadFile } from 'antd/es/upload';
-import { fromPairs } from 'lodash';
 import React, { useContext, useEffect, useState } from 'react'
 
 interface ICreateResponse {
@@ -115,7 +114,7 @@ const ModalAddProduct = ({ id }: Id) => {
     const files = [...optionImage];
     files[index] = file;
     setOptionImage(files);
-    
+
   }
   // End set file
 
@@ -193,14 +192,15 @@ const ModalAddProduct = ({ id }: Id) => {
 
       console.log("Payload:", payload);
 
-      // await sendRequest({
-      //   url: `${process.env.NEXT_PUBLIC_BACKEND_SHOP_URL}odata/product`,
-      //   method: "POST",
-      //   headers: {
-      //     Authorization: `Bearer ${accessToken}`,
-      //   },
-      //   body: payload
-      // })
+      const res = await sendRequest<ICreateResponse>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_SHOP_URL}odata/product`,
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: payload
+      })
+      if (res) return message.info(res.message);
     } catch (err) {
       throw new Error(`Error: ${err}`);
     } finally {

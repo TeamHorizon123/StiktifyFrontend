@@ -7,7 +7,7 @@ interface ICategory {
 }
 
 interface Category {
-    id: string,
+    Id: string,
     name: string,
     parentId: string,
     createAt: Date,
