@@ -1,6 +1,6 @@
 "use client";
-import HistoryList from "@/components/personal/history/history-list";
-import SettingHistory from "@/components/personal/history/setting-history";
+import HistoryList from "@/components/page/history/history-list";
+import SettingHistory from "@/components/page/history/setting-history";
 import Header from "@/components/page/trending/header";
 import { AuthContext } from "@/context/AuthContext";
 import { sendRequest } from "@/utils/api";
@@ -24,11 +24,10 @@ const ViewingHistory = () => {
         updatedAt: watchedDate,
       });
       const res = await sendRequest<IBackendRes<any>>({
-        url: `${
-          process.env.NEXT_PUBLIC_BACKEND_URL
-        }/api/v1/viewinghistory/list-viewing-history?query=${encodeURIComponent(
-          filter
-        )}&current=${currentPage}&pageSize=10&searchValue=${searchValue}&`,
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL
+          }/api/v1/viewinghistory/list-viewing-history?query=${encodeURIComponent(
+            filter
+          )}&current=${currentPage}&pageSize=10&searchValue=${searchValue}&`,
         method: "GET",
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -69,11 +68,10 @@ const ViewingHistory = () => {
     setCurrentPage(1);
     console.log(searchValue);
     const res = await sendRequest<IBackendRes<any>>({
-      url: `${
-        process.env.NEXT_PUBLIC_BACKEND_URL
-      }/api/v1/viewinghistory/list-viewing-history?query=${encodeURIComponent(
-        filter
-      )}&current=${1}&pageSize=10&searchValue=${searchValue}&`,
+      url: `${process.env.NEXT_PUBLIC_BACKEND_URL
+        }/api/v1/viewinghistory/list-viewing-history?query=${encodeURIComponent(
+          filter
+        )}&current=${1}&pageSize=10&searchValue=${searchValue}&`,
       method: "GET",
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -117,11 +115,10 @@ const ViewingHistory = () => {
     }
 
     const res = await sendRequest<IBackendRes<any>>({
-      url: `${
-        process.env.NEXT_PUBLIC_BACKEND_URL
-      }/api/v1/viewinghistory/list-viewing-history?query=${encodeURIComponent(
-        filter
-      )}&current=1&pageSize=10&searchValue=${searchValue}&`,
+      url: `${process.env.NEXT_PUBLIC_BACKEND_URL
+        }/api/v1/viewinghistory/list-viewing-history?query=${encodeURIComponent(
+          filter
+        )}&current=1&pageSize=10&searchValue=${searchValue}&`,
       method: "GET",
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -137,13 +134,13 @@ const ViewingHistory = () => {
   };
 
   return (
-    <div>
-      <Header
+    <div className="flex-grow p-5 ml-64">
+      {/* <Header
         isGuest={false}
         searchValue={searchValue}
         setSearchValue={setSearchValue}
         onClick={() => handleSearchHistory()}
-      />
+      /> */}
       <div className="flex items-start gap-4 mt-2">
         <HistoryList
           videoList={videoList}

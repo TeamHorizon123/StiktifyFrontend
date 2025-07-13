@@ -73,10 +73,10 @@ const FavoriteMusicNotification: React.FC<FavoriteMusicNotificationProps> = ({
   };
 
   return (
-    <div className="flex flex-row justify-between items-center gap-3 p-3 bg-white border rounded-md shadow-sm cursor-pointer">
-      <div className="flex items-start" onClick={handlePostClick}>
+    <div className="flex items-center gap-4 p-4 bg-[#1f1e1d] border border-zinc-700 rounded-lg shadow-sm hover:bg-[#2a2927] transition cursor-pointer">
+      <div className="flex items-center" onClick={handlePostClick}>
         {/* Avatar */}
-        <div className="relative mr-3">
+        <div className="relative mr-4 flex-shrink-0">
           <Image
             src={
               notification.sender.image ||
@@ -90,21 +90,23 @@ const FavoriteMusicNotification: React.FC<FavoriteMusicNotificationProps> = ({
         </div>
 
         {/* Nội dung */}
-        <div className="flex-1">
-          <p className="text-sm">
-            <span className="font-bold">
+        <div className="flex-1 min-w-0">
+          <p className="text-sm text-gray-200">
+            <span className="font-semibold hover:underline">
               {notification.sender.fullname}{" "}
               <TickedUser userId={notification.sender._id} />
             </span>{" "}
-            <span className="text-gray-600">just likes in your music.</span>
+            <span className="text-gray-400">just likes your music.</span>
           </p>
-          <p className="text-xs text-blue-500 mt-1">{formattedTime}</p>
+          <p className="text-xs text-blue-400 mt-1">{formattedTime}</p>
         </div>
       </div>
+
       {status === "pending" && (
-        <span className=" w-3 h-3 bg-blue-500 rounded-full"></span>
+        <span className="w-3 h-3 bg-blue-500 rounded-full flex-shrink-0"></span>
       )}
     </div>
+
   );
 };
 

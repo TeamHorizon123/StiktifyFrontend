@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { notification, Select } from "antd";
 import { AuthContext } from "@/context/AuthContext";
 import { sendRequestFile, sendRequest } from "@/utils/api";
+import styles from "./upload.module.css";
+import { BgColorsOutlined } from "@ant-design/icons";
 
 const { Option } = Select;
 
@@ -30,7 +32,7 @@ const UploadVideoPost: React.FC = () => {
   const [videoDescription, setVideoDescription] = useState("");
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoThumbnail, setVideoThumbnail] = useState<File | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [allCategories, setAllCategories] = useState<ICategory[]>([]);
   const [selectedMusic, setSelectedMusic] = useState<string>("");
   const [allMusic, setAllMusic] = useState<IMusic[]>([]);
@@ -104,13 +106,69 @@ const UploadVideoPost: React.FC = () => {
     if (file) setFile(file);
   };
 
+  const resolveCategoryIds = async (
+    selectedCategories: string[],
+    allCategories: ICategory[],
+    accessToken: string
+  ): Promise<string[]> => {
+    const existingCategoryIds: string[] = [];
+    const newCategoryNames: string[] = [];
+
+
+    selectedCategories.forEach((cat) => {
+      // Nếu cat trùng _id có sẵn
+      const found = allCategories.find((c) => c._id === cat);
+      if (found) {
+        existingCategoryIds.push(found._id);
+      } else {
+        // Nếu cat là tên trùng tên cũ
+        const existedByName = allCategories.find(
+          (c) => c.categoryName.toLowerCase() === cat.toLowerCase()
+        );
+        if (existedByName) {
+          existingCategoryIds.push(existedByName._id);
+        } else {
+          newCategoryNames.push(cat);
+        }
+      }
+    });
+
+    // Gọi API tạo mới
+    const newCategoryIds: string[] = [];
+    for (const name of newCategoryNames) {
+      try {
+        const createRes = await sendRequest<any>({
+          url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/categories`,
+          method: "POST",
+          headers: { Authorization: `Bearer ${accessToken}` },
+          body: { categoryName: name },
+        });
+        if (createRes?.statusCode === 201) {
+          newCategoryIds.push(createRes.data._id);
+        }
+      } catch (err) {
+        console.error("Failed to create category:", name, err);
+      }
+    }
+
+    return [...existingCategoryIds, ...newCategoryIds];
+  };
+
+
   const handleUpload = async () => {
-    if (!accessToken || !user || !user._id || !videoFile || !selectedCategory) {
+    if (!accessToken || !user || !user._id || !videoFile || !selectedCategories) {
       notification.error({ message: "Please fill in all required fields." });
       return;
     }
     setLoading(true);
     try {
+      const allCategoryIds = await resolveCategoryIds(
+        selectedCategories,
+        allCategories,
+        accessToken
+      );
+
+
       const uploadVideoForm = new FormData();
       uploadVideoForm.append("file", videoFile);
       const tagVideoForm = new FormData();
@@ -163,7 +221,7 @@ const UploadVideoPost: React.FC = () => {
         videoThumbnail: thumbnailUrl,
         userId: user._id,
         videoTag,
-        categories: [selectedCategory],
+        categories: allCategoryIds,
         musicId: selectedMusic || undefined,
       };
 
@@ -179,7 +237,7 @@ const UploadVideoPost: React.FC = () => {
         setVideoDescription("");
         setVideoFile(null);
         setVideoThumbnail(null);
-        setSelectedCategory("");
+        setSelectedCategories([]);
         setSelectedMusic("");
         setHashtagsInput("");
         router.push(`/page/detail_user/${user._id}`);
@@ -225,12 +283,12 @@ const UploadVideoPost: React.FC = () => {
         </div>
 
         <div className="form-field full-width">
-          <label className="form-label">Description</label>
+          <label className="form-label">Title</label>
           <textarea
             value={videoDescription}
             onChange={(e) => setVideoDescription(e.target.value)}
             className="form-textarea"
-            placeholder="Enter description..."
+            placeholder="Enter title..."
           />
         </div>
 
@@ -249,10 +307,21 @@ const UploadVideoPost: React.FC = () => {
           <div className="form-field category-field">
             <label className="form-label">Category</label>
             <Select
+              mode="tags"
               placeholder="Select category"
-              className="form-select"
-              value={selectedCategory || undefined}
-              onChange={(value) => setSelectedCategory(value)}
+              className={`${styles.wrapper} form-select !min-h-[36px] !min-w-[100px]`}
+              value={selectedCategories || undefined}
+              onChange={(value) => setSelectedCategories(value)}
+              style={{
+                backgroundColor: "#1f2937",
+                color: "#f9fafb !important",
+                border: "1px solid #4b5563",
+                borderRadius: "6px",
+              }}
+              dropdownStyle={{
+                backgroundColor: "#1f2937",
+                color: "#f9fafb",
+              }}
             >
               {allCategories.map((category) => (
                 <Option key={category._id} value={category._id}>
@@ -317,117 +386,124 @@ const UploadVideoPost: React.FC = () => {
         <button
           onClick={handleUpload}
           disabled={loading}
-          className={`form-button ${
-            loading ? "button-disabled" : "button-active"
-          }`}
+          className={`form-button ${loading ? "button-disabled" : "button-active"
+            }`}
         >
           {loading ? "Uploading..." : "Upload Video"}
         </button>
       </div>
 
       <style jsx>{`
-        .fixed-form-container {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: auto;
-          max-height: 500px;
-          background-color: #f0f2f5;
-          padding: 16px;
-        }
+  .fixed-form-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: auto;
+    max-height: 500px;
+    background-color: #1f2937; /* xám đậm nền ngoài */
+    padding: 16px;
+  }
 
-        .upload-form {
-          width: 720px;
-          background-color: #ffffff;
-          padding: 16px;
-          border-radius: 10px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
+  .upload-form {
+    width: 720px;
+    background-color: #111827; /* xám đậm hơn card */
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid #374151; /* border sáng hơn chút */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5); /* shadow đậm */
+  }
 
-        .form-row {
-          display: flex;
-          gap: 12px;
-          margin-bottom: 8px;
-        }
+  .form-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
 
-        .form-field {
-          min-width: 0;
-        }
+  .form-field {
+    min-width: 0;
+  }
 
-        .form-field.full-width {
-          flex: none;
-          width: 100%;
-          margin-bottom: 8px;
-        }
+  .form-field.full-width {
+    flex: none;
+    width: 100%;
+    margin-bottom: 8px;
+  }
 
-        .form-field.category-field {
-          flex: 1; /* Category chiếm ít không gian hơn */
-        }
+  .form-field.category-field {
+    flex: 1;
+  }
 
-        .form-field.music-field {
-          flex: 2; /* Music chiếm nhiều không gian hơn */
-        }
+  .form-field.music-field {
+    flex: 2;
+  }
 
-        .form-label {
-          display: block;
-          font-size: 12px;
-          font-weight: 500;
-          color: #374151;
-          margin-bottom: 3px;
-        }
+  .form-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: #f9fafb; /* text trắng nhẹ */
+    margin-bottom: 3px;
+  }
 
-        .form-input,
-        .form-textarea,
-        .form-input-file {
-          width: 100%;
-          padding: 6px;
-          border: 1px solid #d1d5db;
-          border-radius: 6px;
-          font-size: 12px;
-          color: #1f2937;
-          transition: border-color 0.2s ease;
-        }
+  .form-input,
+  .form-textarea,
+  .form-input-file {
+    width: 100%;
+    padding: 6px;
+    border: 1px solid #4b5563; /* border xám */
+    background-color: #1f2937; /* nền input tối */
+    border-radius: 6px;
+    font-size: 12px;
+    color: #f9fafb; /* chữ trắng */
+    transition: border-color 0.2s ease;
+  }
 
-        .form-input:focus,
-        .form-textarea:focus,
-        .form-input-file:focus {
-          border-color: #3b82f6;
-          outline: none;
-        }
+  .form-input:focus,
+  .form-textarea:focus,
+  .form-input-file:focus {
+    border-color: #3b82f6; /* xanh focus */
+    outline: none;
+  }
 
-        .form-textarea {
-          min-height: 50px;
-          resize: vertical;
-        }
+  .form-textarea {
+    min-height: 50px;
+    resize: vertical;
+  }
 
-        .form-select {
-          width: 100%;
-          height: 30px;
-        }
+  .form-select {
+    width: 100%;
+    height: 30px;
+    background-color: #1f2937;
+    color: #f9fafb;
+    border: 1px solid #4b5563;
+    border-radius: 6px;
+  }
 
-        .form-button {
-          width: 100%;
-          padding: 8px;
-          border-radius: 6px;
-          font-size: 13px;
-          font-weight: 500;
-          color: #ffffff;
-          transition: background-color 0.2s ease;
-        }
+  .form-button {
+    width: 100%;
+    padding: 8px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #ffffff;
+    transition: background-color 0.2s ease;
+  }
 
-        .button-active {
-          background-color: #3b82f6;
-        }
+  .button-active {
+    background-color: #3b82f6;
+  }
 
-        .button-active:hover {
-          background-color: #2563eb;
-        }
+  .button-active:hover {
+    background-color: #2563eb;
+  }
 
-        .button-disabled {
-          background-color: #9ca3af;
-          cursor: not-allowed;
-        }
-      `}</style>
+  .button-disabled {
+    background-color: #6b7280; /* xám disabled */
+    cursor: not-allowed;
+  }
+`}</style>
+
+
     </div>
   );
 };

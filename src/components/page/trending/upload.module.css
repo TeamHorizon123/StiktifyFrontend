@@ -1,0 +1,19 @@
+.wrapper :global(.ant-select-selector) {
+    min-width: 130px;
+    border-radius: 6px;
+    border: 1px solid #4b5563;
+    background-color: #1f2937;
+    /* nền xám đậm */
+    color: #f9fafb;
+    /* chữ trắng */
+}
+
+.wrapper :global(.ant-select-selection-placeholder),
+.wrapper :global(.ant-select-selection-item) {
+    color: #f9fafb;
+    /* placeholder & item màu trắng */
+}
+
+.wrapper :global(.ant-select-arrow) {
+    color: #f9fafb;
+}
