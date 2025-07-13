@@ -163,7 +163,7 @@ const ManageReportTable = (props: IProps) => {
       render: (value: IShortVideo) => (
         <VideoCustomize
           videoThumbnail={value.videoThumbnail}
-          videoUrl={value.videoUrl}
+          videoId={value._id}
         />
       ),
     },

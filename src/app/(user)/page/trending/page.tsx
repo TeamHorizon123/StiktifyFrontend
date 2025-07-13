@@ -96,6 +96,33 @@ const TrendingPage = () => {
     }
   }, [videoData, currentVideoIndex]);
 
+  useEffect(() => {
+    if (currentVideo?.segments?.length && currentVideo.segments.length > 0) {
+      console.log("Current video segments:", currentVideo.segments);
+       const playFromM3U8 = async () => {
+      const mediaSource = new MediaSource();
+      videoRef.current!.src = URL.createObjectURL(mediaSource);
+      mediaSource.addEventListener("sourceopen", async () => {
+      const sb = mediaSource.addSourceBuffer('video/mp2t; codecs="avc1.42E01E, mp4a.40.2"');
+      const segmentIndices = await parseM3U8FromPNG(currentVideo.m3u8_png);
+
+  for (const idx of segmentIndices) {
+    try {
+      const buffer = await loadSegment(currentVideo.segments[idx]);
+      sb.appendBuffer(buffer);
+      await new Promise(resolve => sb.addEventListener("updateend", resolve, { once: true }));
+    } catch (err) {
+    }
+  }
+  if (mediaSource.readyState === "open") {
+    mediaSource.endOfStream();
+  }
+});
+};
+playFromM3U8();
+    }
+  }, [currentVideo]);
+
   // Keyboard navigation
   useEffect(() => {
     const handleArrowKey = async (event: KeyboardEvent) => {
@@ -195,7 +222,7 @@ const TrendingPage = () => {
           },
           body: {
             userId: user._id,
-            videoId: isFetchId ? id || "" : "",
+            videoId: isGetGuestVideo||isFetchId ? id || "" : "",
           },
         });
         console.log("res-user", res);
@@ -205,6 +232,7 @@ const TrendingPage = () => {
           setRequestCount(0);
         }
       } else if (!user && !accessToken) {
+        setIsGetGuestVideo(true);
         res = await sendRequest<IBackendRes<IVideo[]>>({
           url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/trending-guest-videos`,
           method: "POST",
@@ -213,7 +241,6 @@ const TrendingPage = () => {
           },
         });
         console.log("res", res);
-        setIsGetGuestVideo(true);
       }
       setIsFetchId(false);
       if (res?.data && Array.isArray(res.data)) {
@@ -472,6 +499,61 @@ const TrendingPage = () => {
     router.push(`/page/search-user-video?q=${encodeURIComponent(searchValue)}`);
   };
 
+    const parseM3U8FromPNG = async (pngUrl: string): Promise<number[]> => {
+      const proxyUrl = `/api/proxy?id=${encodeURIComponent(pngUrl)}`;
+      const res = await fetch(proxyUrl);
+      const blob = await res.blob();
+      const imageBitmap = await createImageBitmap(blob);
+      const canvas = document.createElement("canvas");
+      canvas.width = imageBitmap.width;
+      canvas.height = imageBitmap.height;
+      const ctx = canvas.getContext("2d")!;
+      ctx.drawImage(imageBitmap, 0, 0);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+
+      const bytes: number[] = [];
+      for (let i = 0; i < imageData.length; i += 4) {
+        bytes.push(imageData[i]); // R
+      }
+
+      const text = new TextDecoder().decode(new Uint8Array(bytes));
+      console.log("📜 M3U8 content:", text);
+      const lines = text
+        .split("\n")
+        .filter(line => line.trim() && !line.startsWith("#"))
+        .map(line => line.trim());
+
+      const indices = lines.map(line => {
+        const match = line.match(/output(\d+)\.ts/);
+        return match ? parseInt(match[1], 10) : -1;
+      }).filter(index => index >= 0);
+
+      return indices;
+    };
+
+  const   loadSegment = async (url: string): Promise<Uint8Array> => {
+  const proxyUrl = `/api/proxy?id=${encodeURIComponent(url)}`;
+  const res = await fetch(proxyUrl);
+  const blob = await res.blob();
+  const imageBitmap = await createImageBitmap(blob);
+  const canvas = document.createElement("canvas");
+  canvas.width = imageBitmap.width;
+  canvas.height = imageBitmap.height;
+  const ctx = canvas.getContext("2d")!;
+  ctx.drawImage(imageBitmap, 0, 0);
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+
+  // Lấy mỗi pixel (1 byte) từ kênh R (vì "L" → RGB đều bằng nhau)
+  const tsBytes: number[] = [];
+  for (let i = 0; i < imageData.length; i += 4) {
+    tsBytes.push(imageData[i]); // Chỉ lấy R
+  }
+
+  return new Uint8Array(tsBytes);
+};
+
+
+
   return (
     <div className="relative max-h-screen bg-black text-white">
       <Header
@@ -627,11 +709,11 @@ const TrendingPage = () => {
                       }}
                     >
                       <div className="relative w-20 h-14 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-lg overflow-hidden">
-                        <video
-                          className="w-full h-full object-cover"
-                          src={video.videoUrl}
-                          muted
-                        />
+                               <img
+                              src={video.videoThumbnail}
+                              alt="Video Thumbnail"
+                              className="w-full h-full object-cover"
+                            />
                       </div>
                       <div className="flex-1">
                         <h4 className="text-white text-sm font-medium line-clamp-2 mb-1">
