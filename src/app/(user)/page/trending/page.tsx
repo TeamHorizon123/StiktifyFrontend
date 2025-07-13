@@ -14,6 +14,7 @@ import { Button } from "antd";
 import InteractSideBar from "@/components/page/trending/interact_sidebar";
 import VideoFooter from "@/components/page/trending/video-footer";
 import MainVideo from "@/components/page/trending/main_video";
+import OtherVideos from "@/components/page/trending/otherVideo";
 
 type SidebarMode = "videos" | "interactions" | "comments";
 
@@ -40,15 +41,9 @@ const TrendingPage = () => {
   const [showReactions, setShowReactions] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [isFollowing, setIsFollowing] = useState(false);
-  const [userReactions, setUserReactions] = useState<{ [key: string]: number }>(
-    {
-      favorite: 0,
-      like: 0,
-      haha: 0,
-      sad: 0,
-      angry: 0,
-    }
-  );
+  const [userReactions, setUserReactions] = useState<{
+    [key: string]: number;
+  }>();
   const [newComment, setNewComment] = useState("");
   const [refreshComments, setRefreshComments] = useState(0);
 
@@ -136,9 +131,13 @@ const TrendingPage = () => {
 
   // Scroll navigation
   const handleScroll = async (event: React.WheelEvent) => {
+    if ((event.target as HTMLElement).closest(".video-controls")) {
+      return;
+    }
     if (showNotification) {
       return;
     }
+    event.preventDefault(); // ngăn scroll mặc định
     setIsWatched(false);
     if (accessToken && user) {
       const videoSuggestId = Cookies.get("suggestVideoId");
@@ -218,18 +217,6 @@ const TrendingPage = () => {
       }
     } catch (error) {
       console.log("Failed to fetch trending videos:", error);
-    }
-  };
-
-  // Video actions
-  const handleVideoClick = () => {
-    if (videoRef.current) {
-      if (isPlaying) {
-        videoRef.current.pause();
-      } else {
-        videoRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
     }
   };
 
@@ -457,6 +444,17 @@ const TrendingPage = () => {
       );
     }
   };
+  const handleNextVideo = () => {
+    setCurrentVideoIndex((prevIndex) =>
+      prevIndex < videoData.length - 1 ? prevIndex + 1 : prevIndex
+    );
+  };
+
+  const handlePrevVideo = () => {
+    setCurrentVideoIndex((prevIndex) =>
+      prevIndex > 0 ? prevIndex - 1 : prevIndex
+    );
+  };
 
   // const handleSearch = () => {
   //   if (!searchValue.trim()) return;
@@ -497,6 +495,8 @@ const TrendingPage = () => {
                         onVideoDone={nextVideo}
                         onPlay={() => setIsPlaying(true)}
                         onPause={() => setIsPlaying(false)}
+                        onScrollNext={handleNextVideo}
+                        onScrollPrev={handlePrevVideo}
                       />
                     </div>
                   </div>
@@ -536,47 +536,14 @@ const TrendingPage = () => {
 
             <div className="flex-1 overflow-y-auto px-4 pb-4 h-[calc(100vh-120px)]">
               {sidebarMode === "videos" && (
-                <div>
-                  {videoData.map((video, index) => (
-                    <div
-                      key={index}
-                      className={`flex gap-3 p-3 rounded-lg cursor-pointer transition-colors mb-2
-                                  ${
-                                    index === currentVideoIndex
-                                      ? "bg-purple-600/20 border-2 border-purple-400 shadow-lg"
-                                      : "hover:bg-white/5"
-                                  }
-                                `}
-                      onClick={() => {
-                        setCurrentVideoIndex(index);
-                        setCurrentVideo(videoData[index]);
-                      }}
-                    >
-                      <div className="relative w-20 h-14 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-lg overflow-hidden">
-                        <img
-                          className="w-full h-full object-cover"
-                          src={video.videoThumbnail}
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="text-white text-sm font-medium line-clamp-2 mb-1">
-                          {video.videoDescription}
-                        </h4>
-                        <div className="text-xs text-gray-400 space-y-1">
-                          <div>{video.userId?.fullname || "Unknown"}</div>
-                          <div className="flex items-center gap-2">
-                            <span>{video.totalViews} views</span>
-                            <span>•</span>
-                            <span>
-                              {new Date(video.createdAt).toLocaleDateString()}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      {/* <VideoFooter videoId={video._id} /> */}
-                    </div>
-                  ))}
-                </div>
+                <OtherVideos
+                  isVisible={true}
+                  videoData={videoData}
+                  currentVideoIndex={currentVideoIndex}
+                  setCurrentVideoIndex={setCurrentVideoIndex}
+                  setCurrentVideo={setCurrentVideo}
+                  setIsShowOtherVideos={() => {}} // Không cần dùng trong context này
+                />
               )}
 
               {sidebarMode === "interactions" && (
@@ -685,19 +652,9 @@ const TrendingPage = () => {
             </div>
           </div>
         </div>
-        {/* {currentMusic && (
-          <div className="fixed bottom-4 right-4 w-64 h-16 bg-gray-800/70 backdrop-blur-md rounded-lg flex items-center px-3 border border-white/10">
-            <TagMusic onClick={handleNavigate} item={currentMusic} />
-          </div>
-        )} */}
         {currentMusic && (
           <div className="fixed bottom-4 left-4 w-80 h-20 bg-black/80 backdrop-blur-md rounded-xl flex px-3 border border-white/10 z-10">
-            <TagMusic
-              onClick={handleNavigate}
-              item={currentMusic}
-              // isPlaying={true}
-              // isCurrentTrack={true}
-            />
+            <TagMusic onClick={handleNavigate} item={currentMusic} />
           </div>
         )}
       </div>

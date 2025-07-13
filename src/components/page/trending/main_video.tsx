@@ -18,12 +18,16 @@ interface MainVideoProps {
   videoUrl: string;
   onVideoWatched?: () => void;
   onVideoDone?: () => void;
+  onScrollNext?: () => void;
+  onScrollPrev?: () => void;
 }
 
 const MainVideo: React.FC<MainVideoProps> = ({
   videoUrl,
   onVideoWatched,
   onVideoDone,
+  onScrollNext,
+  onScrollPrev,
 }) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -150,6 +154,31 @@ const MainVideo: React.FC<MainVideoProps> = ({
     return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
   };
 
+  // Handle wheel scroll for video navigation
+  const handleWheel = useCallback(
+    (e: React.WheelEvent) => {
+      // Prevent default scroll behavior
+      e.preventDefault();
+      e.stopPropagation();
+
+      // Check if scrolling on controls area - if so, allow normal behavior
+      const target = e.target as HTMLElement;
+      if (target.closest(".video-controls")) {
+        return;
+      }
+
+      // Navigate videos based on scroll direction
+      if (e.deltaY > 0) {
+        // Scroll down - next video
+        onScrollNext?.();
+      } else {
+        // Scroll up - previous video
+        onScrollPrev?.();
+      }
+    },
+    [onScrollNext, onScrollPrev]
+  );
+
   useEffect(() => {
     const videoElement = videoRef.current;
     if (!videoElement) return;
@@ -260,6 +289,9 @@ const MainVideo: React.FC<MainVideoProps> = ({
       } else if (event.key.toLowerCase() === "m") {
         event.preventDefault();
         toggleMute();
+      } else if (event.key.toLowerCase() === "f") {
+        event.preventDefault();
+        toggleFullscreen();
       } else if (event.key === "ArrowRight") {
         event.preventDefault();
         if (duration > 0) {
@@ -272,12 +304,25 @@ const MainVideo: React.FC<MainVideoProps> = ({
         const newTime = Math.max(0, videoRef.current.currentTime - 5);
         videoRef.current.currentTime = newTime;
         setCurrentTime(newTime);
+      } else if (event.key === "ArrowUp") {
+        event.preventDefault();
+        onScrollPrev?.();
+      } else if (event.key === "ArrowDown") {
+        event.preventDefault();
+        onScrollNext?.();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [togglePlayPause, toggleMute, duration]);
+  }, [
+    togglePlayPause,
+    toggleMute,
+    toggleFullscreen,
+    duration,
+    onScrollNext,
+    onScrollPrev,
+  ]);
 
   const getVideoContainerClasses = () => {
     if (isFullscreen) {
@@ -285,13 +330,13 @@ const MainVideo: React.FC<MainVideoProps> = ({
     }
     switch (videoAspectRatio) {
       case "portrait":
-        return "w-[450px] h-[600px]";
+        return "w-[460px] h-[700px]";
       case "landscape":
-        return "w-[800px] h-[450px]";
+        return "w-[830px] h-[515px]";
       case "square":
-        return "w-[500px] h-[500px]";
+        return "w-[600px] h-[600px]";
       default:
-        return "w-[450px] h-[600px]";
+        return "w-[460px] h-[700px]";
     }
   };
 
@@ -344,7 +389,10 @@ const MainVideo: React.FC<MainVideoProps> = ({
   const bufferedProgress = duration > 0 ? (bufferedTime / duration) * 100 : 0;
 
   return (
-    <div className="flex justify-center items-center min-h-screen p-4 left-[15%]">
+    <div
+      className="flex justify-center items-center min-h-screen p-4 left-[15%] w-full max-w-[1000px] mx-auto"
+      onWheel={handleWheel} // Thêm wheel handler ở container level
+    >
       <div
         className={`relative ${getVideoContainerClasses()} group shadow-2xl rounded-lg overflow-hidden bg-black`}
         onMouseEnter={() => setShowControls(true)}
@@ -425,7 +473,7 @@ const MainVideo: React.FC<MainVideoProps> = ({
 
               {/* Progress handle */}
               <div
-                className="absolute w-3 h-3 bg-purple-500 rounded-full shadow-lg -mt-1 transition-all duration-300"
+                className="absolute w-3 h-3 bg-purple-500 rounded-full shadow-lg -mt-0.5 transition-all duration-300"
                 style={{ left: `calc(${currentProgress}% - 6px)` }}
               />
             </div>
@@ -503,7 +551,7 @@ const MainVideo: React.FC<MainVideoProps> = ({
                   onChange={setIsAutoNext}
                   size="small"
                   style={{
-                    backgroundColor: isAutoNext ? "#a855f7" : undefined, // Tailwind's purple-500
+                    backgroundColor: isAutoNext ? "#a855f7" : undefined,
                   }}
                 />
               </div>

@@ -11,6 +11,7 @@ import ReportModal from "@/components/page/trending/report_video";
 
 import TickedUser from "@/components/ticked-user/TickedUser";
 import { Flag, Heart, MessageCircle, Share2 } from "lucide-react";
+import TagMusic from "@/components/music/tag.music";
 
 interface InteractSideBarProps {
   userId: string;
@@ -52,6 +53,8 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
   const isFollowing = dataFollow?.includes(userId);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [currentVideo, setCurrentVideo] = useState<IVideo | null>(null);
+  const [currentMusic, setCurrentMusic] = useState<IMusic | null>(null);
 
   const handleReport = () => {
     if (!user || !user._id) {
@@ -59,12 +62,15 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
     }
     setIsModalOpen(true);
   };
+
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
+
   const handleProfileClick = () => {
     router.push(`/page/detail_user/${userId}`);
   };
+
   const handleShareClick = async () => {
     const link = `${process.env.NEXT_PUBLIC_BASE_URL}/page/trending?id=${videoId}`;
     console.log(link);
@@ -73,10 +79,22 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
       await navigator.clipboard.writeText(link);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+      notification.success({ message: "Link copied to clipboard!" });
     } catch (err) {
       console.error("Failed to copy: ", err);
+      notification.error({ message: "Failed to copy link" });
     }
   };
+
+  // const handleCommentClick = () => {
+  //   if (!user || !user._id) {
+  //     return notification.error({
+  //       message: "Please log in first",
+  //       description: "You need to be logged in to comment on videos.",
+  //     });
+  //   }
+  //   onCommentClick?.();
+  // };
 
   useEffect(() => {
     if (!user || !user._id) return;
@@ -112,6 +130,14 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
       notification.error({ message: "An error occurred" });
     }
   };
+  useEffect(() => {
+    if (currentVideo) {
+      setCurrentMusic(currentVideo?.musicId || null);
+    }
+  }, [currentVideo]);
+  const handleNavigate = (id: string) => {
+    router.push(`music/${id}`);
+  };
 
   return (
     <div className="w-full px-0 pt-0">
@@ -131,13 +157,13 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
         </div>
         <div className="flex-1 min-w-0">
           <div
-            className="text-white font-bold text-lg truncate cursor-pointer"
+            className="text-white font-bold text-lg truncate cursor-pointer hover:text-purple-300 transition-colors"
             onClick={handleProfileClick}
           >
             {creatorId || "Unknown"}
           </div>
           <div
-            className="text-purple-200 text-sm truncate cursor-pointer"
+            className="text-purple-200 text-sm truncate cursor-pointer hover:text-purple-100 transition-colors"
             onClick={handleProfileClick}
           >
             @{userId?.slice(0, 8) || "unknown"}
@@ -145,11 +171,11 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
         </div>
         <button
           onClick={handleFollower}
-          className={`rounded-full w-8 h-8 p-0 flex items-center justify-center transition ${
+          className={`rounded-full w-8 h-8 p-0 flex items-center justify-center transition-all duration-200 ${
             isFollowing
-              ? "bg-gray-500 hover:bg-gray-600"
-              : "bg-red-500 hover:bg-red-600"
-          } text-white`}
+              ? "bg-gray-500 hover:bg-gray-600 hover:scale-105"
+              : "bg-red-500 hover:bg-red-600 hover:scale-105"
+          } text-white shadow-lg hover:shadow-xl`}
         >
           {isFollowing ? <CheckOutlined /> : <PlusOutlined />}
         </button>
@@ -209,7 +235,7 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
               {videoTags.map((tag, index) => (
                 <span
                   key={index}
-                  className="bg-purple-800/80 text-xs px-3 py-1 rounded-full font-semibold"
+                  className="bg-purple-800/80 text-xs px-3 py-1 rounded-full font-semibold hover:bg-purple-700/80 transition-colors cursor-pointer"
                 >
                   #{tag}
                 </span>
@@ -220,7 +246,7 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
       )}
 
       <div className="flex flex-col gap-2">
-        <div className="flex items-center gap-3 bg-transparent text-white hover:bg-purple-800/60 px-0 py-2 text-base">
+        <div className="flex items-center gap-3 bg-transparent text-white hover:bg-purple-800/60 px-3 py-3 text-base rounded-lg transition-all duration-200 hover:shadow-lg border-2 border-transparent hover:border-purple-500/50">
           {onReactionAdded && onReactionRemove ? (
             <ReactSection
               videoId={videoId}
@@ -244,40 +270,53 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
             </>
           )}
         </div>
+
         <button
-          className="flex items-center gap-3 bg-transparent text-white hover:bg-purple-800/60 px-0 py-2 justify-start text-base"
+          className="flex items-center gap-3 bg-transparent text-white hover:bg-purple-800/60 px-3 py-3 justify-start text-base rounded-lg transition-all duration-200 hover:shadow-lg border-2 border-transparent hover:border-purple-500/50 hover:scale-[1.02]"
           onClick={onCommentClick}
-          style={{ outline: "none", border: "none" }}
+          style={{ outline: "none", border: "2px solid transparent" }}
         >
           <MessageCircle className="h-6 w-6" />
           <span>{numberComment || 0} Comment</span>
         </button>
+
         <button
-          className="flex items-center gap-3 bg-transparent text-white hover:bg-purple-800/60 px-0 py-2 justify-start text-base"
+          className="flex items-center gap-3 bg-transparent text-white hover:bg-purple-800/60 px-3 py-3 justify-start text-base rounded-lg transition-all duration-200 hover:shadow-lg border-2 border-transparent hover:border-purple-500/50 hover:scale-[1.02]"
           onClick={handleShareClick}
-          style={{ outline: "none", border: "none" }}
+          style={{ outline: "none", border: "2px solid transparent" }}
         >
           <Share2 className="h-6 w-6" />
           <span>Share</span>
         </button>
+
         <button
-          className="flex items-center gap-3 bg-transparent text-white hover:bg-purple-800/60 px-0 py-2 justify-start text-base"
+          className="flex items-center gap-3 bg-transparent text-white hover:bg-purple-800/60 px-3 py-3 justify-start text-base rounded-lg transition-all duration-200 hover:shadow-lg border-2 border-transparent hover:border-purple-500/50 hover:scale-[1.02]"
           onClick={handleReport}
-          style={{ outline: "none", border: "none" }}
+          style={{ outline: "none", border: "2px solid transparent" }}
         >
           <Flag className="h-6 w-6" />
           <span>Report</span>
         </button>
+
         {copied && (
-          <div style={{ color: "green", marginTop: "8px" }}>
-            Copied Link Successfully
+          <div className="text-green-400 text-sm mt-2 px-3 py-2 bg-green-400/10 rounded-lg border border-green-400/20">
+            ✓ Copied Link Successfully
           </div>
         )}
       </div>
+
       {isModalOpen && (
         <ReportModal onClose={handleCloseModal} videoId={videoId} />
       )}
+      <div>
+        {currentMusic && (
+          <div className="fixed bottom-4 left-4 w-80 h-20 bg-black/80 backdrop-blur-md rounded-xl flex px-3 border border-white/10 z-10">
+            <TagMusic onClick={handleNavigate} item={currentMusic} />
+          </div>
+        )}
+      </div>
     </div>
   );
 };
+
 export default InteractSideBar;
