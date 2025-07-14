@@ -100,6 +100,7 @@ const ManageReportTable = (props: IProps) => {
           if(res.data?.meta?.current>=1 && res.data?.meta?.total<=meta.pageSize){
             res=await handleListVideoReportAction(1, meta.pageSize, search, filterReq);
           }
+          console.log("res", res);
           const mappedData = res?.data?.result
             ?.map((item: any) => {
 

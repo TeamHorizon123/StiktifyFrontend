@@ -81,6 +81,33 @@ export const handleFlagMusicAction = async (id: string, flag: boolean) => {
   }
 };
 
+export const handleBlockMusicAction = async (id: string, isBlock: boolean) => {
+  if (!token) return null;
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/block-music`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          _id: id,
+          isBlock: isBlock,
+        }),
+      }
+    );
+    revalidateTag("list-report-music");
+    revalidateTag("list-music");
+    const result: IBackendRes<any> = await res.json();
+    return result;
+  } catch (error) {
+    return null;
+  }
+};
+
 export const handleGetAllReportMusicAction = async (
   current: number, pageSize: number, search: string, filterRes: string
 ) => {

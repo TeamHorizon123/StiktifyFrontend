@@ -11,8 +11,8 @@ import {
 } from "@ant-design/icons";
 import { notification, Popconfirm } from "antd";
 import {
+  handleBlockShortVideoAction,
   handleFlagShortVideoAction,
-  handleFilterByCategory,
   handleGetAllShortVideo,
 } from "@/actions/manage.short.video.action";
 import InputCustomize from "../input/input.customize";
@@ -40,6 +40,11 @@ const ManageShortVideoTable = (props: IProps) => {
 
   const handleFlagVideo = async (record: IShortVideo) => {
     const res = await handleFlagShortVideoAction(record._id, !record.flag);
+    notification.success({ message: res?.message });
+  };
+
+  const handleBlockVideo = async (record: IShortVideo) => {
+    const res = await handleBlockShortVideoAction(record._id, !record.isBlock);
     notification.success({ message: res?.message });
   };
 
@@ -115,7 +120,7 @@ const ManageShortVideoTable = (props: IProps) => {
       render: (value: IShortVideo, record) => (
         <VideoCustomize
           videoThumbnail={record.videoThumbnail}
-          videoUrl={record.videoUrl}
+          videoId={record._id}
         />
       ),
     },
@@ -140,13 +145,18 @@ const ManageShortVideoTable = (props: IProps) => {
         title: "Blocked",
         key: "isBlock",
         render: (_, record) => (
-          <div>
+        <Popconfirm
+          title={`Sure to ${record?.isBlock?"UnBlock":"Block"} video?`}
+          onConfirm={() => handleBlockVideo(record)}
+          okText="Yes"
+          cancelText="No"
+        >
             {record?.isBlock ? (
               <LockTwoTone style={{ fontSize: "24px" }} twoToneColor="#d63031" />
             ) : (
               <UnlockTwoTone style={{ fontSize: "24px" }} twoToneColor="#00b894" />
             )}
-          </div>
+          </Popconfirm>
         ),
       },
     {
@@ -161,7 +171,7 @@ const ManageShortVideoTable = (props: IProps) => {
       key: "flag",
       render: (value, record) => (
         <Popconfirm
-          title="Sure to flag video?"
+          title={`Sure to ${ value?"UnFlag":"Flag"} video?`}
           onConfirm={() => handleFlagVideo(record)}
           okText="Yes"
           cancelText="No"
