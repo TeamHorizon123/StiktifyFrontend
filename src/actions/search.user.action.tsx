@@ -11,6 +11,7 @@ export const handleSearchUserAndVideo = async (
   pageSize: number = 10
 ) => {
   try {
+    if (!token) return { users: [], videos: [] };
     const apiUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/search-user-video?searchText=${searchText}&current=${current}&pageSize=${pageSize}`;
     const res = await fetch(apiUrl, {
       method: "GET",

@@ -8,6 +8,7 @@ const token = cookieStore.get("token")?.value
 
 
 export const handleBanUserAction = async (id: string, isBan: boolean) => {
+    if (!token) return null;
     try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/ban-user`, {
             method: "POST",
@@ -31,6 +32,7 @@ export const handleBanUserAction = async (id: string, isBan: boolean) => {
 }
 
 export const handleUnBanUserAction = async (id: string) => {
+    if (!token) return null;
     try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/unbanned-user/${id}`, {
             method: "GET",
@@ -50,6 +52,7 @@ export const handleUnBanUserAction = async (id: string) => {
 }
 
 export const handleCreateUserAction = async (data: ICreateUserByManager) => {
+    if (!token) return null;
     try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/create-user`, {
             method: "POST",
@@ -70,6 +73,7 @@ export const handleCreateUserAction = async (data: ICreateUserByManager) => {
 }
 
 export const handleUpdateUserAction = async (data: IUpdateUserByManager) => {
+    if (!token) return null;
     try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/update-user`, {
             method: "PATCH",
@@ -90,6 +94,7 @@ export const handleUpdateUserAction = async (data: IUpdateUserByManager) => {
 }
 
 export const handleGetAllUser = async (current: number, pageSize: number, search: string, filterRes: string) => {
+    if (!token) return null;
     try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/list-user?current=${current}&pageSize=${pageSize}&search=${search}&filterReq=${filterRes}`, {
             method: "GET",
@@ -108,6 +113,7 @@ export const handleGetAllUser = async (current: number, pageSize: number, search
 
 
 export const handleUploadImage = async (formData: FormData) => {
+    if (!token) return null;
     try {
       const cookieStore = cookies();
       const token = cookieStore.get("token")?.value;

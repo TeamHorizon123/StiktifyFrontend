@@ -9,6 +9,7 @@ const token = cookieStore.get("token")?.value;
 
 export const handleFlagShortVideoAction = async (id: string, flag: boolean) => {
   try {
+    if (!token) return null;
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/flag-video`,
       {
@@ -40,6 +41,7 @@ export const handleGetAllShortVideo = async (
   pageSize: number
 ) => {
   try {
+    if (!token) return null;
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL
       }/api/v1/short-videos/list-video?search=${encodeURIComponent(
@@ -68,6 +70,7 @@ export const handleFilterByCategory = async (
   current: number,
   pageSize: number
 ) => {
+  if (!token) return null;
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/filter-by-category?category=${encodeURIComponent(category)}&current=${current}&pageSize=${pageSize}`,

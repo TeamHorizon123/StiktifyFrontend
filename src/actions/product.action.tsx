@@ -11,6 +11,7 @@ export const handleGetAllProducts = async (
   pageSize: number,
   query: string
 ) => {
+  if (!token) return null;
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/products/list-product`,
@@ -32,6 +33,7 @@ export const handleGetAllProducts = async (
 };
 
 export const handleGetProductDetails = async (id: string) => {
+  if (!token) return null;
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/products/product-details/${id}`,
@@ -60,6 +62,7 @@ export const handleGetProductDetails = async (id: string) => {
     current: number,
     pageSize: number
   ) => {
+    if (!token) return null;
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/products/search-product?query=${query}&current=${current}&pageSize=${pageSize}`,

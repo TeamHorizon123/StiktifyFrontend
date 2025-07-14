@@ -7,6 +7,7 @@ import { handleCreateCommentAction } from "@/actions/music.action";
 import { MdFavorite, MdFavoriteBorder } from "react-icons/md";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
 import Comment from "./comment";
+import { a } from "framer-motion/client";
 
 interface Comment {
   _id: string;
@@ -39,6 +40,7 @@ const CommentSection = ({
   }>({});
 
   const toggleLike = async (id: string) => {
+    if(!accessToken) return;
     try {
       const res = await sendRequest<any>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/comment-reactions/like-music-comment`,
@@ -101,6 +103,7 @@ const CommentSection = ({
   };
 
   useEffect(() => {
+    if(!accessToken) return;
     const fetchComments = async () => {
       try {
         const res = await sendRequest<any>({

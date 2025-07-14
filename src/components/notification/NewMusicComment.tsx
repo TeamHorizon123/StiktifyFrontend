@@ -39,6 +39,7 @@ const CommentMusicNotification: React.FC<CommentMusicNotificationProps> = ({
   });
 
   const markAsRead = async (id: string) => {
+    if(!accessToken) return;
     try {
       await sendRequest({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/notifications/${id}/read`,

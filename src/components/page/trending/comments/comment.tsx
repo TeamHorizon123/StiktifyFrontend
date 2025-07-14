@@ -61,6 +61,7 @@ const Comment: React.FC<CommentProps> = ({
   const router = useRouter();
 
   const handleDeleteConfirm = async () => {
+    if (!accessToken) return;
     try {
       const res = await sendRequest<IBackendRes<any>>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/comments/delete`,
@@ -82,6 +83,7 @@ const Comment: React.FC<CommentProps> = ({
   };
 
   const handleEditSubmit = async () => {
+    if (!accessToken) return;
     try {
       const res = await sendRequest<IBackendRes<any>>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/comments/update`,
@@ -137,6 +139,7 @@ const Comment: React.FC<CommentProps> = ({
   };
 
   const handleReplySubmit = async () => {
+    if (!accessToken) return;
     if (!replyText.trim()) return;
     setReplyLoading(true);
     try {

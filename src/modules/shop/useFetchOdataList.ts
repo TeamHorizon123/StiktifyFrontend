@@ -8,6 +8,7 @@ const useFetchListOData = <T>(props: IRequestOData) => {
 
   useEffect(() => {
     const getData = async () => {
+      if (!accessToken) return;
       try {
         const limit = props.limit || 8;
         const skip = (props.page - 1) * limit

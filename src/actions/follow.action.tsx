@@ -7,6 +7,7 @@ const cookieStore = cookies();
 const token = cookieStore.get("token")?.value;
 
 export const handleGetFollowing = async (current: number, userId: string) => {
+  if (!token) return null;
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/follow/list-video-following/${userId}?pageSize=10&current=${current}`,
@@ -47,6 +48,7 @@ export const handleGetFollowingUser = async (userId: string) => {
 };
 
 export const handleGetFollowerUser = async (userId: string) => {
+  if (!token) return null;
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/follow/followers/${userId}`,

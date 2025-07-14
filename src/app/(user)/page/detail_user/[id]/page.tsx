@@ -79,6 +79,7 @@ const UserDetail = () => {
   }, [id, accessToken]);
 
   const fetchUserDetail = async () => {
+    if(!accessToken) return
     try {
       const res = await sendRequest<any>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/get-user/${id}`,

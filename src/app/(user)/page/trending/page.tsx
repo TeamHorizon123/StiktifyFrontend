@@ -50,7 +50,7 @@ const TrendingPage = () => {
     if (currentVideo) {
       setCurrentMusic(currentVideo?.musicId || null);
     }
-  }, [currentVideo]);
+  }, [currentVideo?._id]);
 
   useEffect(() => {
     const orig = document.body.style.overflow;
@@ -84,7 +84,8 @@ const TrendingPage = () => {
     if (currentVideo?.segments?.length && currentVideo.segments.length > 0) {
       console.log("Current video segments:", currentVideo.segments);
       const playFromM3U8 = async () => {
-        const mediaSource = new MediaSource();
+        try {
+           const mediaSource = new MediaSource();
         videoRef.current!.src = URL.createObjectURL(mediaSource);
         mediaSource.addEventListener("sourceopen", async () => {
           const sb = mediaSource.addSourceBuffer(
@@ -105,10 +106,14 @@ const TrendingPage = () => {
             mediaSource.endOfStream();
           }
         });
+        } catch (error) {
+          
+        }
+       
       };
       playFromM3U8();
     }
-  }, [currentVideo]);
+  }, [currentVideo?._id]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -222,7 +227,7 @@ const TrendingPage = () => {
           setVideoData([]);
           setRequestCount(0);
         }
-      } else if (!user && !accessToken) {
+      } else {
         setIsGetGuestVideo(true);
         res = await sendRequest<IBackendRes<IVideo[]>>({
           url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/trending-guest-videos`,
@@ -408,6 +413,7 @@ const TrendingPage = () => {
     }
   };
   const createViewingHistory = async () => {
+    if (!user || !accessToken || !currentVideo?._id) return;
     try {
       const res = await sendRequest<IBackendRes<IVideo[]>>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/viewinghistory`,
@@ -575,6 +581,7 @@ const TrendingPage = () => {
                         videoUrl={currentVideo.videoUrl}
                         onVideoWatched={handleVideoWatched}
                         onVideoDone={nextVideo}
+                        videoRef={videoRef}
                         onPlay={() => setIsPlaying(true)}
                         onPause={() => setIsPlaying(false)}
                         onScrollNext={handleNextVideo}
