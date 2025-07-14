@@ -109,7 +109,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
     new Set()
   );
   useEffect(() => {
-    if (!videoId || !showComments) return;
+    if (!videoId || !showComments || !accessToken) return;
 
     const fetchComments = async () => {
       try {
@@ -135,6 +135,9 @@ const CommentSection: React.FC<CommentSectionProps> = ({
   }, [videoId, accessToken, showComments]);
 
   const toggleReplies = async (parentId: string) => {
+    if(!accessToken) {
+      return;
+    }
     setExpandedComments((prev) => {
       const n = new Set(prev);
       if (n.has(parentId)) n.delete(parentId);

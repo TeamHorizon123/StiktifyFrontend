@@ -33,6 +33,7 @@ const ReplyCommentForm: React.FC<ReplyCommentFormProps> = ({
   };
 
   const handleReply = async () => {
+    if (!accessToken) return;
     if (!replyText.trim()) return console.log("no text");
     setLoading(true);
     try {

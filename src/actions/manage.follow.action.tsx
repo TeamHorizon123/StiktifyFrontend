@@ -1,5 +1,6 @@
 "use server";
 
+import { i } from "framer-motion/client";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 
@@ -7,6 +8,7 @@ const cookieStore = cookies();
 const token = cookieStore.get("token")?.value;
 
 export const handleFollow = async (followerId: string, followingId: string) => {
+  if (!token) return null;
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/follow/create-follow`,
@@ -31,6 +33,7 @@ export const handleFollow = async (followerId: string, followingId: string) => {
 };
 
 export const checkFollowAction = async (followerId: string, followingId: string) => {
+  if (!token) return null;
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/follow/check-follow`,
@@ -55,6 +58,7 @@ export const checkFollowAction = async (followerId: string, followingId: string)
 };
 
 export const getAllFollowing = async (followerId: string) => {
+  if (!token) return null;
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/follow/list-following/${followerId}`,

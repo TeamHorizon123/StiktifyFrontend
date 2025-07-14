@@ -116,7 +116,7 @@ const DetailPage = ({ params }: { params: { detail: string } }) => {
               <button
                 onClick={() => {
                   if (accessToken)
-                    router.push(`/page/trending-user?id=${video._id}`);
+                    router.push(`/page/trending?id=${video._id}`);
                   else {
                     return notification.warning({
                       message: "Please create an account to watch this video.",

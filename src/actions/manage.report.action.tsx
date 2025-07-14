@@ -9,6 +9,7 @@ const token = cookieStore.get("token")?.value;
 
 
 export const handleDeleteReportVideoAction = async (id: string) => {
+  if (!token) return null;
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/report/delete-video-report/${id}`,
@@ -31,6 +32,7 @@ export const handleDeleteReportVideoAction = async (id: string) => {
 };
 
 export const handleDeleteReportMusicAction = async (id: string) => {
+  if (!token) return null;
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/report/delete-music-report/${id}`,
@@ -53,6 +55,7 @@ export const handleDeleteReportMusicAction = async (id: string) => {
 };
 
 export const handleFlagMusicAction = async (id: string, flag: boolean) => {
+  if (!token) return null;
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/flag-music`,
@@ -82,6 +85,7 @@ export const handleGetAllReportMusicAction = async (
   current: number, pageSize: number, search: string, filterRes: string
 ) => {
   try {
+    if (!token) return null;
     const res = await fetch(
       `${
         process.env.NEXT_PUBLIC_BACKEND_URL
@@ -106,6 +110,7 @@ export const handleGetAllReportMusicAction = async (
 export const handleListVideoReportAction = async (
  current: number, pageSize: number, search: string, filterRes: string
 ) => {
+  if (!token) return null;
   try {
     const res = await fetch(
       `${

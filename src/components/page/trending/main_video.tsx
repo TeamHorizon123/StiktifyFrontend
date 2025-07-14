@@ -16,6 +16,7 @@ import { Switch } from "antd";
 
 interface MainVideoProps {
   videoUrl: string;
+  videoRef: React.RefObject<HTMLVideoElement>;
   onVideoWatched?: () => void;
   onVideoDone?: () => void;
   onScrollNext?: () => void;
@@ -28,8 +29,8 @@ const MainVideo: React.FC<MainVideoProps> = ({
   onVideoDone,
   onScrollNext,
   onScrollPrev,
+  videoRef
 }) => {
-  const videoRef = useRef<HTMLVideoElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [volume, setVolume] = useState(50);

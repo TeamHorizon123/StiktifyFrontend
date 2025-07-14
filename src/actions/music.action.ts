@@ -8,6 +8,7 @@ export const handleGetAllMusic = async (current: string, pageSize: string) => {
   try {
     const cookieStore = cookies();
     const token = cookieStore.get("token")?.value;
+    if (!token) return null;
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/list-music?current=${current}&pageSize=${pageSize}`,
       {
@@ -70,6 +71,7 @@ export const handleFilterSearchMusic = async (
   try {
     const cookieStore = cookies();
     const token = cookieStore.get("token")?.value;
+    if (!token) return null;
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/filter-search?current=${current}&pageSize=${pageSize}`,
       {
@@ -92,6 +94,7 @@ export const createFavoriteMusic = async (musicId: string) => {
   try {
     const cookieStore = cookies();
     const token = cookieStore.get("token")?.value;
+    if (!token) return null;
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/music-favorite/create-favorite`,
       {
@@ -118,6 +121,7 @@ export const handleGetAllFavoriteMusic = async (
   try {
     const cookieStore = cookies();
     const token = cookieStore.get("token")?.value;
+    if (!token) return null;
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/music-favorite/list-favorite-music/${userId}?current=${current}&pageSize=${pageSize}`,
       {
@@ -144,6 +148,7 @@ export const handleGetMyMusic = async (
   try {
     const cookieStore = cookies();
     const token = cookieStore.get("token")?.value;
+    if (!token) return null;
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/my-musics/${userId}?current=${current}&pageSize=${pageSize}`,
       {
@@ -166,6 +171,7 @@ export const handleLikeMusicAction = async (id: string) => {
   try {
     const cookieStore = cookies();
     const token = cookieStore.get("token")?.value;
+    if (!token) return null;
     const res = await sendRequest<any>({
       url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/music-favorite/favorite/${id}`,
       method: "POST",
@@ -182,6 +188,7 @@ export const handleCreateCommentAction = async (musicId: string, newComment: str
   try {
     const cookieStore = cookies();
     const token = cookieStore.get("token")?.value;
+    if (!token) return null;
     const res = await sendRequest<any>({
       url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/comments/create-music-comment`,
       method: "POST",
@@ -199,6 +206,7 @@ export const handleCreateMusicAction = async (data: any) => {
   try {
     const cookieStore = cookies();
     const token = cookieStore.get("token")?.value;
+    if (!token) return null;
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/upload-music`,
       {
@@ -225,6 +233,7 @@ export const  handleFilterAndSearchMusicAction = async (current: number, pageSiz
   try {
     const cookieStore = cookies();
     const token = cookieStore.get("token")?.value;
+    if (!token) return null;
     const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/list-music-admin?search=${search}&filterReq=${filterRes}&current=${current}&pageSize=${pageSize}`, {
       method: "GET",
       headers: {
@@ -243,6 +252,7 @@ export const handleGetMusic = async (current: string, pageSize: string) => {
   try {
     const cookieStore = cookies();
     const token = cookieStore.get("token")?.value;
+    if (!token) return null;
     const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/list-music-admin?current=${current}&pageSize=${pageSize}`, {
       method: "GET",
       headers: {
@@ -262,6 +272,7 @@ export const handleGetRecommendMusic = async (userId: string) => {
   try {
     const cookieStore = cookies();
     const token = cookieStore.get("token")?.value;
+    if (!token) return null;
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/recommend-music/${userId}`,
       {
@@ -284,6 +295,7 @@ export const handleListenNeo4j = async (musicId: string, userId: string) => {
   try {
     const cookieStore = cookies();
     const token = cookieStore.get("token")?.value;
+    if (!token) return null;
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/listen-music-in-user`,
       {
@@ -305,6 +317,7 @@ export const handleGetAllListeningHistory = async (userId: string) => {
   try {
     const cookieStore = cookies();
     const token = cookieStore.get("token")?.value;
+    if (!token) return null;
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/listeninghistory/all-listening-history/${userId}`,
       {
@@ -327,6 +340,7 @@ export const handleClearAllListeningHistory = async (userId: string) => {
   try {
     const cookieStore = cookies();
     const token = cookieStore.get("token")?.value;
+    if (!token) return null;
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/listeninghistory/clear-all/${userId}`,
       {
@@ -348,6 +362,7 @@ export const handleSearchHistory = async (search: string, startDate?: string) =>
   try {
     const cookieStore = cookies();
     const token = cookieStore.get("token")?.value;
+    if (!token) return null;
     let url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/listeninghistory/search-history?search=${search}`;
     if (startDate) {
       url += `&startDate=${startDate}`;
@@ -374,7 +389,7 @@ export const getTrackRelatedAction = async (musicId: string[] | [], musicTag: { 
   try {
     const cookieStore = cookies();
     const token = cookieStore.get("token")?.value;
-
+    if (!token) return null;
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/track-related`,
       {
@@ -399,6 +414,7 @@ export const handleGetDataHotMusic = async () => {
   try {
     const cookieStore = cookies();
     const token = cookieStore.get("token")?.value;
+    if (!token) return null;
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/list-hot-music`,
       {

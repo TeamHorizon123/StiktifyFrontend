@@ -278,6 +278,9 @@ const ReactSection: React.FC<ReactionSectionProp> = ({
     if (!videoId) return;
 
     const fetchReactions = async () => {
+    if (!user || !user._id) {
+      return
+    }
       try {
         const res = await sendRequest<{
           statusCode: number;
@@ -355,6 +358,9 @@ const ReactSection: React.FC<ReactionSectionProp> = ({
   }, [videoId, accessToken]);
 
   const handleTriggerWishListScore = async (videoId: string) => {
+      if (!user || !user._id) {
+      return 
+    }
     await sendRequest<IBackendRes<IVideo[]>>({
       url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/wishlist`,
       method: "POST",
@@ -370,6 +376,9 @@ const ReactSection: React.FC<ReactionSectionProp> = ({
   };
 
   const handleAddUserAction = async (videoId: string) => {
+    if (!user || !user._id) {
+      return 
+    }
     try {
       await sendRequest<IBackendRes<{ success: boolean }>>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/kafka/action?action=reaction&id=${videoId}&`,

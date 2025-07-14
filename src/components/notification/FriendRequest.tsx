@@ -32,6 +32,7 @@ const FriendRequest: React.FC<FriendRequestProps> = ({
   const router = useRouter();
 
   const handleAction = async (action: "accept" | "reject") => {
+    if(!accessToken) return;
     try {
       const res = await sendRequest<{ statusCode: number; message: string }>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/friend-requests/${notification.friendRequestId}/${action}`,

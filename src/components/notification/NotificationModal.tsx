@@ -50,6 +50,7 @@ const NotificationModel = () => {
   console.log(notifications);
 
   const fetchNotifications = async (reset = false) => {
+    if (!user || !accessToken) return;
     try {
       const res = await sendRequest<{
         statusCode: number;
