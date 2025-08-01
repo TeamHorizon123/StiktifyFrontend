@@ -29,7 +29,7 @@ const MainVideo: React.FC<MainVideoProps> = ({
   onVideoDone,
   onScrollNext,
   onScrollPrev,
-  videoRef
+  videoRef,
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);

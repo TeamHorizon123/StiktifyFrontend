@@ -7,10 +7,10 @@ const PageLayout = ({ children }: { children: React.ReactNode }) => {
   const { showComments } = useShowComment();
 
   return (
-    <div className="flex">
+    <div className="flex min-h-screen">
       {!showComments && <SideBar />}
       <NotificationModel />
-      <main className={`flex-grow ${!showComments ? "ml-[10%]" : ""}`}>{children}</main>
+      <main className={`flex-grow ${!showComments}`}>{children}</main>
     </div>
   );
 };
