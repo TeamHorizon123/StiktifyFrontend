@@ -69,12 +69,6 @@ const RecentlyPlayedList = (props: IProps) => {
             ) : (
               <span className="text-gray-400">{index + 1}</span>
             )}
-            {trackCurrent?._id !== item._id && (
-              <Play
-                className="w-5 h-5 text-white hidden group-hover:block"
-                fill="currentColor"
-              />
-            )}
           </div>
 
           {/* Album Art */}
@@ -107,7 +101,6 @@ const RecentlyPlayedList = (props: IProps) => {
           {/* Stats */}
           <div className="flex items-center gap-8 text-gray-400 text-sm">
             <span>{item.totalListener?.toLocaleString() || 0}</span>
-            <span>3:21</span>{" "}
             {/* Duration - bạn có thể thêm field duration vào IMusic */}
           </div>
         </div>

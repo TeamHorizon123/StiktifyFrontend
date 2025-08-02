@@ -204,7 +204,7 @@ const ListMusic = (props: IProps) => {
 
         {/* Hot Music */}
         {dataHotMusic && dataHotMusic.length > 0 && (
-          <div className="w-[70rem]">
+          <div className="w-[72rem]">
             <h2 className="text-3xl font-bold mb-6">Popular This Week</h2>
             <HotMusicList data={dataHotMusic} />
           </div>
