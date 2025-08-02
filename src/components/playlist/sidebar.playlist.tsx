@@ -11,8 +11,9 @@ import { PiMusicNotesPlusBold } from "react-icons/pi";
 import AddMusicModal from "../modal/modal.add.music";
 import { handleGetAllCategoryAction } from "@/actions/category.action";
 import { AuthContext } from "@/context/AuthContext";
-import { PiMusicNotesMinusBold } from "react-icons/pi";
 import { handleDeletePlaylist } from "@/actions/playlist.action";
+import { DeleteFilled } from "@ant-design/icons";
+import { RiDeleteBin6Line } from "react-icons/ri";
 
 const SideBarPlaylist = () => {
   const { playlist, progressUploadMusic, setPlaylist } = useGlobalContext()!;
@@ -83,25 +84,40 @@ const SideBarPlaylist = () => {
                   >
                     <div className="relative group">
                       {/* Nút xóa playlist */}
-                      <div className="absolute top-0 right-0 bg-red-600 p-[2px] rounded-sm cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                      <div className="absolute -top-1 -right-1 bg-gray-800/90 hover:bg-red-500/90 p-1 rounded-full cursor-pointer opacity-0 group-hover:opacity-100 transition-all duration-300 z-10 backdrop-blur-sm">
                         <Popconfirm
-                          title="Are you sure delete this playlist?"
+                          title="Delete this playlist?"
+                          description="This action cannot be undone."
                           onConfirm={() => confirm(item._id)}
-                          okText="Yes"
-                          cancelText="No"
+                          okText="Delete"
+                          cancelText="Cancel"
                           placement="topLeft"
                           okButtonProps={{
-                            style: { color: "white", background: "red" },
+                            style: {
+                              color: "white",
+                              background: "#ef4444",
+                              borderColor: "#ef4444",
+                              fontWeight: "500",
+                            },
+                          }}
+                          cancelButtonProps={{
+                            style: {
+                              color: "#6b7280",
+                              borderColor: "#d1d5db",
+                              background: "white",
+                            },
                           }}
                         >
-                          <PiMusicNotesMinusBold color="white" size={10} />
+                          <div className="w-3 h-3 flex items-center justify-center hover:scale-110 transition-transform">
+                            <RiDeleteBin6Line color="white" size={12} />
+                          </div>
                         </Popconfirm>
                       </div>
 
                       {/* Playlist item */}
                       <div
                         onClick={() => handleNavigate(item._id)}
-                        className="cursor-pointer flex items-center justify-center w-12 h-12 bg-white rounded-md transition-transform hover:scale-105"
+                        className="cursor-pointer flex items-center justify-center w-12 h-12 bg-white rounded-md transition-all duration-300 hover:scale-105 hover:shadow-lg group-hover:ring-2 group-hover:ring-purple-400/50"
                       >
                         <Image
                           width={100}
