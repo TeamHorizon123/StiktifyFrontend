@@ -34,6 +34,34 @@ export const handleFlagShortVideoAction = async (id: string, flag: boolean) => {
   }
 };
 
+export const handleBlockShortVideoAction = async (id: string, isBlock: boolean) => {
+  try {
+    if (!token) return null;
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/block-video`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          _id: id,
+          isBlock: isBlock,
+        }),
+      }
+    );
+    
+    revalidateTag("list-short-video");
+    revalidateTag("list-report");
+    const result: IBackendRes<any> = await res.json();
+    return result;
+  } catch (error) {
+    return null;
+  }
+};
+
 export const handleGetAllShortVideo = async (
   searchText: string,
   filterReq: string,

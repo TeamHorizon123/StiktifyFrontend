@@ -9,7 +9,7 @@ import TagMusic from "../music/tag.music";
 import { formatDateTimeVn, formatNumber } from "@/utils/utils";
 import { handleFilterAndSearchMusicAction } from "@/actions/music.action";
 import TableCustomize from "../ticked-user/table/table.dashboard";
-import { handleFlagMusicAction } from "@/actions/manage.report.action";
+import { handleBlockMusicAction, handleFlagMusicAction } from "@/actions/manage.report.action";
 interface IProps {
     dataSource: IMusic[];
     meta: {
@@ -38,7 +38,15 @@ const ManageMusicTable = (props: IProps) => {
         }
         return notification.error({ message: res?.message });
       };
-    
+      
+      
+      const handleBlockMusic = async (record: IMusic) => {
+        const res = await handleBlockMusicAction(record._id, !record.isBlock);
+        if (res?.statusCode === 201) {
+          return notification.success({ message: res?.message });
+        }
+        return notification.error({ message: res?.message });
+      };
 
     useEffect(() => {
         (async () => {
@@ -98,13 +106,18 @@ const ManageMusicTable = (props: IProps) => {
             title: "Blocked",
             key: "isBlock",
             render: (_, record) => (
-            <div>
-                {record?.isBlock ? (
+            <Popconfirm
+                title={`Sure to ${record?.isBlock?"UnBlock":"Block"} video?`}
+                onConfirm={() => handleBlockMusic(record)}
+                okText="Yes"
+                cancelText="No"
+                >
+            {record?.isBlock ? (
                 <LockTwoTone style={{ fontSize: "24px" }} twoToneColor="#d63031" />
                 ) : (
                 <UnlockTwoTone style={{ fontSize: "24px" }} twoToneColor="#00b894" />
                 )}
-            </div>
+            </Popconfirm>
             ),
         },
      {
@@ -119,7 +132,7 @@ const ManageMusicTable = (props: IProps) => {
             render: (value, record, index) => (
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <Popconfirm
-                        title="Sure to flag music?"
+                        title={`Sure to ${ value?.flag?"UnFlag":"Flag"} music?`}
                         onConfirm={() => handleFlagMusic(value)}
                         okText="Yes"
                         cancelText="No"
