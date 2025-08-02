@@ -21,7 +21,7 @@ interface CommentProps {
     user?: any;
   };
   user: any;
-  userAvatar: string;
+  userImage: string;
   toggleChildComments: (parentId: string) => void;
   expandedComments: Set<string>;
   childComments: Map<string, any[]>;
@@ -34,7 +34,7 @@ interface CommentProps {
 const Comment: React.FC<CommentProps> = ({
   comment,
   user,
-  userAvatar,
+  userImage,
   toggleChildComments,
   expandedComments,
   childComments,
@@ -251,7 +251,7 @@ const Comment: React.FC<CommentProps> = ({
       {user && isReplyModalOpen && (
         <div className="flex items-center gap-3 ml-12 mt-2">
           <img
-            src={userAvatar}
+            src={userImage}
             alt="User Avatar"
             className="w-8 h-8 rounded-full object-cover"
           />
@@ -318,7 +318,7 @@ const Comment: React.FC<CommentProps> = ({
                 className="flex gap-3 p-3 rounded-lg bg-white/5 mb-2"
               >
                 <img
-                  src={userAvatar}
+                  src={userImage}
                   alt="Avatar"
                   className="w-8 h-8 rounded-full object-cover"
                 />
@@ -380,7 +380,7 @@ const Comment: React.FC<CommentProps> = ({
       {isEditModalOpen && (
         <div className="flex gap-3 p-3 mt-2">
           <img
-            src={userAvatar}
+            src={userImage}
             alt="Avatar"
             className="w-10 h-10 rounded-full object-cover"
           />
@@ -420,7 +420,7 @@ const Comment: React.FC<CommentProps> = ({
       {isDeleteConfirmOpen && (
         <div className="flex gap-3 p-3 mt-2">
           <img
-            src={userAvatar}
+            src={userImage}
             alt="Avatar"
             className="w-10 h-10 rounded-full object-cover"
           />

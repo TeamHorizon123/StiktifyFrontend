@@ -85,31 +85,30 @@ const TrendingPage = () => {
       console.log("Current video segments:", currentVideo.segments);
       const playFromM3U8 = async () => {
         try {
-           const mediaSource = new MediaSource();
-        videoRef.current!.src = URL.createObjectURL(mediaSource);
-        mediaSource.addEventListener("sourceopen", async () => {
-          const sb = mediaSource.addSourceBuffer(
-            'video/mp2t; codecs="avc1.42E01E, mp4a.40.2"'
-          );
-          const segmentIndices = await parseM3U8FromPNG(currentVideo.m3u8_png);
+          const mediaSource = new MediaSource();
+          videoRef.current!.src = URL.createObjectURL(mediaSource);
+          mediaSource.addEventListener("sourceopen", async () => {
+            const sb = mediaSource.addSourceBuffer(
+              'video/mp2t; codecs="avc1.42E01E, mp4a.40.2"'
+            );
+            const segmentIndices = await parseM3U8FromPNG(
+              currentVideo.m3u8_png
+            );
 
-          for (const idx of segmentIndices) {
-            try {
-              const buffer = await loadSegment(currentVideo.segments[idx]);
-              sb.appendBuffer(buffer);
-              await new Promise((resolve) =>
-                sb.addEventListener("updateend", resolve, { once: true })
-              );
-            } catch (err) {}
-          }
-          if (mediaSource.readyState === "open") {
-            mediaSource.endOfStream();
-          }
-        });
-        } catch (error) {
-          
-        }
-       
+            for (const idx of segmentIndices) {
+              try {
+                const buffer = await loadSegment(currentVideo.segments[idx]);
+                sb.appendBuffer(buffer);
+                await new Promise((resolve) =>
+                  sb.addEventListener("updateend", resolve, { once: true })
+                );
+              } catch (err) {}
+            }
+            if (mediaSource.readyState === "open") {
+              mediaSource.endOfStream();
+            }
+          });
+        } catch (error) {}
       };
       playFromM3U8();
     }
@@ -326,21 +325,6 @@ const TrendingPage = () => {
       });
     } catch (error) {
       console.error("Error add action:", error);
-    }
-  };
-  // Social actions
-  const handleReaction = (reaction: string) => {
-    setSelectedReaction(selectedReaction === reaction ? null : reaction);
-    setShowReactions(false);
-    setUserReactions((prev) => ({
-      ...prev,
-      [reaction]: prev[reaction] + (selectedReaction === reaction ? -1 : 1),
-    }));
-  };
-
-  const handleCommentSubmit = () => {
-    if (commentText.trim()) {
-      setCommentText("");
     }
   };
 
@@ -674,7 +658,7 @@ const TrendingPage = () => {
                     </Button>
                   </div>
                   {/* Comment List */}
-                  <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-[calc(100vh-320px)]">
+                  <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-full">
                     <CommentSection
                       key={currentVideo?._id + sidebarMode + refreshComments}
                       videoId={currentVideo?._id}
@@ -682,6 +666,7 @@ const TrendingPage = () => {
                       user={user}
                       userAvatar={user?.image}
                       onCommentAdded={onCommentAdded}
+                      onCommentRemove={onCommentRemove}
                     />
                   </div>
                   {/* Comment Input */}

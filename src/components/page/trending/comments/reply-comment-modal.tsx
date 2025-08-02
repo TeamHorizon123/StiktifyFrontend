@@ -8,7 +8,7 @@ interface ReplyCommentFormProps {
   parentId: string;
   userId: string;
   videoId: string | undefined;
-  userAvatar: string;
+  userImage: string;
   onReplySuccess: (newReply: any) => void; // Hàm gọi lại sau khi gửi thành công
   onCancel: any; // Đóng form khi hủy
 }
@@ -17,7 +17,7 @@ const ReplyCommentForm: React.FC<ReplyCommentFormProps> = ({
   parentId,
   userId,
   videoId,
-  userAvatar,
+  userImage,
   onReplySuccess,
   onCancel,
 }) => {
@@ -50,7 +50,7 @@ const ReplyCommentForm: React.FC<ReplyCommentFormProps> = ({
         onReplySuccess({
           _id: res.data._id,
           username: user?.name || "Unknown",
-          avatar: userAvatar,
+          avatar: userImage,
           parentId: parentId,
           CommentDescription: replyText,
           totalOfChildComments: 0,
@@ -68,7 +68,7 @@ const ReplyCommentForm: React.FC<ReplyCommentFormProps> = ({
     <div className="mt-2 p-3 bg-gray-100 rounded-lg shadow-md">
       <div className="flex items-start gap-3">
         <img
-          src={userAvatar}
+          src={userImage}
           alt="User Avatar"
           className="w-8 h-8 rounded-full object-cover"
         />

@@ -152,7 +152,7 @@ const SideBar: React.FC<SideBarProps> = () => {
     // </div>
 
     <div className="fixed z-20 flex">
-      <div className="w-[15rem] max-[600px]:w-[16vw] h-[100vh] flex flex-col bg-[#18182c] text-white items-center lg:items-start overflow-auto drop-shadow-sm lg:pl-4 lg:pr-4">
+      <div className="w-[13rem] max-[600px]:w-[16vw] h-[100vh] flex flex-col bg-[#18182c] text-white items-center lg:items-start overflow-auto drop-shadow-sm lg:pl-4 lg:pr-4">
         {/* logo */}
         <div className="w-full mt-8 mb-4 flex flex-col space-y-4">
           <Link
