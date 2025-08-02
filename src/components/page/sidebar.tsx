@@ -43,8 +43,6 @@ const SideBar: React.FC<SideBarProps> = () => {
 
   const pathname = usePathname();
 
-
-
   useEffect(() => {
     if (user && user._id) {
       setIsGuest(false);
@@ -152,17 +150,22 @@ const SideBar: React.FC<SideBarProps> = () => {
     //     <small className="text-gray-500">©2025 Stiktify</small>
     //   </footer>
     // </div>
+
     <div className="fixed z-20 flex">
-      <div
-        className="w-[15rem] max-[600px]:w-[16vw] h-[100vh] flex flex-col bg-[#18182c] text-white items-center lg:items-start overflow-auto drop-shadow-sm lg:pl-4 lg:pr-4">
+      <div className="w-[15rem] max-[600px]:w-[16vw] h-[100vh] flex flex-col bg-[#18182c] text-white items-center lg:items-start overflow-auto drop-shadow-sm lg:pl-4 lg:pr-4">
         {/* logo */}
         <div className="w-full mt-8 mb-4 flex flex-col space-y-4">
-          <Link className="pl-2 flex items-center text-end text-lg space-x-3" href="/page/trending">
+          <Link
+            className="pl-2 flex items-center text-end text-lg space-x-3"
+            href="/page/trending"
+          >
             <FaHeadphonesSimple />
             <p className="sm:hidden max-[600px]:hidden lg:block">Stiktify</p>
           </Link>
-          <button className="w-full h-fit bg-zinc-700 p-2 pt-3 pb-3 rounded-xl flex items-center"
-            onClick={() => setShowSearch(true)}>
+          <button
+            className="w-full h-fit bg-zinc-700 p-2 pt-3 pb-3 rounded-xl flex items-center"
+            onClick={() => setShowSearch(true)}
+          >
             <FaSearch />
             <p className="pl-2 text-gray-400">Search</p>
           </button>
@@ -171,143 +174,185 @@ const SideBar: React.FC<SideBarProps> = () => {
         {/* nav */}
         <nav className="w-full space-y-6 relative bottom-0 overflow-y-scroll ">
           <ul className="w-full space-y-2 text-base text-center flex flex-col items-center lg:items-start">
-            <li className="w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
-              <Link className="flex items-center space-x-2" href="/page/trending">
+            <li className="w-full h-fit hover:bg-purple-500 p-2 hover:rounded-md hover:transition hover:ease-in-out">
+              <Link
+                className="flex items-center space-x-2"
+                href="/page/trending"
+              >
                 <AiFillFire />
-                <p className="text-base sm:hidden max-[600px]:hidden lg:block">Trending</p>
+                <p className="text-base sm:hidden max-[600px]:hidden lg:block">
+                  Trending
+                </p>
               </Link>
             </li>
-            {/* <li className="w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
+            {/* <li className="w-full h-fit hover:bg-purple-500 p-2 hover:rounded-md hover:transition hover:ease-in-out">
               <Link href="" className="flex items-center space-x-2">
                 <FaGlobeAsia />
                 <p className="text-base sm:hidden max-[600px]:hidden lg:block">Explore</p>
               </Link>
             </li> */}
-            {
-              !isGuest ? (
-                <>
-                  <li className="w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
-                    <Link href="/page/following" className="flex items-center space-x-2">
-                      <RiUserReceivedFill />
-                      <p className="text-base sm:hidden max-[600px]:hidden lg:block">Following</p>
-                    </Link>
-                  </li>
-                  <li className="w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
-                    <Link href="/page/music" className="flex items-center space-x-2">
-                      <AiFillCustomerService />
-                      <p className="text-base sm:hidden max-[600px]:hidden lg:block">Music</p>
-                    </Link>
-                  </li>
+            {!isGuest ? (
+              <>
+                <li className="w-full h-fit hover:bg-purple-500 p-2 hover:rounded-md hover:transition hover:ease-in-out">
+                  <Link
+                    href="/page/following"
+                    className="flex items-center space-x-2"
+                  >
+                    <RiUserReceivedFill />
+                    <p className="text-base sm:hidden max-[600px]:hidden lg:block">
+                      Following
+                    </p>
+                  </Link>
+                </li>
+                <li className="w-full h-fit hover:bg-purple-500 p-2 hover:rounded-md hover:transition hover:ease-in-out">
+                  <Link
+                    href="/page/music"
+                    className="flex items-center space-x-2"
+                  >
+                    <AiFillCustomerService />
+                    <p className="text-base sm:hidden max-[600px]:hidden lg:block">
+                      Music
+                    </p>
+                  </Link>
+                </li>
 
-                  {pathname === "/page/trending" && (
-                    <li className="w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
-                      <button onClick={() => setIsUploadModalOpen(true)} className="flex items-center space-x-2">
-                        <BsPlusSquareFill />
-                        <p className="text-base sm:hidden max-[600px]:hidden lg:block">Upload</p>
-                      </button>
-                    </li>
-                  )}
-                  <li className="w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
-                    <NotificationModel />
-                  </li>
-                  <li className="relative w-full h-fit p-2 hover:bg-[#514f4b] rounded-md transition ease-in-out">
-                    <div
-                      onClick={() => setOpenHistory(!openHistory)}
-                      className="flex items-center justify-between cursor-pointer"
+                {pathname === "/page/trending" && (
+                  <li className="w-full h-fit hover:bg-purple-500 p-2 hover:rounded-md hover:transition hover:ease-in-out">
+                    <button
+                      onClick={() => setIsUploadModalOpen(true)}
+                      className="flex items-center space-x-2"
                     >
-                      <div className="flex items-center space-x-2">
-                        <AiOutlineHistory />
-                        <div className="red-dot absolute hidden"></div>
-                        <p className="text-base sm:hidden max-[600px]:hidden lg:block">History</p>
-                      </div>
-                      <div className="ml-2">
-                        {openHistory ? <FaChevronUp size={14} /> : <FaChevronDown size={14} />}
-                      </div>
+                      <BsPlusSquareFill />
+                      <p className="text-base sm:hidden max-[600px]:hidden lg:block">
+                        Upload
+                      </p>
+                    </button>
+                  </li>
+                )}
+                <li className="w-full h-fit hover:bg-purple-500 p-2 hover:rounded-md hover:transition hover:ease-in-out">
+                  <NotificationModel />
+                </li>
+                <li className="relative w-full h-fit p-2 hover:bg-[#3a3936] rounded-md transition ease-in-out">
+                  <div
+                    onClick={() => setOpenHistory(!openHistory)}
+                    className="flex items-center justify-between cursor-pointer"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <AiOutlineHistory />
+                      <div className="red-dot absolute hidden"></div>
+                      <p className="text-base sm:hidden max-[600px]:hidden lg:block">
+                        History
+                      </p>
                     </div>
+                    <div className="ml-2">
+                      {openHistory ? (
+                        <FaChevronUp size={14} />
+                      ) : (
+                        <FaChevronDown size={14} />
+                      )}
+                    </div>
+                  </div>
 
-                    <div
-                      className={`overflow-hidden transition-all duration-300 ease-in-out ${openHistory ? "max-h-40 mt-2" : "max-h-0"
-                        }`}
-                    >
-                      <ul className="rounded-md shadow-md w-40">
-                        <li className="p-2 hover:bg-[#3a3936] hover:rounded">
-                          <Link
-                            href="/page/videohistory"
-                            className={"/personal/videohistory"}
-                          >
-                            Video History
-                          </Link>
-                        </li>
-                        <li className="p-2 hover:bg-[#3a3936] hover:rounded">
-                          <Link
-                            href="/page/musichistory"
-                            className={"/personal/musichistory"}
-                          >
-                            Music History
-                          </Link>
-                        </li>
-                      </ul>
-                    </div>
-                  </li>
-                  <li className="w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
-                    <Link href="" className="flex items-center space-x-2">
-                      <FaCircleUser />
-                      <p className="text-base sm:hidden max-[600px]:hidden lg:block">Profile</p>
-                    </Link>
-                  </li>
-                </>
-              ) : (<> </>)
-            }
-            {/* <li className="w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
+                  <div
+                    className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                      openHistory ? "max-h-40 mt-2" : "max-h-0"
+                    }`}
+                  >
+                    <ul className="rounded-md shadow-md w-40">
+                      <li className="p-2 hover:bg-[#3a3936] hover:rounded">
+                        <Link
+                          href="/page/videohistory"
+                          className={"/personal/videohistory"}
+                        >
+                          Video History
+                        </Link>
+                      </li>
+                      <li className="p-2 hover:bg-[#3a3936] hover:rounded">
+                        <Link
+                          href="/page/musichistory"
+                          className={"/personal/musichistory"}
+                        >
+                          Music History
+                        </Link>
+                      </li>
+                    </ul>
+                  </div>
+                </li>
+                <li className="w-full h-fit hover:bg-purple-500 p-2 hover:rounded-md hover:transition hover:ease-in-out">
+                  <Link href="" className="flex items-center space-x-2">
+                    <FaCircleUser />
+                    <p className="text-base sm:hidden max-[600px]:hidden lg:block">
+                      Profile
+                    </p>
+                  </Link>
+                </li>
+              </>
+            ) : (
+              <> </>
+            )}
+            {/* <li className="w-full h-fit hover:bg-purple-500 p-2 hover:rounded-md hover:transition hover:ease-in-out">
               <Link href={isGuest ? "/page/trending-guest" : "/page/trending-user"} className="flex items-center space-x-2">
                 <AiFillFire />
                 <p className="text-base sm:hidden max-[600px]:hidden lg:block">Trending</p>
               </Link>
             </li> */}
-            {
-              isGuest ? (<>
+            {isGuest ? (
+              <>
                 <li className="w-full h-fit p-2">
                   <BtnSignIn />
                 </li>
-              </>) : (<></>)
-            }
+              </>
+            ) : (
+              <></>
+            )}
           </ul>
           <hr />
-          {
-            !isGuest ? (<>
-
-              <Link href="/page/shop" className="test-base flex items-center space-x-2 w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
+          {!isGuest ? (
+            <>
+              <Link
+                href="/page/shop"
+                className="test-base flex items-center space-x-2 w-full h-fit hover:bg-purple-500 p-2 hover:rounded-md hover:transition hover:ease-in-out"
+              >
                 <AiFillShop />
-                <p className="text-base sm:hidden max-[600px]:hidden lg:block">Shop</p>
+                <p className="text-base sm:hidden max-[600px]:hidden lg:block">
+                  Shop
+                </p>
               </Link>
-              <Link href="/page/manage-shop" className="test-base flex items-center space-x-2 w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
+              <Link
+                href="/page/manage-shop"
+                className="test-base flex items-center space-x-2 w-full h-fit hover:bg-purple-500 p-2 hover:rounded-md hover:transition hover:ease-in-out"
+              >
                 <MdDashboard />
-                <p className="text-base sm:hidden max-[600px]:hidden lg:block">Manage Shop</p>
+                <p className="text-base sm:hidden max-[600px]:hidden lg:block">
+                  Manage Shop
+                </p>
               </Link>
               <hr />
-            </>) : (<></>)
-          }
+            </>
+          ) : (
+            <></>
+          )}
           {/* setting account */}
           {/* <ul className="w-full space-y-2 text-base text-center flex flex-col items-center lg:items-start">
-            <li className="w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
+            <li className="w-full h-fit hover:bg-purple-500 p-2 hover:rounded-md hover:transition hover:ease-in-out">
               <Link className="flex items-center space-x-2" href="">
                 <IoSettings />
                 <p className="text-base sm:hidden max-[600px]:hidden lg:block">Setting</p>
               </Link>
             </li> */}
-          {/* <li className="w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
+          {/* <li className="w-full h-fit hover:bg-purple-500 p-2 hover:rounded-md hover:transition hover:ease-in-out">
               <Link href="" className="flex items-center space-x-2">
                 <MdReport />
                 <p className="text-base sm:hidden max-[600px]:hidden lg:block">Report</p>
               </Link>
             </li>
-            <li className="w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
+            <li className="w-full h-fit hover:bg-purple-500 p-2 hover:rounded-md hover:transition hover:ease-in-out">
               <Link className="flex items-center space-x-2" href="">
                 <MdHelp />
                 <p className="text-base sm:hidden max-[600px]:hidden lg:block">Helps</p>
               </Link>
             </li>
-            <li className="w-full h-fit hover:bg-[#514f4b] p-2 hover:rounded-md hover:transition hover:ease-in-out">
+            <li className="w-full h-fit hover:bg-purple-500 p-2 hover:rounded-md hover:transition hover:ease-in-out">
               <Link href="" className="flex items-center space-x-2">
                 <MdFeedback />
                 <p className="text-base sm:hidden max-[600px]:hidden lg:block">Feedback</p>
@@ -316,7 +361,7 @@ const SideBar: React.FC<SideBarProps> = () => {
           {/* </ul> */}
           {/* Term & Privacy */}
           <div className="mt-14 ext-sm max-[600px]:text-xs flex flex-col items-center justify-center space-y-1">
-            <ul className="flex flex-wrap text-center items-center justify-center space-x-1 lg:text-[10px]" >
+            <ul className="flex flex-wrap text-center items-center justify-center space-x-1 lg:text-[10px]">
               <li>
                 <Link href="/">About</Link>
               </li>
@@ -327,7 +372,7 @@ const SideBar: React.FC<SideBarProps> = () => {
                 <Link href="/">Contact us</Link>
               </li>
             </ul>
-            <ul className="flex flex-wrap text-center items-center justify-center space-x-1 lg:text-[10px]" >
+            <ul className="flex flex-wrap text-center items-center justify-center space-x-1 lg:text-[10px]">
               <li>
                 <Link href="/">Terms</Link>
               </li>
@@ -361,21 +406,20 @@ const SideBar: React.FC<SideBarProps> = () => {
       </Modal>
 
       <style jsx global>{`
-  .ant-modal-content,
-  .ant-modal-header,
-  .ant-modal-body {
-    background-color: #1f2937 !important;
-    color: #ffffff !important;
-  }
+        .ant-modal-content,
+        .ant-modal-header,
+        .ant-modal-body {
+          background-color: #1f2937 !important;
+          color: #ffffff !important;
+        }
 
-  .ant-modal-title,
-  .ant-modal-close,
-  .ant-modal-body * {
-    color: #ffffff !important;
-  }
-`}</style>
+        .ant-modal-title,
+        .ant-modal-close,
+        .ant-modal-body * {
+          color: #ffffff !important;
+        }
+      `}</style>
     </div>
-
   );
 };
 

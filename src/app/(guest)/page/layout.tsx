@@ -6,10 +6,10 @@ const PageLayout = ({ children }: { children: React.ReactNode }) => {
   // const { showComments } = useShowComment();
 
   return (
-    <div className="flex gap-[2%] flex-wrap content-start">
+    <div className="flex flex-wrap content-start">
       {/* {!showComments && <SideBar />} */}
       <SideBar />
-      <main className="grow ml-[16rem]">{children}</main>
+      <main className="grow ml-[15rem]">{children}</main>
     </div>
   );
 };

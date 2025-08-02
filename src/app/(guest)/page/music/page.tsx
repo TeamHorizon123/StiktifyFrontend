@@ -1,24 +1,37 @@
-import { handleGetAllMusic } from "@/actions/music.action"
+import { handleGetAllMusic } from "@/actions/music.action";
 import ListMusic from "@/components/music/list.music";
 import SideBarPlaylist from "@/components/playlist/sidebar.playlist";
 const MusicGuestPage = async ({ searchParams }: any) => {
-    const { current, pageSize } = await searchParams
-    const result = current ? current : 1;
-    const LIMIT = pageSize ? pageSize : 50;
+  const { current, pageSize } = await searchParams;
+  const result = current ? current : 1;
+  const LIMIT = pageSize ? pageSize : 50;
 
-    const res = await handleGetAllMusic(result, LIMIT)
-    const data = res?.data
+  const res = await handleGetAllMusic(result, LIMIT);
+  const data = res?.data;
 
-    return (
-        <div className="h-[86vh] overflow-y-auto border p-4 flex">
-            <div >
-                <ListMusic data={data ? data.result : []} />
-            </div>
-            <div className="bg-gray-100 h-[80vh] fixed right-5 w-[4vw] rounded-md flex justify-center overflow-y-auto">
-                <SideBarPlaylist />
-            </div>
-        </div>
-    )
-}
+  // return (
+  //   <div className="min-h-screen flex pb-[15vh] main-layout ">
+  //     <div className="flex-1">
+  //       <ListMusic data={data ? data.result : []} />
+  //     </div>
+  //     <div className="fixed top-0 bottom-20 w-20 bg-gray-100 rounded-md flex justify-center overflow-y-auto z-10">
+  //       <SideBarPlaylist />
+  //     </div>
+  //   </div>
+  // );
+  return (
+    <div className="min-h-screen flex pb-[15vh] main-layout">
+      {/* Nội dung chính */}
+      <div className="flex-1">
+        {/* Chừa khoảng trống cho sidebar */}
+        <ListMusic data={data ? data.result : []} />
+      </div>
+      {/* Sidebar Playlist */}
+      <div className="fixed top-10 right-0 h-[75%] rounded-md flex justify-center overflow-y-auto z-10">
+        <SideBarPlaylist />
+      </div>
+    </div>
+  );
+};
 
-export default MusicGuestPage
+export default MusicGuestPage;
