@@ -66,7 +66,7 @@ const SideBarPlaylist = () => {
     message.error("Click on No");
   };
   return (
-    <>
+    <div className=" bg-[#18182c] backdrop-blur-md">
       {user && (
         <>
           <div className="flex flex-col justify-between">
@@ -143,7 +143,7 @@ const SideBarPlaylist = () => {
           />
         </>
       )}
-    </>
+    </div>
   );
 };
 

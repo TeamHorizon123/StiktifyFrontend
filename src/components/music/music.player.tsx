@@ -337,43 +337,46 @@ const MusicPlayer = (p: MusicPlayerProps) => {
   }, [seek, duration]);
 
   return (
-    <div className=" w-full h-full  bg-gray-900/80 backdrop-blur-md text-white p-4 rounded-2xl shadow-lg">
-      <div className="flex items-center">
-        <div className="flex flex-1 gap-5 items-center justify-between">
-          <div className="flex gap-1 items-center justify-between">
-            {trackCurrent && trackCurrent.musicThumbnail && (
-              <Image
-                className="rounded-lg"
-                src={trackCurrent?.musicThumbnail}
-                alt="thumbnail"
-                width={60}
-                height={60}
-              />
-            )}
-            <span className="ml-4 text-1xl font-semibold truncate w-[20vw] flex items-center gap-5">
-              {trackCurrent?.musicDescription}
-              <FaHeartbeat size={20} />
-            </span>
+    <div className="w-full max-w-7xl mx-auto bg-gray-900/80 backdrop-blur-md text-white p-4 rounded-2xl shadow-lg">
+      <div className="flex items-center justify-between gap-5">
+        {/* Phần thông tin bài hát */}
+        <div className="flex items-center gap-3 min-w-0 flex-shrink-0 w-1/4">
+          {trackCurrent && trackCurrent.musicThumbnail && (
+            <Image
+              className="rounded-lg flex-shrink-0"
+              src={trackCurrent?.musicThumbnail}
+              alt="thumbnail"
+              width={50}
+              height={50}
+            />
+          )}
+          <div className="min-w-0 flex-1">
+            <div className="text-sm font-semibold truncate flex items-center gap-2">
+              <span className="truncate">{trackCurrent?.musicDescription}</span>
+              <FaHeartbeat size={16} className="flex-shrink-0" />
+            </div>
           </div>
         </div>
-        <div className="flex justify-center flex-col gap-2">
-          <div className="flex gap-10 items-center justify-center">
+
+        {/* Phần điều khiển chính */}
+        <div className="flex flex-col items-center gap-2 flex-1 min-w-0">
+          <div className="flex gap-4 items-center justify-center">
             <button
               onClick={() => downloadFile()}
               className="hover:text-purple-400 transition"
             >
-              <GoDesktopDownload size={20} />
+              <GoDesktopDownload size={18} />
             </button>
 
             <button className="hover:text-purple-400 transition">
-              <FaShuffle size={20} />
+              <FaShuffle size={18} />
             </button>
 
             <button
               onClick={prevTrack}
               className="hover:text-purple-400 transition"
             >
-              <FaStepBackward size={20} />
+              <FaStepBackward size={18} />
             </button>
 
             <ButtonPlayer
@@ -386,39 +389,47 @@ const MusicPlayer = (p: MusicPlayerProps) => {
               onClick={nextTrack}
               className="hover:text-purple-400 transition"
             >
-              <FaStepForward size={20} />
+              <FaStepForward size={18} />
             </button>
 
             <button className="hover:text-purple-400 transition">
-              <FaRepeat size={20} />
+              <FaRepeat size={18} />
             </button>
 
             <button
               onClick={handleKaraoke}
               className="hover:text-purple-400 transition"
             >
-              <GiMicrophone size={20} />
+              <GiMicrophone size={18} />
             </button>
           </div>
-          <div className="flex justify-center items-center gap-5">
-            <span>{formatTime(Math.floor(seek))}</span>
+
+          {/* Thanh tiến trình */}
+          <div className="flex items-center gap-3 w-full max-w-2xl">
+            <span className="text-xs flex-shrink-0 w-12 text-center">
+              {formatTime(Math.floor(seek))}
+            </span>
             <input
               type="range"
               min={0}
               max={duration}
               value={seek}
               onChange={handleSeekChange}
-              className="w-[35vw] h-1"
+              className="flex-1 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer"
             />
-            <span>{formatTime(Math.floor(duration))}</span>
+            <span className="text-xs flex-shrink-0 w-12 text-center">
+              {formatTime(Math.floor(duration))}
+            </span>
           </div>
         </div>
-        <div className="flex flex-1 justify-end items-center gap-2">
+
+        {/* Phần điều khiển âm lượng */}
+        <div className="flex items-center gap-2 flex-shrink-0 w-1/4 justify-end">
           <button
             onClick={toggleMute}
-            className="ml-4 hover:text-purple-400 transition"
+            className="hover:text-purple-400 transition"
           >
-            {volume > 0 ? <FaVolumeUp size={20} /> : <FaVolumeMute size={20} />}
+            {volume > 0 ? <FaVolumeUp size={18} /> : <FaVolumeMute size={18} />}
           </button>
           <input
             type="range"
@@ -427,9 +438,10 @@ const MusicPlayer = (p: MusicPlayerProps) => {
             step="0.1"
             value={volume}
             onChange={(e) => setVolume(parseFloat(e.target.value))}
-            className="ml-2 w-20 h-1 bg-white rounded-lg appearance-none cursor-pointer"
+            className="w-20 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer"
           />
         </div>
+
         <div hidden>
           {trackCurrent && trackCurrent.musicUrl && (
             <ReactHowler

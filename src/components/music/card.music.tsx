@@ -36,7 +36,7 @@ const CardMusic = (props: IProps) => {
   const router = useRouter();
   const [items, setItems] = useState<MenuProps["items"] | []>([]);
   const [isOpenModal, setIsOpenModal] = useState(false);
-
+  const { className = "" } = props;
   const handleItem = (track: IMusic) => {
     handlePlayer(track);
   };
@@ -138,7 +138,7 @@ const CardMusic = (props: IProps) => {
           trackCurrent?._id !== item._id && setHoverPlayer(false);
         }}
         onMouseEnter={() => setHoverPlayer(true)}
-        className="group relative bg-gray-800/50 hover:bg-gray-700/50 rounded-lg p-4 transition-all duration-300 cursor-pointer"
+        className={`group relative bg-gray-800/50 hover:bg-gray-700/50 rounded-lg p-4 transition-all duration-300 cursor-pointer h-full flex flex-col ${className}`}
       >
         {/* Dropdown Menu */}
         <Dropdown
@@ -198,7 +198,7 @@ const CardMusic = (props: IProps) => {
         </div>
 
         {/* Track Info */}
-        <div className="space-y-2">
+        <div className="space-y-2 flex-1 flex flex-col justify-between">
           <Tooltip title={item.musicDescription}>
             <h3 className="font-medium text-white truncate group-hover:text-purple-400 transition-colors">
               {item.musicDescription}
@@ -208,11 +208,8 @@ const CardMusic = (props: IProps) => {
             {item.musicTag?.map((tag) => tag.fullname).join(", ") ||
               "Unknown Artist"}
           </p>
-
-          {/* Stats */}
           <div className="flex items-center justify-between text-xs text-gray-500">
             <span>{item.totalListener?.toLocaleString() || 0} plays</span>
-            {/* Duration hoặc date */}
           </div>
         </div>
       </div>

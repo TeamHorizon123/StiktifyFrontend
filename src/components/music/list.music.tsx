@@ -136,20 +136,12 @@ const ListMusic = (props: IProps) => {
   }, [user]);
 
   return (
-    <div className="main-layout min-h-screen text-white pr-20">
+    <div className="main-layout min-h-screen text-white pr-[4%]">
       {/* Header Section */}
       <div className="px-8 pt-8 pb-6">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold">Music</h1>
           <div className="flex gap-4">
-            {/* <div className="w-[400px]">
-                <InputCustomize
-                  setValue={(val: any) => setSearch(val)}
-                  value={search}
-                  icon={<SearchOutlined />}
-                  placeholder="Search for songs, artists..."
-                />
-              </div> */}
             <div>
               <DropdownCustomizeFilterMusic
                 title="Filter"
@@ -183,7 +175,7 @@ const ListMusic = (props: IProps) => {
                   {item.musicDescription}
                 </h3>
                 <p className="text-gray-300 text-sm">
-                  {item.musicTag?.map((tag) => tag.tagName).join(", ") ||
+                  {item.musicTag?.map((tag) => tag.fullname).join(", ") ||
                     "Unknown"}
                 </p>
               </div>
@@ -212,7 +204,7 @@ const ListMusic = (props: IProps) => {
 
         {/* Hot Music */}
         {dataHotMusic && dataHotMusic.length > 0 && (
-          <div>
+          <div className="w-[70rem]">
             <h2 className="text-3xl font-bold mb-6">Popular This Week</h2>
             <HotMusicList data={dataHotMusic} />
           </div>
@@ -221,15 +213,16 @@ const ListMusic = (props: IProps) => {
         {/* All Music Grid */}
         <div>
           <h2 className="text-3xl font-bold mb-6">Browse All</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {filteredData.length > 0 ? (
               filteredData.map((item) => (
-                <CardMusic
-                  key={item._id}
-                  handlePlayer={handlePlayer}
-                  isPlaying={isPlaying}
-                  item={item}
-                />
+                <div key={item._id} className="w-full">
+                  <CardMusic
+                    handlePlayer={handlePlayer}
+                    isPlaying={isPlaying}
+                    item={item}
+                  />
+                </div>
               ))
             ) : (
               <div className="col-span-full flex items-center justify-center py-20">
