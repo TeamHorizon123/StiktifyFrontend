@@ -140,25 +140,6 @@ const CardMusic = (props: IProps) => {
         onMouseEnter={() => setHoverPlayer(true)}
         className={`group relative bg-gray-800/50 hover:bg-gray-700/50 rounded-lg p-4 transition-all duration-300 cursor-pointer h-full flex flex-col ${className}`}
       >
-        {/* Dropdown Menu */}
-        <Dropdown
-          menu={{
-            items,
-            onClick: (e) => {
-              e.domEvent.stopPropagation();
-              handleAddMusicInPlaylist(e.key);
-            },
-          }}
-          trigger={["click"]}
-        >
-          <button
-            onClick={(e) => e.stopPropagation()}
-            className="absolute top-2 right-2 p-2 rounded-full bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-black/40"
-          >
-            <MoreHorizontal className="w-4 h-4 text-white" />
-          </button>
-        </Dropdown>
-
         {/* Album Art */}
         <div className="relative aspect-square mb-4 rounded-md overflow-hidden">
           <Image
@@ -199,11 +180,34 @@ const CardMusic = (props: IProps) => {
 
         {/* Track Info */}
         <div className="space-y-2 flex-1 flex flex-col justify-between">
-          <Tooltip title={item.musicDescription}>
-            <h3 className="font-medium text-white truncate group-hover:text-purple-400 transition-colors">
-              {item.musicDescription}
-            </h3>
-          </Tooltip>
+          {/* Title và Add to Playlist Button */}
+          <div className="flex items-center justify-between gap-2">
+            <Tooltip title={item.musicDescription}>
+              <h3 className="font-medium text-white truncate group-hover:text-purple-400 transition-colors flex-1">
+                {item.musicDescription}
+              </h3>
+            </Tooltip>
+
+            {/* Dropdown Menu - Add to Playlist */}
+            <Dropdown
+              menu={{
+                items,
+                onClick: (e) => {
+                  e.domEvent.stopPropagation();
+                  handleAddMusicInPlaylist(e.key);
+                },
+              }}
+              trigger={["click"]}
+            >
+              <button
+                onClick={(e) => e.stopPropagation()}
+                className="p-1.5 rounded-full bg-gray-700/50 opacity-0 opacity-100 transition-all duration-300 hover:bg-purple-500/50 flex-shrink-0"
+              >
+                <MoreHorizontal className="w-4 h-4 text-white" />
+              </button>
+            </Dropdown>
+          </div>
+
           <p className="text-gray-400 text-sm truncate">
             {item.musicTag?.map((tag) => tag.fullname).join(", ") ||
               "Unknown Artist"}
