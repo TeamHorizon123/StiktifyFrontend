@@ -278,7 +278,7 @@ const SideBar: React.FC<SideBarProps> = () => {
                   </div>
                 </li>
                 <li className="w-full h-fit hover:bg-purple-500 p-2 hover:rounded-md hover:transition hover:ease-in-out">
-                  <Link href="" className="flex items-center space-x-2">
+                  <Link href={`/page/detail_user/${user._id}`} className="flex items-center space-x-2">
                     <FaCircleUser />
                     <p className="text-base sm:hidden max-[600px]:hidden lg:block">
                       Profile
@@ -394,17 +394,28 @@ const SideBar: React.FC<SideBarProps> = () => {
       )}
 
       {/* Modal hiển thị form Upload Video */}
-      <Modal
-        title="Upload Video"
-        visible={isUploadModalOpen}
-        footer={null}
-        onCancel={() => setIsUploadModalOpen(false)}
-        destroyOnClose
-      >
-        <UploadVideoPost />
-      </Modal>
+      {isUploadModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+          onClick={() => setIsUploadModalOpen(false)}
+        >
+          <div
+            className="bg-[#1f2937] text-white p-6 rounded-lg w-full max-w-xl shadow-xl relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setIsUploadModalOpen(false)}
+              className="absolute top-2 right-3 text-gray-300 hover:text-white text-xl font-bold"
+            >
+              &times;
+            </button>
+            <h2 className="text-xl font-semibold mb-4">Upload Video</h2>
+            <UploadVideoPost />
+          </div>
+        </div>
+      )}
 
-      <style jsx global>{`
+      {/* <style jsx global>{`
         .ant-modal-content,
         .ant-modal-header,
         .ant-modal-body {
@@ -417,7 +428,27 @@ const SideBar: React.FC<SideBarProps> = () => {
         .ant-modal-body * {
           color: #ffffff !important;
         }
-      `}</style>
+      `}</style> */}
+      <style jsx global>{`
+  .custom-upload-modal .ant-modal-content {
+    background-color: #1f2937;
+    color: #f9fafb;
+  }
+
+  .custom-upload-modal .ant-modal-header {
+    background-color: #1f2937;
+    border-bottom: 1px solid #374151;
+  }
+
+  .custom-upload-modal .ant-modal-title {
+    color: #f9fafb;
+  }
+
+  .custom-upload-modal .ant-modal-close-x {
+    color: #f9fafb;
+  }
+`}</style>
+
     </div>
   );
 };
