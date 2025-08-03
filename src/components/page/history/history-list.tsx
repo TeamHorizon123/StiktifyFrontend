@@ -76,7 +76,7 @@ const HistoryList: React.FC<HistoryListProps> = ({
   };
 
   return (
-    <div className="w-[70%] bg-[#18182c] p-4 text-white">
+    <div className="w-[70%]  bg-[#18182c] p-4 text-white">
       {videoList.length === 0 ? (
         <p>No videos found</p>
       ) : (

@@ -120,7 +120,7 @@ const NotificationModel = () => {
   return (
     <div>
       <li
-        className="relative w-full hover:bg-[#514f4b] rounded-md transition ease-in-out cursor-pointer"
+        className="relative w-full hover:bg-purple-500 rounded-md transition ease-in-out cursor-pointer"
         onClick={() => {
           setIsOpen(true);
           setShowNotification(true);

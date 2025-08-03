@@ -232,7 +232,7 @@ const SideBar: React.FC<SideBarProps> = () => {
                 <li className="w-full h-fit hover:bg-purple-500 p-2 hover:rounded-md hover:transition hover:ease-in-out">
                   <NotificationModel />
                 </li>
-                <li className="relative w-full h-fit p-2 hover:bg-[#3a3936] rounded-md transition ease-in-out">
+                <li className="relative w-full h-fit p-2 hover:bg-purple-500 rounded-md transition ease-in-out">
                   <div
                     onClick={() => setOpenHistory(!openHistory)}
                     className="flex items-center justify-between cursor-pointer"
@@ -254,9 +254,8 @@ const SideBar: React.FC<SideBarProps> = () => {
                   </div>
 
                   <div
-                    className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                      openHistory ? "max-h-40 mt-2" : "max-h-0"
-                    }`}
+                    className={`overflow-hidden transition-all duration-300 ease-in-out ${openHistory ? "max-h-40 mt-2" : "max-h-0"
+                      }`}
                   >
                     <ul className="rounded-md shadow-md w-40">
                       <li className="p-2 hover:bg-[#3a3936] hover:rounded">
