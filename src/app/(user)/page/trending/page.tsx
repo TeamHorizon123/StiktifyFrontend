@@ -781,11 +781,6 @@ const TrendingPage = () => {
             </div>
           </div>
         </div>
-        {currentMusic && (
-          <div className="fixed bottom-4 left-4 w-80 h-20 bg-black/80 backdrop-blur-md rounded-xl flex px-3 border border-white/10 z-10">
-            <TagMusic onClick={handleNavigate} item={currentMusic} />
-          </div>
-        )}
       </div>
     </div>
   );

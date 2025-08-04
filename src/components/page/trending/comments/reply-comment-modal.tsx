@@ -50,10 +50,13 @@ const ReplyCommentForm: React.FC<ReplyCommentFormProps> = ({
         onReplySuccess({
           _id: res.data._id,
           username: user?.name || "Unknown",
-          avatar: userImage,
+          userImage: userImage, // Thêm userImage
           parentId: parentId,
           CommentDescription: replyText,
           totalOfChildComments: 0,
+          totalReactions: 0,
+          createdAt: new Date().toISOString(),
+          user: { _id: user?._id }, // Đảm bảo có user._id
         });
         // onCancel();
       }
@@ -68,7 +71,7 @@ const ReplyCommentForm: React.FC<ReplyCommentFormProps> = ({
     <div className="mt-2 p-3 bg-gray-100 rounded-lg shadow-md">
       <div className="flex items-start gap-3">
         <img
-          src={userImage}
+          src={user.userImage}
           alt="User Avatar"
           className="w-8 h-8 rounded-full object-cover"
         />

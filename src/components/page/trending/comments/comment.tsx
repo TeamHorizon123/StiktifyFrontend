@@ -55,6 +55,9 @@ const Comment: React.FC<CommentProps> = ({
   const [showAllReplies, setShowAllReplies] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [replyLoading, setReplyLoading] = useState(false);
+  const [editingReplyId, setEditingReplyId] = useState<string | null>(null);
+  const [editingReplyText, setEditingReplyText] = useState("");
+  const [deletingReplyId, setDeletingReplyId] = useState<string | null>(null);
 
   const replies = childComments.get(comment._id) || [];
   const replyCount = thisComment.totalOfChildComments || replies.length;
@@ -156,21 +159,99 @@ const Comment: React.FC<CommentProps> = ({
       if (res.statusCode === 201) {
         setReplyText("");
         setReplyModalOpen(false);
+
+        // Đảm bảo replies hiển thị ngay lập tức
         setShowAllReplies(true);
+
+        // Đảm bảo expandedComments có parentId
+        if (!expandedComments.has(comment._id)) {
+          toggleChildComments(comment._id);
+        }
+
         handleNewReply({
           _id: res.data._id,
           username: user?.name || "Unknown",
-          avatar: userAvatar,
+          userImage: userImage, // Thêm userImage
           parentId: comment._id,
           CommentDescription: replyText,
           totalOfChildComments: 0,
           totalReactions: 0,
           createdAt: new Date().toISOString(),
+          user: { _id: user?._id },
         });
       }
     } catch (error) {
+      console.error("Error replying:", error);
     } finally {
       setReplyLoading(false);
+    }
+  };
+
+  // Add missing handleEditReply function
+  const handleEditReply = async (replyId: string) => {
+    if (!accessToken) return;
+    if (!editingReplyText.trim()) return;
+    try {
+      const res = await sendRequest<any>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/comments/update`,
+        method: "POST",
+        headers: { Authorization: `Bearer ${accessToken}` },
+        body: {
+          commentId: replyId,
+          CommentDescription: editingReplyText,
+        },
+      });
+      if (res.data) {
+        setChildComments((prev: Map<string, any[]>) => {
+          const updated = new Map(prev);
+          const arr = [...(updated.get(comment._id) || [])];
+          const idx = arr.findIndex((c) => c._id === replyId);
+          if (idx !== -1) {
+            arr[idx] = { ...arr[idx], CommentDescription: editingReplyText };
+            updated.set(comment._id, arr);
+          }
+          return updated;
+        });
+        setEditingReplyId(null);
+        setEditingReplyText("");
+      }
+    } catch (error) {
+      console.error("Error editing reply:", error);
+    }
+  };
+
+  // Add missing handleDeleteReply function
+  const handleDeleteReply = async (replyId: string | null) => {
+    if (!accessToken || !replyId) return;
+    try {
+      const res = await sendRequest<IBackendRes<any>>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/comments/delete`,
+        method: "DELETE",
+        body: { commentId: replyId },
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      if (res.data) {
+        setChildComments((prev: Map<string, any[]>) => {
+          const updated = new Map(prev);
+          const arr = [...(updated.get(comment._id) || [])];
+          const idx = arr.findIndex((c) => c._id === replyId);
+          if (idx !== -1) {
+            arr.splice(idx, 1);
+            updated.set(comment._id, arr);
+          }
+          setThisComment((prevState) => ({
+            ...prevState,
+            totalOfChildComments: Math.max(
+              (prevState.totalOfChildComments || 1) - 1,
+              0
+            ),
+          }));
+          return updated;
+        });
+        setDeletingReplyId(null);
+      }
+    } catch (error) {
+      console.error("Error deleting reply:", error);
     }
   };
 
@@ -185,6 +266,7 @@ const Comment: React.FC<CommentProps> = ({
     const userId = comment.user?._id;
     router.push(`/page/detail_user/${userId}`);
   };
+  const isOwner = (comment.user?._id || comment.userId) === user?._id;
   return (
     <div key={comment._id} className="mb-4">
       <div className="comment flex gap-3 p-3 rounded-lg transition-all">
@@ -210,7 +292,7 @@ const Comment: React.FC<CommentProps> = ({
           </p>
           {/* Actions */}
           <div className="flex items-center gap-6 text-sm">
-            {user && comment?.user?._id === user?._id ? (
+            {user && isOwner ? (
               <>
                 <button
                   className="flex items-center gap-1 text-gray-300 hover:text-blue-400 bg-transparent border-none shadow-none p-0"
@@ -251,7 +333,7 @@ const Comment: React.FC<CommentProps> = ({
       {user && isReplyModalOpen && (
         <div className="flex items-center gap-3 ml-12 mt-2">
           <img
-            src={userImage}
+            src={user.userImage}
             alt="User Avatar"
             className="w-8 h-8 rounded-full object-cover"
           />
@@ -312,103 +394,158 @@ const Comment: React.FC<CommentProps> = ({
         expandedComments.has(comment._id) &&
         replyCount > 0 && (
           <div className="ml-12 mt-2">
-            {replies.map((child, idx) => (
-              <div
-                key={child._id}
-                className="flex gap-3 p-3 rounded-lg bg-white/5 mb-2"
-              >
-                <img
-                  src={userImage}
-                  alt="Avatar"
-                  className="w-8 h-8 rounded-full object-cover"
-                />
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-white text-sm">
-                      {child.username}
-                    </span>
-                    {child.createdAt && (
-                      <span className="text-gray-400 text-xs ml-2">
-                        {new Date(child.createdAt).toLocaleDateString()}
+            {replies.map((child, idx) => {
+              const isChildOwner =
+                (child.user?._id || child.userId) === user?._id;
+              return (
+                <div
+                  key={child._id}
+                  className="flex gap-3 p-3 rounded-lg bg-white/5 mb-2"
+                >
+                  <img
+                    src={child.userImage}
+                    alt="Avatar"
+                    className="w-8 h-8 rounded-full object-cover"
+                  />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-white text-sm">
+                        {child.username}
                       </span>
+                      {child.createdAt && (
+                        <span className="text-gray-400 text-xs ml-2">
+                          {new Date(child.createdAt).toLocaleDateString()}
+                        </span>
+                      )}
+                    </div>
+                    {editingReplyId === child._id ? (
+                      <div className="mt-2">
+                        <textarea
+                          value={editingReplyText}
+                          onChange={(e) => setEditingReplyText(e.target.value)}
+                          className="w-full p-2 border border-purple-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 bg-gray-800 text-white"
+                          rows={2}
+                        />
+                        <div className="flex justify-end gap-2 mt-2">
+                          <button
+                            className="px-3 py-1 bg-gray-500 text-white rounded-md text-sm"
+                            onClick={() => {
+                              setEditingReplyId(null);
+                              setEditingReplyText("");
+                            }}
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            className="px-3 py-1 bg-purple-500 text-white rounded-md text-sm"
+                            onClick={() => handleEditReply(child._id)}
+                          >
+                            Save
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <p className="text-white text-sm mt-1">
+                          {child.CommentDescription}
+                        </p>
+                        <div className="flex items-center gap-6 text-sm mt-1">
+                          {isChildOwner ? (
+                            <>
+                              <button
+                                className="flex items-center gap-1 text-gray-300 hover:text-blue-400 bg-transparent border-none shadow-none p-0"
+                                onClick={() => {
+                                  setEditingReplyId(child._id);
+                                  setEditingReplyText(child.CommentDescription);
+                                }}
+                              >
+                                <FiEdit />
+                                Edit
+                              </button>
+                              <button
+                                className="flex items-center gap-1 text-gray-300 hover:text-red-400 bg-transparent border-none shadow-none p-0"
+                                onClick={() => setDeletingReplyId(child._id)}
+                              >
+                                <FiTrash2 />
+                                Delete
+                              </button>
+                            </>
+                          ) : (
+                            <button className="flex items-center gap-1 text-gray-300 hover:text-purple-400 bg-transparent border-none shadow-none p-0">
+                              <ReactSection
+                                commentId={child._id}
+                                onReactionAdded={() => {
+                                  setChildComments(
+                                    (prev: Map<string, any[]>) => {
+                                      const updated = new Map(prev);
+                                      const arr = [
+                                        ...(updated.get(comment._id) || []),
+                                      ];
+                                      arr[idx] = {
+                                        ...arr[idx],
+                                        totalReactions:
+                                          (arr[idx].totalReactions || 0) + 1,
+                                      };
+                                      updated.set(comment._id, arr);
+                                      return updated;
+                                    }
+                                  );
+                                }}
+                                onReactionRemove={() => {
+                                  setChildComments(
+                                    (prev: Map<string, any[]>) => {
+                                      const updated = new Map(prev);
+                                      const arr = [
+                                        ...(updated.get(comment._id) || []),
+                                      ];
+                                      arr[idx] = {
+                                        ...arr[idx],
+                                        totalReactions: Math.max(
+                                          (arr[idx].totalReactions || 1) - 1,
+                                          0
+                                        ),
+                                      };
+                                      updated.set(comment._id, arr);
+                                      return updated;
+                                    }
+                                  );
+                                }}
+                              />
+                              <span>{child.totalReactions || 0}</span>
+                            </button>
+                          )}
+                        </div>
+                      </>
                     )}
                   </div>
-                  <p className="text-white text-sm mt-1">
-                    {child.CommentDescription}
-                  </p>
-                  <div className="flex items-center gap-6 text-sm mt-1">
-                    <button className="flex items-center gap-1 text-gray-300 hover:text-purple-400 bg-transparent border-none shadow-none p-0">
-                      <ReactSection
-                        commentId={child._id}
-                        onReactionAdded={() => {
-                          setChildComments((prev: Map<string, any[]>) => {
-                            const updated = new Map(prev);
-                            const arr = [...(updated.get(comment._id) || [])];
-                            arr[idx] = {
-                              ...arr[idx],
-                              totalReactions:
-                                (arr[idx].totalReactions || 0) + 1,
-                            };
-                            updated.set(comment._id, arr);
-                            return updated;
-                          });
-                        }}
-                        onReactionRemove={() => {
-                          setChildComments((prev: Map<string, any[]>) => {
-                            const updated = new Map(prev);
-                            const arr = [...(updated.get(comment._id) || [])];
-                            arr[idx] = {
-                              ...arr[idx],
-                              totalReactions: Math.max(
-                                (arr[idx].totalReactions || 1) - 1,
-                                0
-                              ),
-                            };
-                            updated.set(comment._id, arr);
-                            return updated;
-                          });
-                        }}
-                      />
-                      <span>{child.totalReactions || 0}</span>
-                    </button>
-                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       {isEditModalOpen && (
-        <div className="flex gap-3 p-3 mt-2">
-          <img
-            src={userImage}
-            alt="Avatar"
-            className="w-10 h-10 rounded-full object-cover"
-          />
-
-          <div className="flex-1">
-            <textarea
-              value={editedCommentDescription}
-              onChange={(e) => setEditedCommentDescription(e.target.value)}
-              className="w-full p-2 border border-purple-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
-              placeholder="Edit your comment..."
-              onKeyDown={(e) => {
-                stopPropagationForKeys(e);
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  handleReplySubmit();
-                }
-              }}
-            />
-
-            <div className="flex justify-end gap-2 mt-2">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
+            <div className="flex gap-3 mb-4">
+              <div className="flex-1">
+                <textarea
+                  value={editedCommentDescription}
+                  onChange={(e) => setEditedCommentDescription(e.target.value)}
+                  className="w-full p-3 border border-purple-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 bg-gray-700 text-white"
+                  placeholder="Edit your comment..."
+                  rows={3}
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2">
               <button
-                className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors"
+                className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
                 onClick={() => setEditModalOpen(false)}
               >
                 Cancel
               </button>
               <button
-                className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors"
+                className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
                 onClick={handleEditSubmit}
               >
                 Save
@@ -417,27 +554,49 @@ const Comment: React.FC<CommentProps> = ({
           </div>
         </div>
       )}
+
       {isDeleteConfirmOpen && (
-        <div className="flex gap-3 p-3 mt-2">
-          <img
-            src={userImage}
-            alt="Avatar"
-            className="w-10 h-10 rounded-full object-cover"
-          />
-
-          <div className="flex-1">
-            <p className="text-gray-700">Do you want to delete this comment?</p>
-
-            <div className="flex justify-end gap-2 mt-2">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-gray-800 p-6 rounded-lg max-w-sm w-full mx-4">
+            <div className="flex gap-3 mb-4">
+              <div className="flex-1">
+                <p className="text-white">
+                  Do you want to delete this comment?
+                </p>
+              </div>
+            </div>
+            <div className="flex justify-end gap-2">
               <button
-                className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors"
+                className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
                 onClick={() => setDeleteConfirmOpen(false)}
               >
                 Cancel
               </button>
               <button
-                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors"
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
                 onClick={handleDeleteConfirm}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Delete confirmation popup cho reply */}
+      {deletingReplyId && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-gray-800 p-6 rounded-lg max-w-sm w-full mx-4">
+            <p className="text-white mb-4">Do you want to delete this reply?</p>
+            <div className="flex justify-end gap-2">
+              <button
+                className="px-4 py-2 bg-gray-600 text-white rounded-md"
+                onClick={() => setDeletingReplyId(null)}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 bg-red-600 text-white rounded-md"
+                onClick={() => handleDeleteReply(deletingReplyId)}
               >
                 Delete
               </button>

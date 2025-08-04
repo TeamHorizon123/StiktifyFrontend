@@ -137,6 +137,9 @@ const OtherVideos: React.FC<OtherVideosProps> = ({
       {loading && (
         <div className="flex justify-center py-4">
           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-500"></div>
+          <span className="ml-2 text-gray-400 text-sm">
+            Loading more videos...
+          </span>
         </div>
       )}
 
