@@ -14,21 +14,22 @@ interface IListOdata<T> {
     value: T[]
 }
 interface Product {
-    ShopId: string?,
-    Name: string?,
-    Description: string?,
-    ImageUri: string?,
-    IsHidden: boolean?,
-    CategoryId: string?,
-    PriceRange: string?,
-    Price: number?,
-    AveragePoint: number?,
-    RateTurn: number?,
-    Order: number?,
-    Id: string?,
-    CreateAt: Date?,
-    UpdateAt: Date?,
-    Category: ICategory?
+    ShopId: string,
+    Shop: Shop,
+    Name: string,
+    Description: string,
+    ImageUri: string,
+    IsHidden: boolean,
+    CategoryId: string,
+    PriceRange: string,
+    Price: number,
+    AveragePoint: number,
+    RateTurn: number,
+    Order: number,
+    Id: string,
+    CreateAt: Date,
+    UpdateAt: Date,
+    Category: ICategory
 }
 
 interface Id {
@@ -43,6 +44,7 @@ interface IProductOption {
     Price: number?,
     Quantity: number?,
     Id: string?,
+    ProductVariants: ProductVariant[]
     CreateAt: Date?,
     UpdateAt: Date?
 }
@@ -58,5 +60,13 @@ interface ProductVariant {
     Price: number?,
     Id: string?,
     CreateAt: Date?,
-    UpdateAt: Date?
+    UpdateAt: Date?,
+    Size: ISize?
+}
+
+interface IProductRating {
+    Id: string,
+    UserId: string,
+    CreateAt: Date,
+    UpdateAt: Date
 }

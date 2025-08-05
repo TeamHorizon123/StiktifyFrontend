@@ -8,19 +8,13 @@ import TextArea from 'antd/es/input/TextArea';
 import { UploadChangeParam, UploadFile } from 'antd/es/upload';
 import React, { useContext, useEffect, useState } from 'react'
 
-interface ICreateResponse {
-  statusCode: number;
-  message: string;
-  data?: any;
-}
-
 const ModalAddProduct = ({ id }: Id) => {
   const { accessToken } = useContext(AuthContext) ?? {};
   const [loading, setLoading] = useState(false);
   const [categoryOption, setCategoryOption] = useState<object[]>([]);
   const [categories, setCategories] = useState<ICategory[]>([]);
   const [categoryChoose, setCategoryChoose] = useState<string | null>(null);
-  const [cateSize, setCateSize] = useState<ICategorySize[]>([]);
+  const [cateSize, setCateSize] = useState<CategorySize[]>([]);
   const [cateSizes, setCateSizes] = useState<object[]>([]);
   const [thumbnail, setThumbnail] = useState<File | null>(null);
   const [optionImage, setOptionImage] = useState<File[]>([]);
@@ -30,13 +24,17 @@ const ModalAddProduct = ({ id }: Id) => {
   const [productId, setProductId] = useState<string | "">("");
   const [form] = Form.useForm();
 
-
+  interface ICreateResponse {
+    statusCode: number;
+    message: string;
+    data?: string | null;
+  }
 
   useEffect(() => {
     if (!accessToken) return;
     const getCategories = async () => {
       const res = await sendRequest<IListOdata<ICategory>>({
-        url: `${process.env.NEXT_PUBLIC_BACKEND_SHOP_URL}odata/category`,
+        url: `${process.env.NEXT_PUBLIC_BACKEND_SHOP_URL}/odata/category`,
         method: "GET",
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -70,8 +68,8 @@ const ModalAddProduct = ({ id }: Id) => {
     }
 
     const getCategorySize = async () => {
-      const res = await sendRequest<IListOdata<ICategorySize>>({
-        url: `${process.env.NEXT_PUBLIC_BACKEND_SHOP_URL}odata/product-size`,
+      const res = await sendRequest<IListOdata<CategorySize>>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_SHOP_URL}/odata/product-size`,
         method: "GET",
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -145,7 +143,7 @@ const ModalAddProduct = ({ id }: Id) => {
           body: uploadImageForm,
         });
         if (thumbnailUploadRes.statusCode === 201) {
-          imageUrl = thumbnailUploadRes.data;
+          imageUrl = thumbnailUploadRes.data ?? "";
         }
       }
       return imageUrl;
@@ -190,17 +188,17 @@ const ModalAddProduct = ({ id }: Id) => {
         Options: options
       };
 
-      console.log("Payload:", payload);
+      // console.log("Payload:", payload);
 
       const res = await sendRequest<ICreateResponse>({
-        url: `${process.env.NEXT_PUBLIC_BACKEND_SHOP_URL}odata/product`,
+        url: `${process.env.NEXT_PUBLIC_BACKEND_SHOP_URL}/odata/product`,
         method: "POST",
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
         body: payload
       })
-      if (res) return message.info(res.message);
+      if (res) return message.info("Successfully create product.");
     } catch (err) {
       throw new Error(`Error: ${err}`);
     } finally {

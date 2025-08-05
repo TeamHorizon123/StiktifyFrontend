@@ -3,26 +3,46 @@
 import { FaArrowRightLong, FaBolt } from "react-icons/fa6";
 import Link from "next/link";
 import Product from "@/components/page/shop/product/product";
-import useFetchListOData from "@/modules/shop/useFetchOdataList";
-import { useEffect, useState } from "react";
-import { Spin } from "antd";
+import { useContext, useEffect, useState } from "react";
+import { Empty, Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
-interface IQueryParam {
-    page: number
-}
+import { AuthContext } from "@/context/AuthContext";
+import { sendRequest } from "@/utils/api";
 
-export default function ListProduct({ page }: IQueryParam) {
+export default function ListProduct() {
+    const { accessToken } = useContext(AuthContext) ?? {};
     const [loading, setLoading] = useState(true);
-    const [products] = useFetchListOData<Product>({
-        url: `${process.env.NEXT_PUBLIC_BACKEND_SHOP_URL}odata/product`,
-        limit: 8,
-        method: "GET",
-        page: page
-    });
+    const [products, setProducts] = useState<Product[] | []>([]);
+    const [total, setTotal] = useState(0);
 
     useEffect(() => {
-        setLoading(false);
-    }, [products]);
+        setLoading(true);
+        const getProducts = async () => {
+            try {
+                const res = await sendRequest<IListOdata<Product>>({
+                    url: `${process.env.NEXT_PUBLIC_BACKEND_SHOP_URL}/odata/product`,
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                    queryParams: {
+                        $filter: 'IsHidden eq false',
+                        $top: 8,
+                        $skip: 0,
+                        $count: true
+                    }
+                });
+
+                if (res.value) setProducts(res.value);
+                setTotal(res["@odata.count"] ?? 0);
+            } catch {
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        getProducts();
+    }, [accessToken]);
 
     if (loading)
         return (
@@ -41,9 +61,9 @@ export default function ListProduct({ page }: IQueryParam) {
                         <p>Recommend</p>
                     </div>
                     {
-                        (products.length > 0) ? (
+                        (total > 8) ? (
                             <div className="flex text-[#C084FC] items-center space-x-2 text-sm">
-                                <Link href="">View all</Link>
+                                <Link href="shop/recommend">View more</Link>
                                 <FaArrowRightLong />
                             </div>
                         ) : (<></>)
@@ -61,7 +81,8 @@ export default function ListProduct({ page }: IQueryParam) {
 
                     ) : (
                         <>
-                            <p className="text-center text-white grid grid-cols-1 text-lg">No products available at the moment. </p>
+                            <Empty description={false} />
+                            <p className="text-center text-white grid grid-cols-1 text-lg">No products available at the moment.</p>
                         </>
                     )}
 

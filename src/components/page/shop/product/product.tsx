@@ -3,7 +3,6 @@ import { Image } from "antd";
 import Link from "next/link";
 import React from "react";
 import { FaStar } from "react-icons/fa";
-import { FaCartShopping } from "react-icons/fa6";
 
 interface IData {
     data: Product
@@ -42,12 +41,12 @@ const Product: React.FC<IData> = ({ data }) => {
                         </p>
                     </div>
                 </Link>
-                <button
+                {/* <button
                     className="w-full h-fit p-2 justify-center items-center bg-gradient-to-r from-[#A855F7] to-[#EC4899] flex space-x-2 rounded-lg"
                     type="button">
                     <FaCartShopping />
                     <p>Add to cart</p>
-                </button>
+                </button> */}
             </div>
         </div>
     )

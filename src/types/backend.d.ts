@@ -48,6 +48,14 @@ declare global {
   }
 
   interface IOdataRes<T> {
+    statusCode: number;
+    message: string;
     value: T?
+  }
+
+  interface ICreateResponse {
+    statusCode: number;
+    message: string;
+    id?: string;
   }
 }

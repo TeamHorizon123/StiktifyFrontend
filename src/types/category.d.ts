@@ -6,15 +6,7 @@ interface ICategory {
     UpdateAt: Date
 }
 
-interface Category {
-    Id: string,
-    name: string,
-    parentId: string,
-    createAt: Date,
-    updateAt: Date
-}
-
-interface ICategorySize {
+interface ISize {
     Id: string,
     CategoryId: string?,
     Size: string,

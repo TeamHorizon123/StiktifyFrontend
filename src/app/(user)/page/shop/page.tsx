@@ -1,5 +1,5 @@
 import ListProduct from "@/app/(user)/page/shop/listProduct";
-import SearchProduct from "@/app/(user)/page/shop/searchProduct";
+import Search from "@/components/page/shop/searchProduct";
 import { FaShop } from "react-icons/fa6";
 
 const ShopPage = () => {
@@ -11,9 +11,9 @@ const ShopPage = () => {
           <FaShop />
           <p className="">Stiktify Shop</p>
         </div>
-        <SearchProduct />
+        <Search />
         {/* <FlashSale /> */}
-        <ListProduct page={1} />
+        <ListProduct />
       </div>
     </>
   );

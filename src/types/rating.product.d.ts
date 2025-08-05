@@ -1,11 +1,13 @@
 interface IProductRating {
-    id: string,
-    productId: string,
-    optionId: string,
-    userId: string,
-    point: number,
-    content: string,
-    image: string[],
-    createAt: Date,
-    updateAt: Date
+    ProductId: string,
+    OptionId: string,
+    VariantId: string,
+    OrderId: string,
+    UserId: string,
+    Point: number,
+    Content: string,
+    Files: string[],
+    Id: string,
+    CreateAt: Date,
+    UpdateAt: Date
 }
