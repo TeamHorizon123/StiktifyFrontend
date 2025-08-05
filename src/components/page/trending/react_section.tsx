@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from "react";
 import { sendRequest } from "@/utils/api";
 import { AuthContext } from "@/context/AuthContext";
 import { FaRegThumbsUp, FaThumbsUp } from "react-icons/fa";
+import { notification } from "antd";
 
 import like_gif from "@/assets/reaction/gif/thumb-up.gif";
 import like_img from "@/assets/reaction/image/thumb-up.png";
@@ -278,9 +279,9 @@ const ReactSection: React.FC<ReactionSectionProp> = ({
     if (!videoId) return;
 
     const fetchReactions = async () => {
-    if (!user || !user._id) {
-      return
-    }
+      if (!user || !user._id) {
+        return;
+      }
       try {
         const res = await sendRequest<{
           statusCode: number;
@@ -358,8 +359,8 @@ const ReactSection: React.FC<ReactionSectionProp> = ({
   }, [videoId, accessToken]);
 
   const handleTriggerWishListScore = async (videoId: string) => {
-      if (!user || !user._id) {
-      return 
+    if (!user || !user._id) {
+      return;
     }
     await sendRequest<IBackendRes<IVideo[]>>({
       url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/wishlist`,
@@ -377,7 +378,7 @@ const ReactSection: React.FC<ReactionSectionProp> = ({
 
   const handleAddUserAction = async (videoId: string) => {
     if (!user || !user._id) {
-      return 
+      return;
     }
     try {
       await sendRequest<IBackendRes<{ success: boolean }>>({
@@ -393,7 +394,15 @@ const ReactSection: React.FC<ReactionSectionProp> = ({
   };
 
   const handleAddReaction = async (reaction: Reaction) => {
-    if (!videoId || !accessToken) return;
+    if (!user || !accessToken) {
+      notification.error({
+        message: "Authentication Required",
+        description: "Please log in to react to videos",
+      });
+      return;
+    }
+
+    if (!videoId) return;
     const oldSelectedReaction = selectedReaction;
 
     setSelectedReaction(reaction);
@@ -407,51 +416,70 @@ const ReactSection: React.FC<ReactionSectionProp> = ({
         headers: { Authorization: `Bearer ${accessToken}` },
       });
 
-      // Only call onReactionAdded if there was no previous reaction
       if (!oldSelectedReaction) {
         onReactionAdded();
       }
-
-      // Update the top reactions - we'll refetch them in a real application
-      // but for now we can just simulate updating the top reactions list
       setTopReactions((prev) => {
-        // Try to find if this reaction already exists in our top list
-        const existingIndex = prev.findIndex(
+        const updated = [...prev];
+
+        // Nếu user đã từng react và đổi sang reaction mới
+        if (oldSelectedReaction && oldSelectedReaction._id !== reaction._id) {
+          const oldIndex = updated.findIndex(
+            (item) => item.reaction._id === oldSelectedReaction._id
+          );
+          if (oldIndex >= 0) {
+            // Giảm count của reaction cũ
+            if (updated[oldIndex].count > 1) {
+              updated[oldIndex] = {
+                ...updated[oldIndex],
+                count: updated[oldIndex].count - 1,
+              };
+            } else {
+              // Nếu count còn 0 thì xóa khỏi topReactions
+              updated.splice(oldIndex, 1);
+            }
+          }
+        }
+
+        // Xử lý tăng count cho reaction mới
+        const existingIndex = updated.findIndex(
           (item) => item.reaction._id === reaction._id
         );
-
         if (existingIndex >= 0) {
-          // Increase count of existing reaction
-          const updated = [...prev];
           updated[existingIndex] = {
             ...updated[existingIndex],
             count: updated[existingIndex].count + 1,
           };
-          return updated.sort((a, b) => b.count - a.count);
         } else {
-          // Add new reaction with count 1
           const foundReaction = lastReactions.find(
             (r) => r._id === reaction._id
           );
           if (foundReaction) {
-            const updated = [...prev, { reaction: foundReaction, count: 1 }];
-            return updated.sort((a, b) => b.count - a.count).slice(0, 3);
+            updated.push({ reaction: foundReaction, count: 1 });
           }
         }
-        return prev;
+
+        return updated.sort((a, b) => b.count - a.count).slice(0, 3);
       });
 
       await handleAddUserAction(videoId);
       await handleTriggerWishListScore(videoId);
     } catch (error) {
       console.error("Error updating reaction:", error);
-      // Restore old state if there was an error
       setSelectedReaction(oldSelectedReaction);
     }
   };
 
   const handleRemoveReaction = async () => {
-    if (!videoId || !accessToken || !selectedReaction) return;
+    if (!user || !accessToken) {
+      notification.error({
+        message: "Authentication Required",
+        description: "Please log in to remove reactions",
+      });
+      return;
+    }
+
+    if (!videoId || !selectedReaction) return;
 
     const reactionToRemove = selectedReaction;
     setSelectedReaction(null);
@@ -461,11 +489,13 @@ const ReactSection: React.FC<ReactionSectionProp> = ({
     setTopReactions((prev) => {
       return prev
         .map((item) => {
-          if (item.reaction._id === reactionToRemove._id && item.count > 1) {
+          if (item.reaction._id === reactionToRemove._id) {
+            // Nếu count > 1 thì giảm, nếu = 1 thì sẽ bị filter ở dưới
             return { ...item, count: item.count - 1 };
           }
           return item;
         })
+        .filter((item) => item.count > 0) // Loại bỏ reaction có count <= 0
         .sort((a, b) => b.count - a.count);
     });
 
@@ -513,13 +543,26 @@ const ReactSection: React.FC<ReactionSectionProp> = ({
             )}
             <div
               className="cursor-pointer flex items-center justify-center"
-              onMouseEnter={() => setShowReactions(true)}
+              onMouseEnter={() => user && setShowReactions(true)}
               onMouseLeave={() => setShowReactions(false)}
-              onClick={selectedReaction ? handleRemoveReaction : undefined}
+              onClick={
+                selectedReaction
+                  ? handleRemoveReaction
+                  : () => {
+                      if (!user) {
+                        notification.error({
+                          message: "Authentication Required",
+                          description: "Please log in to react to videos",
+                        });
+                      }
+                    }
+              }
             >
               {selectedReaction ? (
                 <div className="flex items-center">
-                  <div className="w-6 h-6 mr-2">{selectedReaction.icon}</div>
+                  <div className="w-6 h-6 mr-2 mt-1 flex items-center justify-center">
+                    {selectedReaction.icon}
+                  </div>
                   <span className="text-white text-base">
                     {numberReaction || 0} Reaction
                   </span>

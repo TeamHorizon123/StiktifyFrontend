@@ -14,6 +14,7 @@ interface CommentSectionProps {
   user: any;
   userAvatar: string;
   onCommentAdded?: () => void;
+  onCommentRemove?: () => void;
 }
 
 interface CommentI {
@@ -135,7 +136,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
   }, [videoId, accessToken, showComments]);
 
   const toggleReplies = async (parentId: string) => {
-    if(!accessToken) {
+    if (!accessToken) {
       return;
     }
     setExpandedComments((prev) => {

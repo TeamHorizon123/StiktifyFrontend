@@ -1,6 +1,6 @@
 "use client";
 import { useGlobalContext } from "@/library/global.context";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import { Play, Pause } from "lucide-react";
 
@@ -18,6 +18,45 @@ const RecentlyPlayedList = (props: IProps) => {
     setListPlayList,
     setFlag,
   } = useGlobalContext()!;
+
+  // Thêm state để lưu durations
+  const [durations, setDurations] = useState<{ [key: string]: string }>({});
+
+  // Function để get duration từ audio URL
+  const getDuration = (url: string): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const audio = new Audio(url);
+      audio.addEventListener("loadedmetadata", () => {
+        const minutes = Math.floor(audio.duration / 60);
+        const seconds = Math.floor(audio.duration % 60);
+        resolve(`${minutes}:${seconds.toString().padStart(2, "0")}`);
+      });
+      audio.addEventListener("error", () => {
+        reject("Error loading audio");
+      });
+    });
+  };
+
+  // Load durations khi component mount hoặc data thay đổi
+  useEffect(() => {
+    data.forEach((item) => {
+      if (item.musicUrl && !durations[item.musicUrl]) {
+        getDuration(item.musicUrl)
+          .then((duration) => {
+            setDurations((prev) => ({
+              ...prev,
+              [item.musicUrl!]: duration,
+            }));
+          })
+          .catch(() => {
+            setDurations((prev) => ({
+              ...prev,
+              [item.musicUrl!]: "--:--",
+            }));
+          });
+      }
+    });
+  }, [data]);
 
   const handlePlayer = (track: IMusic) => {
     if (trackCurrent?._id !== track._id) {
@@ -100,8 +139,9 @@ const RecentlyPlayedList = (props: IProps) => {
 
           {/* Stats */}
           <div className="flex items-center gap-8 text-gray-400 text-sm">
-            <span>{item.totalListener?.toLocaleString() || 0}</span>
-            {/* Duration - bạn có thể thêm field duration vào IMusic */}
+            {/* <span>{item.totalListener?.toLocaleString() || 0}</span> */}
+            {/* Duration */}
+            <span>{durations[item.musicUrl!] || "--:--"}</span>
           </div>
         </div>
       ))}

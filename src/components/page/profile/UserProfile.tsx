@@ -21,6 +21,7 @@ import {
   BarChartOutlined,
   MessageOutlined,
   CameraFilled,
+  CloseOutlined,
 } from "@ant-design/icons";
 
 interface IUpdateProfile {
@@ -54,6 +55,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [previewImage, setPreviewImage] = useState<string>("");
 
   const [editProfile, setEditProfile] = useState({
     image: profile?.image || "",
@@ -63,8 +65,8 @@ const UserProfile: React.FC<UserProfileProps> = ({
     phone: profile?.phone || "",
     address: profile?.address || "",
     userName: profile?.userName || "",
-    bio: "81/1500 characters",
-    website: "https://yourwebsite.com",
+    bio: "Music lover and content creator. Welcome to my profile!",
+    website: "https://stiktify.com",
   });
 
   if (!profile) {
@@ -112,6 +114,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
       if (!/^\d{10}$/.test(editProfile.phone)) {
         notification.error({
           message: "Phone number must be exactly 10 digits.",
+          style: { backgroundColor: "#1f2937", color: "white" },
         });
         return;
       }
@@ -144,26 +147,80 @@ const UserProfile: React.FC<UserProfileProps> = ({
         _id: user._id,
       };
       onUpdateProfile(profileWithId);
-      notification.success({ message: "Profile updated successfully!" });
+      notification.success({
+        message: "Profile updated successfully!",
+        style: { backgroundColor: "#1f2937", color: "white" },
+      });
     } else {
       notification.info({
         message: "No changes detected.",
+        style: { backgroundColor: "#1f2937", color: "white" },
       });
     }
   };
 
   const handleOpenImageModal = () => setIsImageModalOpen(true);
-  const handleCloseImageModal = () => setIsImageModalOpen(false);
+  const handleCloseImageModal = () => {
+    setIsImageModalOpen(false);
+    setFile(null);
+    setPreviewImage("");
+  };
 
   const handleOpenPasswordModal = () => setIsPasswordModalOpen(true);
   const handleClosePasswordModal = () => setIsPasswordModalOpen(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setFile(e.target.files[0]);
+    if (e.target.files && e.target.files[0]) {
+      const selectedFile = e.target.files[0];
+
+      // Kiểm tra file type ở Frontend
+      const allowedTypes = [
+        "image/jpeg",
+        "image/jpg",
+        "image/png",
+        "image/gif",
+        "image/webp",
+      ];
+      if (!allowedTypes.includes(selectedFile.type)) {
+        notification.error({
+          message:
+            "Invalid file type. Please select an image file (PNG, JPG, GIF, WEBP).",
+          style: { backgroundColor: "#1f2937", color: "white" },
+        });
+        e.target.value = ""; // Reset input
+        return;
+      }
+
+      // Kiểm tra file size (10MB max)
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      if (selectedFile.size > maxSize) {
+        notification.error({
+          message: "File size too large. Please select an image under 10MB.",
+          style: { backgroundColor: "#1f2937", color: "white" },
+        });
+        e.target.value = ""; // Reset input
+        return;
+      }
+
+      setFile(selectedFile);
+
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          setPreviewImage(event.target.result as string);
+        }
+      };
+      reader.readAsDataURL(selectedFile);
     }
   };
 
+  // Function để trigger modal khi click camera
+  const handleCameraClick = () => {
+    setIsImageModalOpen(true);
+  };
+
+  // Function to handle image upload
   const handleUpImage = async () => {
     if (file) {
       try {
@@ -180,23 +237,29 @@ const UserProfile: React.FC<UserProfileProps> = ({
           }));
           notification.success({
             message: "Image uploaded successfully!",
+            // style: { backgroundColor: "#1f2937", color: "white" },
           });
           setIsImageModalOpen(false);
+          setFile(null);
+          setPreviewImage("");
         } else {
           notification.error({
             message: "No download URL returned from the upload.",
+            // style: { backgroundColor: "#1f2937", color: "white" },
           });
         }
-      } catch {
+      } catch (error) {
+        console.error("Upload error:", error);
         notification.error({
           message: "Error uploading image.",
+          // style: { backgroundColor: "#1f2937", color: "white" },
         });
       }
     }
   };
 
   return (
-    <div className=" text-white rounded-lg w-full">
+    <div className="text-white rounded-lg w-full">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-purple-500">EDIT PROFILE</h1>
         <p className="text-gray-400">
@@ -206,8 +269,8 @@ const UserProfile: React.FC<UserProfileProps> = ({
 
       <div className="flex flex-col items-center mb-8">
         <div
-          className="w-32 h-32 bg-gray-700 rounded-full flex items-center justify-center mb-4 cursor-pointer relative"
-          onClick={handleOpenImageModal}
+          className="w-32 h-32 bg-gray-700 rounded-full flex items-center justify-center mb-4 cursor-pointer relative overflow-hidden border-2 border-gray-600 hover:border-purple-500 transition-all duration-200"
+          onClick={handleCameraClick}
         >
           {editProfile.image ? (
             <img
@@ -218,44 +281,145 @@ const UserProfile: React.FC<UserProfileProps> = ({
           ) : (
             <UserOutlined className="text-5xl text-gray-400" />
           )}
-          <div className="absolute bottom-0 right-0 bg-purple-500 pl-1 pr-1 rounded-full border-2">
-            <CameraFilled />
-          </div>
         </div>
-        {/* <Button
-          icon={<UploadOutlined />}
-          onClick={handleOpenImageModal}
-          className="bg-gray-700 hover:bg-gray-600"
+        {/* <div
+          className=" bg-purple-500 p-2 rounded-full border-2 border-white hover:bg-purple-600 transition-colors cursor-pointer shadow-lg zIndex-999"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleCameraClick();
+          }}
         >
-          Upload New Photo
-        </Button> */}
+          <CameraFilled />
+          Change Image
+        </div> */}
       </div>
 
       <Modal
-        title="Upload Image"
+        title={
+          <span className="text-white text-lg font-semibold">
+            Upload Profile Image
+          </span>
+        }
         open={isImageModalOpen}
         onCancel={handleCloseImageModal}
         footer={null}
         className="dark-modal"
+        style={{ top: 20 }}
+        bodyStyle={{
+          backgroundColor: "#1f2937",
+          borderRadius: "8px",
+        }}
       >
-        <input
-          type="file"
-          onChange={handleFileChange}
-          className="mb-4 w-full"
-        />
-        <Button
-          onClick={handleUpImage}
-          disabled={!file}
-          className="w-full bg-blue-500 hover:bg-blue-600"
-        >
-          Upload Image
-        </Button>
+        <div className="space-y-4">
+          {/* Conditional rendering - ẩn upload area khi có preview */}
+          {!previewImage && (
+            <div className="border-2 border-dashed border-gray-600 rounded-lg p-6 text-center hover:border-purple-500 transition-colors">
+              <input
+                type="file"
+                onChange={handleFileChange}
+                accept="image/png,image/jpeg,image/jpg,image/gif,image/webp"
+                className="hidden"
+                id="modal-file-upload"
+              />
+              <label
+                htmlFor="modal-file-upload"
+                className="cursor-pointer block"
+              >
+                <UploadOutlined className="text-4xl text-gray-400 mb-2" />
+                <p className="text-gray-300">Click to select an image</p>
+                <p className="text-gray-500 text-sm">
+                  PNG, JPG, GIF, WEBP up to 10MB
+                </p>
+              </label>
+            </div>
+          )}
+
+          {/* Preview section với option để change image */}
+          {previewImage && (
+            <div className="space-y-4">
+              <div className="text-center">
+                <p className="text-gray-300 mb-3 font-medium">Preview:</p>
+                <div className="relative inline-block">
+                  <img
+                    src={previewImage}
+                    alt="Preview"
+                    className="w-32 h-32 rounded-full object-cover border-2 border-gray-600 mx-auto"
+                  />
+                </div>
+              </div>
+
+              {/* Option to change image - Fixed centering */}
+              <div className="text-center">
+                <input
+                  type="file"
+                  onChange={handleFileChange}
+                  accept="image/png,image/jpeg,image/jpg,image/gif,image/webp"
+                  className="hidden"
+                  id="change-image-upload"
+                />
+                <label
+                  htmlFor="change-image-upload"
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg cursor-pointer transition-colors"
+                >
+                  <CameraFilled />
+                  Change Image
+                </label>
+              </div>
+            </div>
+          )}
+
+          <div className="flex gap-3">
+            <Button
+              onClick={handleCloseImageModal}
+              className="flex-1"
+              style={{
+                backgroundColor: "#4b5563",
+                borderColor: "#4b5563",
+                color: "white",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "#374151";
+                e.currentTarget.style.borderColor = "#374151";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "#4b5563";
+                e.currentTarget.style.borderColor = "#4b5563";
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleUpImage}
+              disabled={!file}
+              className="flex-1"
+              style={{
+                backgroundColor: file ? "#7c3aed" : "#4b5563",
+                borderColor: file ? "#7c3aed" : "#4b5563",
+                color: "white",
+              }}
+              onMouseEnter={(e) => {
+                if (file) {
+                  e.currentTarget.style.backgroundColor = "#6d28d9";
+                  e.currentTarget.style.borderColor = "#6d28d9";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (file) {
+                  e.currentTarget.style.backgroundColor = "#7c3aed";
+                  e.currentTarget.style.borderColor = "#7c3aed";
+                }
+              }}
+            >
+              Upload Image
+            </Button>
+          </div>
+        </div>
       </Modal>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-        <div className="bg-[#24243e] p-6 rounded-lg">
+        <div className="bg-[#24243e] p-6 rounded-lg border border-gray-700">
           <h2 className="text-xl font-semibold mb-4 flex items-center">
-            <UserOutlined className="mr-2" /> Basic Information
+            <UserOutlined className="mr-2 text-purple-400" /> Basic Information
           </h2>
           <div className="space-y-4">
             <div>
@@ -267,7 +431,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
                 name="fullname"
                 value={editProfile.fullname}
                 onChange={handleChange}
-                className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md mt-1"
+                className="w-full p-3 bg-gray-700 border border-gray-600 rounded-md mt-1 text-white focus:border-purple-500 focus:outline-none transition-colors"
                 placeholder="Enter your full name"
               />
             </div>
@@ -279,7 +443,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
                 type="text"
                 name="userName"
                 value={editProfile.userName}
-                className="w-full p-2 bg-gray-800 border border-gray-600 rounded-md mt-1"
+                className="w-full p-3 bg-gray-800 border border-gray-600 rounded-md mt-1 text-gray-400 cursor-not-allowed"
                 disabled
               />
             </div>
@@ -291,7 +455,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
                 type="email"
                 name="email"
                 value={editProfile.email}
-                className="w-full p-2 bg-gray-800 border border-gray-600 rounded-md mt-1"
+                className="w-full p-3 bg-gray-800 border border-gray-600 rounded-md mt-1 text-gray-400 cursor-not-allowed"
                 disabled
               />
             </div>
@@ -304,8 +468,9 @@ const UserProfile: React.FC<UserProfileProps> = ({
                 name="phone"
                 value={editProfile.phone}
                 onChange={handleChange}
-                className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md mt-1"
+                className="w-full p-3 bg-gray-700 border border-gray-600 rounded-md mt-1 text-white focus:border-purple-500 focus:outline-none transition-colors [&::-webkit-input-placeholder]:text-gray-400"
                 placeholder="+1 (555) 123-4567"
+                style={{ backgroundColor: "#374151", color: "white" }}
               />
             </div>
             <div>
@@ -316,16 +481,17 @@ const UserProfile: React.FC<UserProfileProps> = ({
                 selected={editProfile.dob}
                 onChange={handleDateChange}
                 dateFormat="dd/MM/yyyy"
-                className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md mt-1"
+                className="w-full p-3 bg-gray-700 border border-gray-600 rounded-md mt-1 text-white focus:border-purple-500 focus:outline-none transition-colors"
                 placeholderText="Select a date"
               />
             </div>
           </div>
         </div>
 
-        <div className="bg-[#24243e] p-6 rounded-lg">
+        <div className="bg-[#24243e] p-6 rounded-lg border border-gray-700">
           <h2 className="text-xl font-semibold mb-4 flex items-center">
-            <HomeOutlined className="mr-2" /> Additional Information
+            <HomeOutlined className="mr-2 text-purple-400" /> Additional
+            Information
           </h2>
           <div className="space-y-4">
             <div>
@@ -335,12 +501,12 @@ const UserProfile: React.FC<UserProfileProps> = ({
               <textarea
                 name="bio"
                 value={editProfile.bio}
-                onChange={handleChange}
-                className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md mt-1 h-24"
+                className="w-full p-3 bg-gray-800 border border-gray-600 rounded-md mt-1 h-24 text-gray-400 cursor-not-allowed resize-none"
                 placeholder="Tell us about yourself"
+                disabled
               />
               <p className="text-xs text-gray-500 mt-1">
-                {editProfile.bio.length}/1500 characters
+                Default bio - cannot be edited
               </p>
             </div>
             <div>
@@ -352,8 +518,9 @@ const UserProfile: React.FC<UserProfileProps> = ({
                 name="address"
                 value={editProfile.address}
                 onChange={handleChange}
-                className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md mt-1"
+                className="w-full p-3 bg-gray-700 border border-gray-600 rounded-md mt-1 text-white focus:border-purple-500 focus:outline-none transition-colors"
                 placeholder="City, Country"
+                style={{ backgroundColor: "#374151", color: "white" }}
               />
             </div>
             <div>
@@ -364,136 +531,102 @@ const UserProfile: React.FC<UserProfileProps> = ({
                 type="text"
                 name="website"
                 value={editProfile.website}
-                onChange={handleChange}
-                className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md mt-1"
+                className="w-full p-3 bg-gray-800 border border-gray-600 rounded-md mt-1 text-gray-400 cursor-not-allowed"
                 placeholder="https://yourwebsite.com"
+                disabled
               />
+              <p className="text-xs text-gray-500 mt-1">
+                Default website - cannot be edited
+              </p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* <div className="bg-[#24243e] p-6 rounded-lg mb-8">
-        <h2 className="text-xl font-semibold mb-4 flex items-center">
-          <LockOutlined className="mr-2" /> Privacy & Security
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-gray-700 p-4 rounded-md">
-            <h3 className="font-semibold flex items-center">
-              <EyeOutlined className="mr-2" /> Profile Visibility
-            </h3>
-            <p className="text-sm text-gray-400 mb-2">
-              Who can see your profile
-            </p>
-            <select className="w-full p-2 bg-gray-800 border border-gray-600 rounded-md">
-              <option>Public</option>
-              <option>Friends</option>
-              <option>Private</option>
-            </select>
-          </div>
-          <div className="bg-gray-700 p-4 rounded-md">
-            <h3 className="font-semibold flex items-center">
-              <BarChartOutlined className="mr-2" /> Activity Status
-            </h3>
-            <p className="text-sm text-gray-400 mb-2">
-              Show when you're online
-            </p>
-            <Button className="w-full bg-green-500 hover:bg-green-600">
-              Enabled
-            </Button>
-          </div>
-          <div className="bg-gray-700 p-4 rounded-md">
-            <h3 className="font-semibold flex items-center">
-              <MessageOutlined className="mr-2" /> Messages
-            </h3>
-            <p className="text-sm text-gray-400 mb-2">Who can message you</p>
-            <select className="w-full p-2 bg-gray-800 border border-gray-600 rounded-md">
-              <option>Everyone</option>
-              <option>Friends</option>
-              <option>No one</option>
-            </select>
-          </div>
-        </div>
-      </div> */}
-
-      {/* <div className="bg-[#24243e] p-6 rounded-lg mb-8">
-        <h2 className="text-xl font-semibold mb-4 flex items-center">
-          <BellOutlined className="mr-2" /> Notification Preferences
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div>
-            <h3 className="font-semibold mb-2">Email Notifications</h3>
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <span>New Followers</span>
-                <Button className="bg-green-500 w-16">On</Button>
-              </div>
-              <div className="flex justify-between items-center">
-                <span>Likes on Content</span>
-                <Button className="bg-green-500 w-16">On</Button>
-              </div>
-              <div className="flex justify-between items-center">
-                <span>Comments</span>
-                <Button className="bg-red-500 w-16">Off</Button>
-              </div>
-              <div className="flex justify-between items-center">
-                <span>Direct Messages</span>
-                <Button className="bg-green-500 w-16">On</Button>
-              </div>
-            </div>
-          </div>
-          <div>
-            <h3 className="font-semibold mb-2">Push Notifications</h3>
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <span>New Followers</span>
-                <Button className="bg-green-500 w-16">On</Button>
-              </div>
-              <div className="flex justify-between items-center">
-                <span>Likes on Content</span>
-                <Button className="bg-red-500 w-16">Off</Button>
-              </div>
-              <div className="flex justify-between items-center">
-                <span>Comments</span>
-                <Button className="bg-green-500 w-16">On</Button>
-              </div>
-              <div className="flex justify-between items-center">
-                <span>Direct Messages</span>
-                <Button className="bg-green-500 w-16">On</Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div> */}
-
       <div className="flex justify-between items-center">
-        <div>
+        <div className="flex gap-3">
           <Button
             icon={<LockOutlined />}
             onClick={handleOpenPasswordModal}
-            className="bg-blue-500 hover:bg-blue-600 mr-2"
+            style={{
+              backgroundColor: "#7c3aed",
+              borderColor: "#7c3aed",
+              color: "white",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "#6d28d9";
+              e.currentTarget.style.borderColor = "#6d28d9";
+              e.currentTarget.style.color = "white";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "#7c3aed";
+              e.currentTarget.style.borderColor = "#7c3aed";
+              e.currentTarget.style.color = "white";
+            }}
           >
             Change Password
           </Button>
           <Button
             icon={<LogoutOutlined />}
             onClick={handleLogout}
-            className="bg-red-500 hover:bg-red-600"
+            style={{
+              backgroundColor: "#dc2626",
+              borderColor: "#dc2626",
+              color: "white",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "#b91c1c";
+              e.currentTarget.style.borderColor = "#b91c1c";
+              e.currentTarget.style.color = "white";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "#dc2626";
+              e.currentTarget.style.borderColor = "#dc2626";
+              e.currentTarget.style.color = "white";
+            }}
           >
             Logout
           </Button>
         </div>
-        <div>
+        <div className="flex gap-3">
           <Button
             onClick={() => router.back()}
-            className="bg-gray-600 hover:bg-gray-700 mr-2"
+            style={{
+              backgroundColor: "#4b5563",
+              borderColor: "#4b5563",
+              color: "white",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "#374151";
+              e.currentTarget.style.borderColor = "#374151";
+              e.currentTarget.style.color = "white";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "#4b5563";
+              e.currentTarget.style.borderColor = "#4b5563";
+              e.currentTarget.style.color = "white";
+            }}
           >
             Cancel
           </Button>
           <Button
             icon={<SaveOutlined />}
             onClick={handleSave}
-            className="bg-green-500 hover:bg-green-600"
+            style={{
+              backgroundColor: "#7c3aed",
+              borderColor: "#7c3aed",
+              color: "white",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "#6d28d9";
+              e.currentTarget.style.borderColor = "#6d28d9";
+              e.currentTarget.style.color = "white";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "#7c3aed";
+              e.currentTarget.style.borderColor = "#7c3aed";
+              e.currentTarget.style.color = "white";
+            }}
           >
             Save Changes
           </Button>
