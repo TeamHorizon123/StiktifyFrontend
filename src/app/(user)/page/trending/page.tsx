@@ -13,6 +13,7 @@ import { Button } from "antd";
 import InteractSideBar from "@/components/page/trending/interact_sidebar";
 import MainVideo from "@/components/page/trending/main_video";
 import OtherVideos from "@/components/page/trending/otherVideo";
+import Header from "@/components/page/trending/header";
 
 type SidebarMode = "videos" | "interactions" | "comments";
 
@@ -490,10 +491,11 @@ const TrendingPage = () => {
     );
   };
 
-  // const handleSearch = () => {
-  //   if (!searchValue.trim()) return;
-  //   router.push(`/page/search-user-video?q=${encodeURIComponent(searchValue)}`);
-  // };
+  const handleSearch = () => {
+    if (!searchValue.trim()) return;
+    router.push(`/page/search-user-video?q=${encodeURIComponent(searchValue)}`);
+  };
+
   const parseM3U8FromPNG = async (pngUrl: string): Promise<number[]> => {
     const proxyUrl = `/api/proxy?id=${encodeURIComponent(pngUrl)}`;
     const res = await fetch(proxyUrl);
@@ -551,12 +553,33 @@ const TrendingPage = () => {
 
   return (
     <div className="relative min-h-screen main-layout text-white">
-      {/* <Header
-        isGuest={user ? false : true}
-        searchValue={searchValue}
-        setSearchValue={setSearchValue}
-        onClick={handleSearch}
-      /> */}
+       <div className="fixed top-4 left-1/2 transform -translate-x-[68%] flex items-center justify-center z-50">
+        <input
+          type="text"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              if (handleSearch) handleSearch();
+            }
+          }}
+          placeholder="Search"
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+          className="w-[50vw] md:w-[40vw] lg:w-[35vw] px-4 py-2 border border-purple-700 bg-gray-900 text-white placeholder-gray-400 rounded-l-lg focus:outline-none focus:border-purple-500"
+        />
+        <button
+          onClick={handleSearch}
+          className="flex items-center justify-center px-4 py-2 rounded-r-lg border border-purple-700 bg-purple-700 hover:bg-purple-800 transition"
+          aria-label="Search"
+        >
+          <svg
+            className="h-5 w-5 text-white"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 512 512"
+          >
+            <path d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z" />
+          </svg>
+        </button>
+      </div>
       <div className="h-screen overflow-hidden">
         <div className="relative z-10 flex h-full flex-row">
           {/* Video Column (Left) */}

@@ -380,7 +380,7 @@ const MainVideo: React.FC<MainVideoProps> = ({
 
   return (
     <div
-      className="flex justify-center items-center min-h-screen p-4 left-[15%] w-full max-w-[1000px] mx-auto"
+      className="flex justify-center items-center min-h-screen p-4 left-[15%] w-full max-w-[1000px] mx-auto mt-24 ml-10"
       onWheel={handleWheel}
     >
       <div
