@@ -32,7 +32,6 @@ interface SideBarProps {
 const SideBar: React.FC<SideBarProps> = () => {
   const { user, logout } = useContext(AuthContext) ?? {};
   const [isGuest, setIsGuest] = useState(true);
-  const [showSearch, setShowSearch] = useState(false);
   const [openHistory, setOpenHistory] = useState(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const router = useRouter();
@@ -47,27 +46,6 @@ const SideBar: React.FC<SideBarProps> = () => {
     }
   }, [user]);
 
-  // xử lý search bar
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        searchRef.current &&
-        !searchRef.current.contains(event.target as Node)
-      ) {
-        setShowSearch(false);
-      }
-    };
-
-    if (showSearch) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [showSearch]);
 
   // Function to check if current path is active
   const isActivePath = (path: string) => {
@@ -93,8 +71,8 @@ const SideBar: React.FC<SideBarProps> = () => {
   };
 
   return (
-    <div className="fixed z-20 flex">
-      <div className="w-[13rem] max-[600px]:w-[16vw] h-[100vh] flex flex-col bg-[#18182c] text-white items-center lg:items-start overflow-auto drop-shadow-sm lg:pl-4 lg:pr-4">
+    <div className="fixed z-20 flex ">
+      <div className="w-[15rem] max-[600px]:w-[16vw] h-[100vh] flex flex-col bg-[#18182c] text-white items-center lg:items-start overflow-auto drop-shadow-sm lg:pl-4 lg:pr-4">
         {/* logo */}
         <div className="w-full mt-8 mb-4 flex flex-col space-y-4">
           <Link
@@ -104,13 +82,6 @@ const SideBar: React.FC<SideBarProps> = () => {
             <FaHeadphonesSimple />
             <p className="sm:hidden max-[600px]:hidden lg:block">Stiktify</p>
           </Link>
-          <button
-            className="w-full h-fit bg-zinc-700 p-2 pt-3 pb-3 rounded-xl flex items-center"
-            onClick={() => setShowSearch(true)}
-          >
-            <FaSearch />
-            <p className="pl-2 text-gray-400">Search</p>
-          </button>
         </div>
 
         {/* nav */}
@@ -312,13 +283,6 @@ const SideBar: React.FC<SideBarProps> = () => {
           </div>
         </nav>
       </div>
-      {/* Search bar */}
-      {showSearch && (
-        <div ref={searchRef}>
-          <SearchBar />
-        </div>
-      )}
-
       {/* Modal hiển thị form Upload Video */}
       {isUploadModalOpen && (
         <div
