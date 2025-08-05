@@ -75,7 +75,7 @@ const HistoryMusicPage = () => {
   }, [watchedDate, history, searchValue]);
 
   return (
-    <div className="flex-grow p-5 ml-64">
+    <div className="flex-grow p-5 pl-64 main-layout">
       {/* <div>
         <Header
           searchValue={searchValue}
