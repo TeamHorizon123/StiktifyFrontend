@@ -254,8 +254,9 @@ const SideBar: React.FC<SideBarProps> = () => {
                   </div>
 
                   <div
-                    className={`overflow-hidden transition-all duration-300 ease-in-out ${openHistory ? "max-h-40 mt-2" : "max-h-0"
-                      }`}
+                    className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                      openHistory ? "max-h-40 mt-2" : "max-h-0"
+                    }`}
                   >
                     <ul className="rounded-md shadow-md w-40">
                       <li className="p-2 hover:bg-[#3a3936] hover:rounded">
@@ -278,7 +279,10 @@ const SideBar: React.FC<SideBarProps> = () => {
                   </div>
                 </li>
                 <li className="w-full h-fit hover:bg-purple-500 p-2 hover:rounded-md hover:transition hover:ease-in-out">
-                  <Link href={`/page/detail_user/${user._id}`} className="flex items-center space-x-2">
+                  <Link
+                    href={`/page/detail_user/${user?._id}`}
+                    className="flex items-center space-x-2"
+                  >
                     <FaCircleUser />
                     <p className="text-base sm:hidden max-[600px]:hidden lg:block">
                       Profile
@@ -430,25 +434,24 @@ const SideBar: React.FC<SideBarProps> = () => {
         }
       `}</style> */}
       <style jsx global>{`
-  .custom-upload-modal .ant-modal-content {
-    background-color: #1f2937;
-    color: #f9fafb;
-  }
+        .custom-upload-modal .ant-modal-content {
+          background-color: #1f2937;
+          color: #f9fafb;
+        }
 
-  .custom-upload-modal .ant-modal-header {
-    background-color: #1f2937;
-    border-bottom: 1px solid #374151;
-  }
+        .custom-upload-modal .ant-modal-header {
+          background-color: #1f2937;
+          border-bottom: 1px solid #374151;
+        }
 
-  .custom-upload-modal .ant-modal-title {
-    color: #f9fafb;
-  }
+        .custom-upload-modal .ant-modal-title {
+          color: #f9fafb;
+        }
 
-  .custom-upload-modal .ant-modal-close-x {
-    color: #f9fafb;
-  }
-`}</style>
-
+        .custom-upload-modal .ant-modal-close-x {
+          color: #f9fafb;
+        }
+      `}</style>
     </div>
   );
 };
