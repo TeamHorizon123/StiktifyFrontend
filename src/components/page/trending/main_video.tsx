@@ -153,24 +153,31 @@ const MainVideo: React.FC<MainVideoProps> = ({
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
   };
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const handleWheel = useCallback(
-    (e: React.WheelEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
+ const handleWheel = useCallback((e: WheelEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
 
-      const target = e.target as HTMLElement;
-      if (target.closest(".video-controls")) {
-        return;
-      }
-      if (e.deltaY > 0) {
-        onScrollNext?.();
-      } else {
-        onScrollPrev?.();
-      }
-    },
-    [onScrollNext, onScrollPrev]
-  );
+    const target = e.target as HTMLElement;
+    if (target.closest(".video-controls")) return;
+
+    if (e.deltaY > 0) {
+      onScrollNext?.();
+    } else {
+      onScrollPrev?.();
+    }
+  }, [onScrollNext, onScrollPrev]);
+ useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    container.addEventListener("wheel", handleWheel, { passive: false });
+
+    return () => {
+      container.removeEventListener("wheel", handleWheel);
+    };
+  }, [handleWheel]);
 
   useEffect(() => {
     const videoElement = videoRef.current;
@@ -381,7 +388,7 @@ const MainVideo: React.FC<MainVideoProps> = ({
   return (
     <div
       className="flex justify-center items-center min-h-screen p-4 left-[15%] w-full max-w-[1000px] mx-auto mt-24 ml-10"
-      onWheel={handleWheel}
+      ref={containerRef}
     >
       <div
         className={`relative ${getVideoContainerClasses()} group shadow-2xl rounded-lg overflow-hidden bg-black`}
