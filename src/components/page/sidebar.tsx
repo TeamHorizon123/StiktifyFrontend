@@ -18,7 +18,6 @@ import { AiOutlineHistory } from "react-icons/ai";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { AiFillCustomerService } from "react-icons/ai";
 import { MdReport, MdHelp, MdFeedback, MdDashboard } from "react-icons/md";
-import SearchBar from "@/components/page/searchBar";
 import BtnSignIn from "@/components/button/btnSignIn";
 import NotificationModel from "../notification/NotificationModal";
 import { usePathname, useRouter } from "next/navigation";

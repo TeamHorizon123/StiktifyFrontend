@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import Image from "next/image";
 import CommentSection from "@/components/page/trending/comments/comment_section";
 import { AuthContext } from "@/context/AuthContext";
@@ -13,7 +13,6 @@ import { Button } from "antd";
 import InteractSideBar from "@/components/page/trending/interact_sidebar";
 import MainVideo from "@/components/page/trending/main_video";
 import OtherVideos from "@/components/page/trending/otherVideo";
-import Header from "@/components/page/trending/header";
 
 type SidebarMode = "videos" | "interactions" | "comments";
 
@@ -37,11 +36,12 @@ const TrendingPage = () => {
   const [sidebarMode, setSidebarMode] = useState<SidebarMode>("videos");
   const [newComment, setNewComment] = useState("");
   const [refreshComments, setRefreshComments] = useState(0);
-
+  const [isFetchingByScroll, setIsFetchingByScroll] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   useEffect(() => {
     if (currentVideo) {
       setCurrentMusic(currentVideo?.musicId || null);
+      setIsWatched(false);
     }
   }, [currentVideo?._id]);
 
@@ -54,6 +54,7 @@ const TrendingPage = () => {
   }, []);
 
   useEffect(() => {
+    console.log("TrendingPage mounted");
     getVideoData();
   }, [accessToken, user]);
 
@@ -73,7 +74,8 @@ const TrendingPage = () => {
   }, [videoData, currentVideoIndex]);
 
   useEffect(() => {
-    if (currentVideo?.segments?.length && currentVideo.segments.length > 0) {
+    console.log(currentVideo?._id, "Current video ID");
+    if (currentVideo && currentVideo?.segments?.length && currentVideo.segments.length > 0) {
       console.log("Current video segments:", currentVideo.segments);
       const playFromM3U8 = async () => {
         try {
@@ -98,7 +100,6 @@ const TrendingPage = () => {
                     sb.addEventListener("updateend", resolve, { once: true })
                   );
                 } catch (err) {
-                  console.error("Segment error:", err);
                 }
               }
 
@@ -106,7 +107,6 @@ const TrendingPage = () => {
                 mediaSource.endOfStream();
               }
             } catch (err) {
-              console.error("Source buffer error:", err);
             }
           });
 
@@ -127,7 +127,6 @@ const TrendingPage = () => {
       if (event.key !== "ArrowDown" && event.key !== "ArrowUp") {
         return;
       }
-      setIsWatched(false);
       const videoSuggestId = Cookies.get("suggestVideoId");
 
       if (event.key === "ArrowDown") {
@@ -139,11 +138,11 @@ const TrendingPage = () => {
           if (newIndex >= videoData.length - 3) {
             // Load when 3 videos remaining
             setRequestCount((prev) => prev + 1);
-            // getVideoData();
+            getVideoData();
           }
         } else if (currentVideoIndex === videoData.length - 1) {
           setRequestCount((prev) => prev + 1);
-          // getVideoData();
+          getVideoData();
         }
 
         // Trigger scroll down effect when arrow down is pressed
@@ -157,6 +156,7 @@ const TrendingPage = () => {
             body: {
               userId: user._id,
               id: videoSuggestId || currentVideo?._id,
+              triggerAction: "ScrollVideo",
             },
           });
         }
@@ -178,6 +178,7 @@ const TrendingPage = () => {
             body: {
               userId: user._id,
               id: videoSuggestId || currentVideo?._id,
+              triggerAction: "ScrollVideo",
             },
           });
         }
@@ -196,54 +197,72 @@ const TrendingPage = () => {
     user,
     currentVideo,
   ]);
+  const handleNextVideo = () => {
+    setCurrentVideoIndex((prevIndex) =>
+      prevIndex < videoData.length - 1 ? prevIndex + 1 : prevIndex
+    );
+  };
+
+  const handlePrevVideo = () => {
+    setCurrentVideoIndex((prevIndex) =>
+      prevIndex > 0 ? prevIndex - 1 : prevIndex
+    );
+  };
 
   // Scroll navigation
-  const handleScroll = async (event: React.WheelEvent) => {
-    if ((event.target as HTMLElement).closest(".video-controls")) {
-      return;
+ const handleScroll = useCallback(async (event: WheelEvent) => {
+  if( isFetchingByScroll) return;
+  console.log(currentVideoIndex, "Current video index");
+  console.log(videoData.length, "Video data length");
+  if ((event.target as HTMLElement).closest(".video-controls")) return;
+  if (showNotification) return;
+
+  event.preventDefault(); // ✅ Giờ không lỗi nữa
+  if (accessToken && user) {
+    const videoSuggestId = Cookies.get("suggestVideoId");
+    await sendRequest<IBackendRes<IVideo[]>>({
+      url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/wishlist`,
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: {
+        userId: user._id,
+        id: videoSuggestId || currentVideo?._id,
+        triggerAction: "ScrollVideo",
+      },
+    });
+  }
+
+  if (event.deltaY > 0) {
+    if (currentVideoIndex < videoData.length - 1) {
+      const newIndex = currentVideoIndex + 1;
+      setCurrentVideoIndex(newIndex);
+      setCurrentVideo(videoData[newIndex]);
+    } else if (currentVideoIndex === videoData.length - 1) {
+      getVideoData();
     }
-    if (showNotification) {
-      return;
+  } else {
+    if (currentVideoIndex > 0) {
+      const newIndex = currentVideoIndex - 1;
+      setCurrentVideoIndex(newIndex);
+      setCurrentVideo(videoData[newIndex]);
     }
-    event.preventDefault(); // ngăn scroll mặc định
-    setIsWatched(false);
-    if (accessToken && user) {
-      const videoSuggestId = Cookies.get("suggestVideoId");
-      await sendRequest<IBackendRes<IVideo[]>>({
-        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/wishlist`,
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: {
-          userId: user._id,
-          id: videoSuggestId || currentVideo?._id,
-          triggerAction: "ScrollVideo",
-        },
-      });
-    }
-    if (event.deltaY > 0) {
-      if (currentVideoIndex < videoData.length - 1) {
-        const newIndex = currentVideoIndex + 1;
-        setCurrentVideoIndex(newIndex);
-        setCurrentVideo(videoData[newIndex]);
-        if (newIndex >= videoData.length - 3) {
-          // Load when 3 videos remaining
-          setRequestCount((prev) => prev + 1);
-          // getVideoData();
-        }
-      } else if (currentVideoIndex == videoData.length - 1) {
-        setRequestCount((prev) => prev + 1);
-        // getVideoData();
-      }
-    } else {
-      if (currentVideoIndex > 0) {
-        const newIndex = currentVideoIndex - 1;
-        setCurrentVideoIndex(newIndex);
-        setCurrentVideo(videoData[newIndex]);
-      }
-    }
+  }
+}, [handleNextVideo, handlePrevVideo]);
+
+const containerRef = useRef<HTMLDivElement>(null);
+
+useEffect(() => {
+  const container = containerRef.current;
+  if (!container) return;
+
+  container.addEventListener("wheel", handleScroll, { passive: false });
+
+  return () => {
+    container.removeEventListener("wheel", handleScroll);
   };
+}, [handleScroll]);
 
   // Data fetching
   const getVideoData = async () => {
@@ -279,6 +298,7 @@ const TrendingPage = () => {
         console.log("res", res);
       }
       setIsFetchId(false);
+      setIsFetchingByScroll(false);
       if (res?.data && Array.isArray(res.data)) {
         if (requestCount === 0) {
           setVideoData(res.data);
@@ -294,6 +314,7 @@ const TrendingPage = () => {
   };
 
   const handleVideoWatched = async () => {
+    console.log('isWatched:', isWatched);
     if (isWatched || !accessToken) return;
     setIsWatched(true);
     try {
@@ -318,6 +339,7 @@ const TrendingPage = () => {
           videoId: currentVideo?._id,
         },
       });
+      console.log("Update view response:", res1);
       setCurrentVideo((prev) => {
         if (!prev) return prev;
         return {
@@ -325,6 +347,13 @@ const TrendingPage = () => {
           totalViews: res1?.data?.totalViews ?? prev.totalViews,
         };
       });
+      setVideoData((prevVideos) => 
+        prevVideos.map((video) =>
+          video._id === currentVideo?._id
+            ? { ...video, totalViews: res1?.data?.totalViews ?? video.totalViews }
+            : video
+        )
+      );
       if (isPause == "true") return;
       if (currentVideo?._id) handleAddUserAction(currentVideo?._id);
       createViewingHistory();
@@ -334,7 +363,6 @@ const TrendingPage = () => {
   };
 
   const nextVideo = async () => {
-    setIsWatched(false);
     if (currentVideoIndex < videoData.length - 1) {
       const newIndex = currentVideoIndex + 1;
       setCurrentVideoIndex(newIndex);
@@ -343,13 +371,13 @@ const TrendingPage = () => {
       // Check if we're near the end and need to load more videos
       if (newIndex >= videoData.length - 3) {
         // Load when 3 videos remaining
-        setRequestCount((prev) => prev + 1);
-        // getVideoData();
+        // setRequestCount((prev) => prev + 1);
+        getVideoData();
       }
     } else if (currentVideoIndex === videoData.length - 1) {
       // At the last video, fetch more
-      setRequestCount((prev) => prev + 1);
-      // getVideoData();
+      // setRequestCount((prev) => prev + 1);
+      getVideoData();
     }
   };
 
@@ -358,7 +386,6 @@ const TrendingPage = () => {
       const newIndex = currentVideoIndex - 1;
       setCurrentVideoIndex(newIndex);
       setCurrentVideo(videoData[newIndex]);
-      setIsWatched(false);
     }
   };
   const handleAddUserAction = async (videoId: string) => {
@@ -510,17 +537,6 @@ const TrendingPage = () => {
       );
     }
   };
-  const handleNextVideo = () => {
-    setCurrentVideoIndex((prevIndex) =>
-      prevIndex < videoData.length - 1 ? prevIndex + 1 : prevIndex
-    );
-  };
-
-  const handlePrevVideo = () => {
-    setCurrentVideoIndex((prevIndex) =>
-      prevIndex > 0 ? prevIndex - 1 : prevIndex
-    );
-  };
 
   const handleSearch = () => {
     if (!searchValue.trim()) return;
@@ -582,13 +598,6 @@ const TrendingPage = () => {
     return new Uint8Array(tsBytes);
   };
 
-  useEffect(() => {
-    if (requestCount > 0) {
-      getVideoData();
-    }
-    // eslint-disable-next-line
-  }, [requestCount]);
-
   return (
     <div className="relative min-h-screen main-layout text-white">
        <div className="fixed top-4 left-1/2 transform -translate-x-[68%] flex items-center justify-center z-50">
@@ -623,7 +632,7 @@ const TrendingPage = () => {
           {/* Video Column (Left) */}
           <div className="flex-1 flex items-center justify-center pl-8">
             <div
-              onWheel={handleScroll}
+              ref={containerRef}
               className="relative w-full h-full flex items-center justify-center pr-4"
               style={{ minHeight: "100vh" }}
             >

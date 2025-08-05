@@ -119,7 +119,7 @@ const NotificationModel = () => {
 
   return (
     <div>
-      <li
+      <div
         className="relative w-full hover:bg-purple-500 rounded-md transition ease-in-out cursor-pointer"
         onClick={() => {
           setIsOpen(true);
@@ -134,7 +134,7 @@ const NotificationModel = () => {
           )}
           <p className="text-base sm:hidden max-[600px]:hidden lg:block">Notification</p>
         </div>
-      </li>
+      </div>
 
       {/* Panel notification */}
       <div
@@ -159,7 +159,7 @@ const NotificationModel = () => {
         {notifications.length > 0 ? (
           <ul className="space-y-1 overflow-y-auto max-h-[80vh] pr-2 scrollbar-thin scrollbar-thumb-zinc-600 scrollbar-track-transparent">
             {notifications.map((notification) => (
-              <li
+              <div
                 key={notification._id}
                 className="w-full p-2 rounded hover:bg-[#514f4b] transition cursor-pointer"
               >
@@ -209,7 +209,7 @@ const NotificationModel = () => {
                 ) : (
                   <span>Có thông báo mới</span>
                 )}
-              </li>
+              </div>
             ))}
           </ul>
         ) : (
