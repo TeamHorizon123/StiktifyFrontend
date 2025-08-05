@@ -225,6 +225,7 @@ const SideBar: React.FC<SideBarProps> = () => {
                     </ul>
                   </div>
                 </li>
+
                 <li className={getLinkClass("/page/profile")}>
                   <Link
                     href="/page/profile"
