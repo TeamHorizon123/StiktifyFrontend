@@ -104,7 +104,7 @@ const ListFavoriteMusic = ({ userId }: ListFavoriteMusicProps) => {
             .map((item) => (
               <CardMusic
                 key={item._id}
-                handlePlayer={() => {}}
+                handlePlayer={() => { }}
                 isPlaying={false}
                 item={item}
               />

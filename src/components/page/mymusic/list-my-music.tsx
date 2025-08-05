@@ -18,25 +18,28 @@ const MyMusic = ({ userId, isOwner }: MyMusicProps) => {
   const [myMusic, setMyMusic] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchMyMusic = async () => {
-      if (!currentUserId) return;
-      setLoading(true);
-      try {
-        const response = await handleGetMyMusic(currentUserId, "1", "30");
-        if (response?.data?.result) {
-          setMyMusic(response.data.result);
-        } else {
-          setMyMusic([]);
-        }
-      } catch (error) {
-        console.error("Error fetching music:", error);
+  const fetchMyMusic = async () => {
+    if (!currentUserId) return;
+    setLoading(true);
+    try {
+      const response = await handleGetMyMusic(currentUserId, "1", "30");
+      if (response?.data?.result) {
+        setMyMusic(response.data.result);
+      } else {
+        setMyMusic([]);
       }
-      setLoading(false);
-    };
-
+    } catch (error) {
+      console.error("Error fetching music:", error);
+    }
+    setLoading(false);
+  };
+  useEffect(() => {
     fetchMyMusic();
   }, [currentUserId]);
+
+  const handleDeletedMusic = (deletedId: string) => {
+    setMyMusic((prev) => prev.filter((item) => item._id !== deletedId));
+  };
 
   return (
     <div className="p-0 bg-transparent">
@@ -50,11 +53,12 @@ const MyMusic = ({ userId, isOwner }: MyMusicProps) => {
               className="bg-[#2d2250cc] rounded-2xl shadow-xl overflow-hidden flex flex-col transition-all duration-300 hover:scale-[1.02]"
             >
               <CardMusic
-                isEdit={!!isOwner}
+                isEdit={true}
                 showPlaying={false}
-                handlePlayer={() => {}}
+                handlePlayer={() => { }}
                 isPlaying={false}
                 item={item}
+                refreshList={fetchMyMusic}
               />
             </div>
           ))}

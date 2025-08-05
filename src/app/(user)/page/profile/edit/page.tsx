@@ -86,7 +86,7 @@ const EditProfilePage = () => {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center px-0 py-0">
+    <div className="main-layout min-h-screen w-full flex flex-col items-center px-0 py-0">
       <div className="w-full max-w-4xl mx-auto pt-10 pb-16">
         {loading ? (
           <p className="text-gray-500">Loading profile...</p>

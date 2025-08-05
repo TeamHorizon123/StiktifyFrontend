@@ -39,6 +39,9 @@ const UploadVideoPost: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [hashtagsInput, setHashtagsInput] = useState("");
 
+  const [videoFileName, setVideoFileName] = useState("No file chosen");
+  const [thumbnailFileName, setThumbnailFileName] = useState("No file chosen");
+
   // useEffect giữ nguyên
   useEffect(() => {
     const fetchCategories = async () => {
@@ -98,13 +101,13 @@ const UploadVideoPost: React.FC = () => {
     fetchMusic();
   }, [accessToken]);
 
-  const handleFileChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    setFile: React.Dispatch<React.SetStateAction<File | null>>
-  ) => {
-    const file = e.target.files?.[0];
-    if (file) setFile(file);
-  };
+  // const handleFileChange = (
+  //   e: React.ChangeEvent<HTMLInputElement>,
+  //   setFile: React.Dispatch<React.SetStateAction<File | null>>
+  // ) => {
+  //   const file = e.target.files?.[0];
+  //   if (file) setFile(file);
+  // };
 
   const resolveCategoryIds = async (
     selectedCategories: string[],
@@ -261,36 +264,69 @@ const UploadVideoPost: React.FC = () => {
     }
   };
 
+  const handleFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    setFileName: (name: string) => void,
+    setFile: (file: File | null) => void
+  ) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFile(file);
+      setFileName(file.name);
+    } else {
+      setFile(null);
+      setFileName("No file chosen");
+    }
+  };
+
   return (
     <div className="fixed-form-container">
       <div className="upload-form">
-        <div className="form-row">
-          <div className="form-field">
-            <label className="form-label">Video File</label>
-            <input
-              type="file"
-              accept="video/*"
-              onChange={(e) => handleFileChange(e, setVideoFile)}
-              className="form-input-file"
-            />
+        <div className="flex flex-col sm:flex-row gap-4 mb-4">
+          {/* Video Upload */}
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-white mb-1">Video File</label>
+            <div className="relative">
+              <input
+                type="file"
+                accept="video/*"
+                id="video-upload"
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                onChange={(e) => handleFileChange(e, setVideoFileName, setVideoFile)}
+              />
+              <div className="bg-purple-500 hover:bg-purple-400 text-white text-sm px-4 py-2 rounded cursor-pointer text-center">
+                Choose Video File
+              </div>
+            </div>
+            <p className="text-xs text-gray-300 mt-1 truncate">{videoFileName}</p>
           </div>
-          <div className="form-field">
-            <label className="form-label">Thumbnail</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => handleFileChange(e, setVideoThumbnail)}
-              className="form-input-file"
-            />
+
+          {/* Thumbnail Upload */}
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-white mb-1">Thumbnail</label>
+            <div className="relative">
+              <input
+                type="file"
+                accept="image/*"
+                id="thumbnail-upload"
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                onChange={(e) => handleFileChange(e, setThumbnailFileName, setVideoThumbnail)}
+              />
+              <div className="bg-purple-500 hover:bg-purple-400 text-white text-sm px-4 py-2 rounded cursor-pointer text-center">
+                Choose Thumbnail
+              </div>
+            </div>
+            <p className="text-xs text-gray-300 mt-1 truncate">{thumbnailFileName}</p>
           </div>
         </div>
 
         <div className="form-field full-width">
           <label className="form-label">Title</label>
-          <textarea
+          <input
+            type="text"
             value={videoDescription}
             onChange={(e) => setVideoDescription(e.target.value)}
-            className="form-textarea"
+            className="form-input"
             placeholder="Enter title..."
           />
         </div>
@@ -316,15 +352,15 @@ const UploadVideoPost: React.FC = () => {
               value={selectedCategories || undefined}
               onChange={(value) => setSelectedCategories(value)}
               style={{
-                backgroundColor: "#1f2937",
-                color: "#f9fafb !important",
-                border: "1px solid #4b5563",
-                borderRadius: "6px",
+                // backgroundColor: "#1f2937",
+                // color: "#f9fafb !important",
+                // border: "1px solid #4b5563",
+                // borderRadius: "6px",
               }}
-              dropdownStyle={{
-                backgroundColor: "#1f2937",
-                color: "#f9fafb",
-              }}
+            // dropdownStyle={{
+            //   backgroundColor: "#1f2937",
+            //   color: "#f9fafb",
+            // }}
             >
               {allCategories.map((category) => (
                 <Option key={category._id} value={category._id}>
@@ -389,15 +425,18 @@ const UploadVideoPost: React.FC = () => {
         <button
           onClick={handleUpload}
           disabled={loading}
-          className={`form-button ${
-            loading ? "button-disabled" : "button-active"
-          }`}
+          className={`form-button bg-purple-500 hover:bg-purple-400  ${loading ? "button-disabled" : ""
+            }`}
         >
           {loading ? "Uploading..." : "Upload Video"}
         </button>
       </div>
 
       <style jsx>{`
+      .ant-select-selection-item {
+  color: #f9fafb !important;
+  background-color: #374151 !important; /* tùy chọn */
+}
         .fixed-form-container {
           display: flex;
           justify-content: center;
@@ -493,16 +532,8 @@ const UploadVideoPost: React.FC = () => {
           transition: background-color 0.2s ease;
         }
 
-        .button-active {
-          background-color: #3b82f6;
-        }
-
-        .button-active:hover {
-          background-color: #2563eb;
-        }
 
         .button-disabled {
-          background-color: #6b7280; /* xám disabled */
           cursor: not-allowed;
         }
       `}</style>

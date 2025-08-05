@@ -134,7 +134,7 @@ const ViewingHistory = () => {
   };
 
   return (
-    <div className="flex-grow p-5 ml-64">
+    <div className="flex-grow main-layout p-5 pl-64">
       {/* <Header
         isGuest={false}
         searchValue={searchValue}

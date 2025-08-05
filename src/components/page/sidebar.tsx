@@ -1,10 +1,8 @@
 "use client";
 import { AuthContext } from "@/context/AuthContext";
 import Link from "next/link";
-// import { usePathname, useParams } from 'next/navigation';
 import { useContext, useEffect, useState, useRef } from "react";
-// import Chatbox from "./chatBox/chatBox";
-import { FaHeadphonesSimple } from "react-icons/fa6";
+import { FaHeadphonesSimple, FaRankingStar } from "react-icons/fa6";
 import { AiFillHome } from "react-icons/ai";
 import { FaGlobeAsia, FaSearch } from "react-icons/fa";
 import { AiFillMessage } from "react-icons/ai";
@@ -15,7 +13,7 @@ import { RiUserReceivedFill } from "react-icons/ri";
 import { BsPlusSquareFill } from "react-icons/bs";
 import { PiBellSimpleFill } from "react-icons/pi";
 import { FaCircleUser } from "react-icons/fa6";
-import { IoSettings } from "react-icons/io5";
+import { IoSettings, IoLogOut } from "react-icons/io5";
 import { AiOutlineHistory } from "react-icons/ai";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { AiFillCustomerService } from "react-icons/ai";
@@ -23,7 +21,7 @@ import { MdReport, MdHelp, MdFeedback, MdDashboard } from "react-icons/md";
 import SearchBar from "@/components/page/searchBar";
 import BtnSignIn from "@/components/button/btnSignIn";
 import NotificationModel from "../notification/NotificationModal";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Modal } from "antd";
 import UploadVideoPost from "./trending/upload_video_post";
 
@@ -32,11 +30,11 @@ interface SideBarProps {
 }
 
 const SideBar: React.FC<SideBarProps> = () => {
-  // const pathname = usePathname();
-  const { user } = useContext(AuthContext) ?? {};
+  const { user, logout } = useContext(AuthContext) ?? {};
   const [isGuest, setIsGuest] = useState(true);
   const [openHistory, setOpenHistory] = useState(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const router = useRouter();
 
   const searchRef = useRef<HTMLDivElement>(null);
 
@@ -49,86 +47,30 @@ const SideBar: React.FC<SideBarProps> = () => {
   }, [user]);
 
 
-  // const getLinkClass = (path: string) => {
-  //   const isActive = pathname === path || pathname.startsWith(`${path}/`);
-  //   return isActive
-  //     ? "text-lg font-bold text-red-500"
-  //     : "text-lg text-gray-700 hover:text-red-500";
-  // };
+  // Function to check if current path is active
+  const isActivePath = (path: string) => {
+    if (path === "/page/trending") {
+      return pathname === "/page/trending" || pathname === "/page/trending-user" || pathname === "/page/trending-guest";
+    }
+    return pathname === path || pathname.startsWith(`${path}/`);
+  };
+
+  // Function to get link classes with active state
+  const getLinkClass = (path: string) => {
+    const baseClass = "w-full h-fit p-2 hover:rounded-md hover:transition hover:ease-in-out";
+    const activeClass = "bg-purple-600 hover:bg-purple-600 rounded-md";
+    const inactiveClass = "hover:bg-purple-500";
+
+    return `${baseClass} ${isActivePath(path) ? activeClass : inactiveClass}`;
+  };
+
+  // Handle logout
+  const handleLogout = () => {
+    logout?.();
+    router.push("/page/trending");
+  };
 
   return (
-    // <div
-    //   className="w-[10%] pt-10 h-screen bg-white shadow-lg p-5"
-    //   style={isHidden && { display: "none" }}
-    // >
-    //   <nav>
-    //     <ul className="space-y-4">
-    //       {isGuest ? (
-    //         <li>
-    //           <Link
-    //             href="/page/trending-guest"
-    //             className={getLinkClass("/page/trending-guest")}
-    //           >
-    //             Trending
-    //           </Link>
-    //         </li>
-    //       ) : (
-    //         <li>
-    //           <Link
-    //             href="/page/trending-user"
-    //             className={getLinkClass("/page/trending-user")}
-    //           >
-    //             Trending
-    //           </Link>
-    //         </li>
-    //       )}
-    //       {isGuest ? (
-    //         ""
-    //       ) : (
-    //         <li>
-    //           <Link
-    //             href="/page/following"
-    //             className={getLinkClass("/page/following")}
-    //           >
-    //             Following
-    //           </Link>
-    //         </li>
-    //       )}
-    //       <li>
-    //         <Link href="/page/live" className={getLinkClass("/page/live")}>
-    //           Live
-    //         </Link>
-    //       </li>
-    //       <li>
-    //         <Link href="/page/music" className={getLinkClass("/page/music")}>
-    //           Music
-    //         </Link>
-    //       </li>
-    //       <li>
-    //         <Link
-    //           href="/page/rankings"
-    //           className={getLinkClass("/page/rankings")}
-    //         >
-    //           Rankings
-    //         </Link>
-    //       </li>
-
-    //       <li>
-    //         <Link
-    //           href="/page/sticktify-shop"
-    //           className={getLinkClass("/page/stiktify-shop")}
-    //         >
-    //           Stiktify Shop
-    //         </Link>
-    //       </li>
-    //     </ul>
-    //   </nav>
-    //   <footer className="mt-[10px] text-center">
-    //     <Chatbox />
-    //     <small className="text-gray-500">©2025 Stiktify</small>
-    //   </footer>
-    // </div>
-
     <div className="fixed z-20 flex ">
       <div className="w-[15rem] max-[600px]:w-[16vw] h-[100vh] flex flex-col bg-[#18182c] text-white items-center lg:items-start overflow-auto drop-shadow-sm lg:pl-4 lg:pr-4">
         {/* logo */}
@@ -145,7 +87,7 @@ const SideBar: React.FC<SideBarProps> = () => {
         {/* nav */}
         <nav className="w-full space-y-6 relative bottom-0 overflow-y-scroll ">
           <ul className="w-full space-y-2 text-base text-center flex flex-col items-center lg:items-start">
-            <li className="w-full h-fit hover:bg-purple-500 p-2 hover:rounded-md hover:transition hover:ease-in-out">
+            <li className={getLinkClass("/page/trending")}>
               <Link
                 className="flex items-center space-x-2"
                 href="/page/trending"
@@ -156,15 +98,21 @@ const SideBar: React.FC<SideBarProps> = () => {
                 </p>
               </Link>
             </li>
-            {/* <li className="w-full h-fit hover:bg-purple-500 p-2 hover:rounded-md hover:transition hover:ease-in-out">
-              <Link href="" className="flex items-center space-x-2">
-                <FaGlobeAsia />
-                <p className="text-base sm:hidden max-[600px]:hidden lg:block">Explore</p>
+            <li className={getLinkClass("/page/music")}>
+              <Link
+                href="/page/music"
+                className="flex items-center space-x-2"
+              >
+                <AiFillCustomerService />
+                <p className="text-base sm:hidden max-[600px]:hidden lg:block">
+                  Music
+                </p>
               </Link>
-            </li> */}
+            </li>
+
             {!isGuest ? (
               <>
-                <li className="w-full h-fit hover:bg-purple-500 p-2 hover:rounded-md hover:transition hover:ease-in-out">
+                <li className={getLinkClass("/page/following")}>
                   <Link
                     href="/page/following"
                     className="flex items-center space-x-2"
@@ -175,18 +123,18 @@ const SideBar: React.FC<SideBarProps> = () => {
                     </p>
                   </Link>
                 </li>
-                <li className="w-full h-fit hover:bg-purple-500 p-2 hover:rounded-md hover:transition hover:ease-in-out">
+
+                <li className={getLinkClass("/page/rankings")}>
                   <Link
-                    href="/page/music"
+                    href="/page/rankings"
                     className="flex items-center space-x-2"
                   >
-                    <AiFillCustomerService />
+                    <FaRankingStar />
                     <p className="text-base sm:hidden max-[600px]:hidden lg:block">
-                      Music
+                      Rankings
                     </p>
                   </Link>
                 </li>
-
                 {pathname === "/page/trending" && (
                   <li className="w-full h-fit hover:bg-purple-500 p-2 hover:rounded-md hover:transition hover:ease-in-out">
                     <button
@@ -203,7 +151,7 @@ const SideBar: React.FC<SideBarProps> = () => {
                 <li className="w-full h-fit hover:bg-purple-500 p-2 hover:rounded-md hover:transition hover:ease-in-out">
                   <NotificationModel />
                 </li>
-                <li className="relative w-full h-fit p-2 hover:bg-[#3a3936] rounded-md transition ease-in-out">
+                <li className="relative w-full h-fit p-2 hover:bg-purple-500 rounded-md transition ease-in-out">
                   <div
                     onClick={() => setOpenHistory(!openHistory)}
                     className="flex items-center justify-between cursor-pointer"
@@ -225,23 +173,22 @@ const SideBar: React.FC<SideBarProps> = () => {
                   </div>
 
                   <div
-                    className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                      openHistory ? "max-h-40 mt-2" : "max-h-0"
-                    }`}
+                    className={`overflow-hidden transition-all duration-300 ease-in-out ${openHistory ? "max-h-40 mt-2" : "max-h-0"
+                      }`}
                   >
                     <ul className="rounded-md shadow-md w-40">
-                      <li className="p-2 hover:bg-[#3a3936] hover:rounded">
+                      <li className={`p-2 hover:bg-[#3a3936] hover:rounded ${isActivePath("/page/videohistory") ? "bg-purple-600" : ""}`}>
                         <Link
                           href="/page/videohistory"
-                          className={"/personal/videohistory"}
+                          className="block w-full"
                         >
                           Video History
                         </Link>
                       </li>
-                      <li className="p-2 hover:bg-[#3a3936] hover:rounded">
+                      <li className={`p-2 hover:bg-[#3a3936] hover:rounded ${isActivePath("/page/musichistory") ? "bg-purple-600" : ""}`}>
                         <Link
                           href="/page/musichistory"
-                          className={"/personal/musichistory"}
+                          className="block w-full"
                         >
                           Music History
                         </Link>
@@ -249,8 +196,12 @@ const SideBar: React.FC<SideBarProps> = () => {
                     </ul>
                   </div>
                 </li>
-                <li className="w-full h-fit hover:bg-purple-500 p-2 hover:rounded-md hover:transition hover:ease-in-out">
-                  <Link href="" className="flex items-center space-x-2">
+
+                <li className={getLinkClass("/page/profile")}>
+                  <Link
+                    href="/page/profile"
+                    className="flex items-center space-x-2"
+                  >
                     <FaCircleUser />
                     <p className="text-base sm:hidden max-[600px]:hidden lg:block">
                       Profile
@@ -259,22 +210,11 @@ const SideBar: React.FC<SideBarProps> = () => {
                 </li>
               </>
             ) : (
-              <> </>
-            )}
-            {/* <li className="w-full h-fit hover:bg-purple-500 p-2 hover:rounded-md hover:transition hover:ease-in-out">
-              <Link href={isGuest ? "/page/trending-guest" : "/page/trending-user"} className="flex items-center space-x-2">
-                <AiFillFire />
-                <p className="text-base sm:hidden max-[600px]:hidden lg:block">Trending</p>
-              </Link>
-            </li> */}
-            {isGuest ? (
               <>
                 <li className="w-full h-fit p-2">
                   <BtnSignIn />
                 </li>
               </>
-            ) : (
-              <></>
             )}
           </ul>
           <hr />
@@ -282,7 +222,7 @@ const SideBar: React.FC<SideBarProps> = () => {
             <>
               <Link
                 href="/page/shop"
-                className="test-base flex items-center space-x-2 w-full h-fit hover:bg-purple-500 p-2 hover:rounded-md hover:transition hover:ease-in-out"
+                className={`test-base flex items-center space-x-2 ${getLinkClass("/page/shop")}`}
               >
                 <AiFillShop />
                 <p className="text-base sm:hidden max-[600px]:hidden lg:block">
@@ -291,7 +231,7 @@ const SideBar: React.FC<SideBarProps> = () => {
               </Link>
               <Link
                 href="/page/manage-shop"
-                className="test-base flex items-center space-x-2 w-full h-fit hover:bg-purple-500 p-2 hover:rounded-md hover:transition hover:ease-in-out"
+                className={`test-base flex items-center space-x-2 ${getLinkClass("/page/manage-shop")}`}
               >
                 <MdDashboard />
                 <p className="text-base sm:hidden max-[600px]:hidden lg:block">
@@ -299,37 +239,22 @@ const SideBar: React.FC<SideBarProps> = () => {
                 </p>
               </Link>
               <hr />
+
+              {/* Logout Button */}
+              <button
+                onClick={handleLogout}
+                className="w-full h-fit hover:bg-red-500 p-2 hover:rounded-md hover:transition hover:ease-in-out flex items-center space-x-2 text-left"
+              >
+                <IoLogOut />
+                <p className="text-base sm:hidden max-[600px]:hidden lg:block">
+                  Logout
+                </p>
+              </button>
             </>
           ) : (
             <></>
           )}
-          {/* setting account */}
-          {/* <ul className="w-full space-y-2 text-base text-center flex flex-col items-center lg:items-start">
-            <li className="w-full h-fit hover:bg-purple-500 p-2 hover:rounded-md hover:transition hover:ease-in-out">
-              <Link className="flex items-center space-x-2" href="">
-                <IoSettings />
-                <p className="text-base sm:hidden max-[600px]:hidden lg:block">Setting</p>
-              </Link>
-            </li> */}
-          {/* <li className="w-full h-fit hover:bg-purple-500 p-2 hover:rounded-md hover:transition hover:ease-in-out">
-              <Link href="" className="flex items-center space-x-2">
-                <MdReport />
-                <p className="text-base sm:hidden max-[600px]:hidden lg:block">Report</p>
-              </Link>
-            </li>
-            <li className="w-full h-fit hover:bg-purple-500 p-2 hover:rounded-md hover:transition hover:ease-in-out">
-              <Link className="flex items-center space-x-2" href="">
-                <MdHelp />
-                <p className="text-base sm:hidden max-[600px]:hidden lg:block">Helps</p>
-              </Link>
-            </li>
-            <li className="w-full h-fit hover:bg-purple-500 p-2 hover:rounded-md hover:transition hover:ease-in-out">
-              <Link href="" className="flex items-center space-x-2">
-                <MdFeedback />
-                <p className="text-base sm:hidden max-[600px]:hidden lg:block">Feedback</p>
-              </Link>
-            </li> */}
-          {/* </ul> */}
+
           {/* Term & Privacy */}
           <div className="mt-14 ext-sm max-[600px]:text-xs flex flex-col items-center justify-center space-y-1">
             <ul className="flex flex-wrap text-center items-center justify-center space-x-1 lg:text-[10px]">
@@ -359,28 +284,44 @@ const SideBar: React.FC<SideBarProps> = () => {
         </nav>
       </div>
       {/* Modal hiển thị form Upload Video */}
-      <Modal
-        title="Upload Video"
-        visible={isUploadModalOpen}
-        footer={null}
-        onCancel={() => setIsUploadModalOpen(false)}
-        destroyOnClose
-      >
-        <UploadVideoPost />
-      </Modal>
+      {isUploadModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+          onClick={() => setIsUploadModalOpen(false)}
+        >
+          <div
+            className="bg-[#1f2937] text-white p-6 rounded-lg w-full max-w-xl shadow-xl relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setIsUploadModalOpen(false)}
+              className="absolute top-2 right-3 text-gray-300 hover:text-white text-xl font-bold"
+            >
+              &times;
+            </button>
+            <h2 className="text-xl font-semibold mb-4">Upload Video</h2>
+            <UploadVideoPost />
+          </div>
+        </div>
+      )}
 
       <style jsx global>{`
-        .ant-modal-content,
-        .ant-modal-header,
-        .ant-modal-body {
-          background-color: #1f2937 !important;
-          color: #ffffff !important;
+        .custom-upload-modal .ant-modal-content {
+          background-color: #1f2937;
+          color: #f9fafb;
         }
 
-        .ant-modal-title,
-        .ant-modal-close,
-        .ant-modal-body * {
-          color: #ffffff !important;
+        .custom-upload-modal .ant-modal-header {
+          background-color: #1f2937;
+          border-bottom: 1px solid #374151;
+        }
+
+        .custom-upload-modal .ant-modal-title {
+          color: #f9fafb;
+        }
+
+        .custom-upload-modal .ant-modal-close-x {
+          color: #f9fafb;
         }
       `}</style>
     </div>
