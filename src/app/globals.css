@@ -21,14 +21,6 @@ body {
   --midnight-blue: #213a58;
 }
 
-/* ::before,
-::after {
-  box-sizing: border-box;
-  border-width: 0;
-  border-style: none !important;
-  border-color: none !important;
-} */
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
