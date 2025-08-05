@@ -157,6 +157,8 @@ export const handleGetMyMusic = async (
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
+        next: { tags: ["get-my-music"] },
+
       }
     );
     const result: IBackendRes<any> = await res.json();
@@ -229,7 +231,7 @@ export const handleCreateMusicAction = async (data: any) => {
   }
 }
 
-export const  handleFilterAndSearchMusicAction = async (current: number, pageSize: number, search: string, filterRes: string) => {
+export const handleFilterAndSearchMusicAction = async (current: number, pageSize: number, search: string, filterRes: string) => {
   try {
     const cookieStore = cookies();
     const token = cookieStore.get("token")?.value;
@@ -240,7 +242,7 @@ export const  handleFilterAndSearchMusicAction = async (current: number, pageSiz
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`
       }, next: { tags: ["list-music"] },
-    })   
+    })
     const result: IBackendRes<any> = await res.json();
     return result
   } catch (error) {
@@ -429,6 +431,61 @@ export const handleGetDataHotMusic = async () => {
     const result: IBackendRes<any> = await res.json();
     return result;
   } catch (error) {
+    return null;
+  }
+};
+
+export const handleDeleteMusic = async (id: string) => {
+  try {
+    const cookieStore = cookies();
+    const token = cookieStore.get("token")?.value;
+    if (!token) return null;
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/${id}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        next: { tags: ["delete-music"] },
+      }
+    );
+    revalidateTag("get-my-music");
+    const result: IBackendRes<any> = await res.json();
+    return result;
+  } catch (error) {
+    return null;
+  }
+};
+
+export const handleUpdateMusic = async (payload: {
+  musicId: string;
+  musicDescription?: string;
+  musicTag?: any[];
+  musicThumbnail?: string;
+}) => {
+  try {
+    const cookieStore = cookies();
+    const token = cookieStore.get("token")?.value;
+    if (!token) return null;
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/update-music`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    const result: IBackendRes<any> = await res.json();
+    return result;
+  } catch (error) {
+    console.error("Error updating music:", error);
     return null;
   }
 };

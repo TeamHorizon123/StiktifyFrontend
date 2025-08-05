@@ -278,7 +278,7 @@ const SideBar: React.FC<SideBarProps> = () => {
                   </div>
                 </li>
                 <li className="w-full h-fit hover:bg-purple-500 p-2 hover:rounded-md hover:transition hover:ease-in-out">
-                  <Link href={`/page/detail_user/${user._id}`} className="flex items-center space-x-2">
+                  <Link href={`/page/detail_user/${user?._id}`} className="flex items-center space-x-2">
                     <FaCircleUser />
                     <p className="text-base sm:hidden max-[600px]:hidden lg:block">
                       Profile

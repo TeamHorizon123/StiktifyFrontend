@@ -5,12 +5,15 @@ import ButtonPlayer from "./button.player";
 import { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useGlobalContext } from "@/library/global.context";
-import { Dropdown, MenuProps, notification, Tooltip } from "antd";
+import { Dropdown, MenuProps, Modal, notification, Tooltip } from "antd";
 import noImagePlaylist from "@/assets/images/playlist-no-image.jpg";
 import { handleAddMusicInPlaylistAction } from "@/actions/playlist.action";
 import AddPlayList from "../modal/modal.add.playlist";
 import { AuthContext } from "@/context/AuthContext";
 import { MoreHorizontal, Plus, Play, Pause } from "lucide-react";
+import { handleDeleteMusic } from "@/actions/music.action";
+import UpdateMusicModal from "../modal/modal.update.music";
+import { handleGetAllCategoryAction } from "@/actions/category.action";
 
 interface IProps {
   showPlaying?: boolean;
@@ -19,6 +22,7 @@ interface IProps {
   item: IMusic;
   ref?: any;
   isEdit?: boolean;
+  refreshList?: any
 }
 
 const CardMusic = (props: IProps) => {
@@ -28,7 +32,8 @@ const CardMusic = (props: IProps) => {
     item,
     ref,
     showPlaying = true,
-    isEdit = false,
+    isEdit,
+    refreshList
   } = props;
   const { trackCurrent, playlist } = useGlobalContext()!;
   const { user } = useContext(AuthContext)!;
@@ -37,6 +42,8 @@ const CardMusic = (props: IProps) => {
   const [items, setItems] = useState<MenuProps["items"] | []>([]);
   const [isOpenModal, setIsOpenModal] = useState(false);
   const { className = "" } = props;
+  const [isOpenUpdateModal, setIsOpenUpdateModal] = useState(false);
+  const [listCate, setListCate] = useState([]);
   const handleItem = (track: IMusic) => {
     handlePlayer(track);
   };
@@ -52,6 +59,16 @@ const CardMusic = (props: IProps) => {
       setHoverPlayer(false);
     }
   }, [trackCurrent, item]);
+
+  useEffect(() => {
+    (async () => {
+      const res = await handleGetAllCategoryAction();
+      if (res?.statusCode === 200) {
+        return setListCate(res.data);
+      }
+      setListCate([]);
+    })();
+  }, [isOpenUpdateModal]);
 
   useEffect(() => {
     const playlistArr: MenuProps["items"] = [];
@@ -98,15 +115,30 @@ const CardMusic = (props: IProps) => {
     };
     playlistArr.push(addNewPlaylist);
 
-    const data: MenuProps["items"] = [
+    const menuItems: MenuProps["items"] = [
       {
-        key: "1",
+        key: "add_to_playlist",
         label: "Add to Playlist",
         children: playlistArr,
         expandIcon: null,
       },
     ];
-    setItems(data);
+
+    // Nếu isEdit thì thêm nút Update và Delete vào menu
+    if (isEdit) {
+      menuItems.push(
+        {
+          key: "edit",
+          label: "Update",
+        },
+        {
+          key: "delete",
+          label: "Delete",
+        }
+      );
+    }
+
+    setItems(menuItems);
   }, [playlist]);
 
   const handleAddMusicInPlaylist = async (playlistId: string) => {
@@ -152,11 +184,10 @@ const CardMusic = (props: IProps) => {
           {/* Play Button Overlay */}
           {showPlaying && (
             <div
-              className={`absolute inset-0 bg-black/40 flex items-center justify-center transition-all duration-300 ${
-                hoverPlayer || (trackCurrent?._id === item._id && isPlaying)
-                  ? "opacity-100"
-                  : "opacity-0"
-              }`}
+              className={`absolute inset-0 bg-black/40 flex items-center justify-center transition-all duration-300 ${hoverPlayer || (trackCurrent?._id === item._id && isPlaying)
+                ? "opacity-100"
+                : "opacity-0"
+                }`}
             >
               <button
                 onClick={(e) => {
@@ -194,6 +225,35 @@ const CardMusic = (props: IProps) => {
                 items,
                 onClick: (e) => {
                   e.domEvent.stopPropagation();
+
+                  if (e.key === "delete") {
+                    Modal.confirm({
+                      title: "Are you sure you want to delete this music?",
+                      content: "This action cannot be undone.",
+                      okText: "Yes",
+                      cancelText: "No",
+                      okType: "danger",
+                      onOk: async () => {
+                        const res = await handleDeleteMusic(item._id);
+                        if (res?.statusCode === 200) {
+                          notification.success({ message: "Music deleted successfully!" });
+                          refreshList?.();
+
+                          // OPTIONAL: reload page or refetch data
+                        } else {
+                          notification.error({ message: res?.message || "Failed to delete music." });
+                        }
+                      },
+                    });
+                    return;
+                  }
+
+                  if (e.key === "edit") {
+                    setIsOpenUpdateModal(true);
+                    return;
+                  }
+
+                  // Xử lý thêm vào playlist
                   handleAddMusicInPlaylist(e.key);
                 },
               }}
@@ -215,9 +275,20 @@ const CardMusic = (props: IProps) => {
           <div className="flex items-center justify-between text-xs text-gray-500">
             <span>{item.totalListener?.toLocaleString() || 0} plays</span>
           </div>
+
         </div>
       </div>
       <AddPlayList isOpenModal={isOpenModal} setIsOpenModal={setIsOpenModal} />
+      <UpdateMusicModal
+        isOpen={isOpenUpdateModal}
+        setIsOpen={setIsOpenUpdateModal}
+        initialData={{
+          musicId: item._id,
+          musicDescription: item.musicDescription,
+          musicThumbnail: item.musicThumbnail,
+        }} listCate={listCate}
+        refreshList={refreshList}
+      />
     </>
   );
 };
