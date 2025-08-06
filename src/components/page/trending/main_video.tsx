@@ -19,16 +19,12 @@ interface MainVideoProps {
   videoRef: React.RefObject<HTMLVideoElement>;
   onVideoWatched?: () => void;
   onVideoDone?: () => void;
-  onScrollNext?: () => void;
-  onScrollPrev?: () => void;
 }
 
 const MainVideo: React.FC<MainVideoProps> = ({
   videoUrl,
   onVideoWatched,
   onVideoDone,
-  onScrollNext,
-  onScrollPrev,
   videoRef,
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -154,31 +150,6 @@ const MainVideo: React.FC<MainVideoProps> = ({
     return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
   };
   const containerRef = useRef<HTMLDivElement>(null);
-
- const handleWheel = useCallback((e: WheelEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const target = e.target as HTMLElement;
-    if (target.closest(".video-controls")) return;
-
-    if (e.deltaY > 0) {
-      onScrollNext?.();
-    } else {
-      onScrollPrev?.();
-    }
-  }, [onScrollNext, onScrollPrev]);
- useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    container.addEventListener("wheel", handleWheel, { passive: false });
-
-    return () => {
-      container.removeEventListener("wheel", handleWheel);
-    };
-  }, [handleWheel]);
-
   useEffect(() => {
     const videoElement = videoRef.current;
     if (!videoElement) return;
@@ -270,57 +241,6 @@ const MainVideo: React.FC<MainVideoProps> = ({
     };
   }, [handleTimeUpdate, onVideoDone]);
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement;
-      const tag = target.tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA" || target.isContentEditable) {
-        return;
-      }
-
-      if (!videoRef.current) return;
-
-      if (event.code === "Space") {
-        event.preventDefault();
-        togglePlayPause();
-      } else if (event.key.toLowerCase() === "m") {
-        event.preventDefault();
-        toggleMute();
-      } else if (event.key.toLowerCase() === "f") {
-        event.preventDefault();
-        toggleFullscreen();
-      } else if (event.key === "ArrowRight") {
-        event.preventDefault();
-        if (duration > 0) {
-          const newTime = Math.min(duration, videoRef.current.currentTime + 5);
-          videoRef.current.currentTime = newTime;
-          setCurrentTime(newTime);
-        }
-      } else if (event.key === "ArrowLeft") {
-        event.preventDefault();
-        const newTime = Math.max(0, videoRef.current.currentTime - 5);
-        videoRef.current.currentTime = newTime;
-        setCurrentTime(newTime);
-      } else if (event.key === "ArrowUp") {
-        event.preventDefault();
-        onScrollPrev?.();
-      } else if (event.key === "ArrowDown") {
-        event.preventDefault();
-        onScrollNext?.();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [
-    togglePlayPause,
-    toggleMute,
-    toggleFullscreen,
-    duration,
-    onScrollNext,
-    onScrollPrev,
-  ]);
-
   const getVideoContainerClasses = () => {
     if (isFullscreen) {
       return "w-full h-full";
@@ -388,7 +308,6 @@ const MainVideo: React.FC<MainVideoProps> = ({
   return (
     <div
       className="flex justify-center items-center min-h-screen p-4 left-[15%] w-full max-w-[1000px] mx-auto mt-24 ml-10"
-      ref={containerRef}
     >
       <div
         className={`relative ${getVideoContainerClasses()} group shadow-2xl rounded-lg overflow-hidden bg-black`}

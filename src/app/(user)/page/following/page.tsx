@@ -1,5 +1,5 @@
 "use client";
-import React, { useContext, useEffect, useState, useRef } from "react";
+import React, { useContext, useEffect, useState, useRef, useCallback } from "react";
 import Image from "next/image";
 import CommentSection from "@/components/page/trending/comments/comment_section";
 import { AuthContext } from "@/context/AuthContext";
@@ -18,7 +18,6 @@ import { handleGetFollowing } from "@/actions/follow.action";
 type SidebarMode = "videos" | "interactions" | "comments";
 
 const FollowingPage = () => {
-  const [searchValue, setSearchValue] = useState<string>("");
   const [videoData, setVideoData] = useState<IVideo[]>([]);
   const [currentVideoIndex, setCurrentVideoIndex] = useState<number>(0);
   const [currentVideo, setCurrentVideo] = useState<IVideo | null>(null);
@@ -39,7 +38,7 @@ const FollowingPage = () => {
   const [noFollowingVideos, setNoFollowingVideos] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
-
+    const isFetchingRef = useRef(false);
   useEffect(() => {
     if (currentVideo) {
       setCurrentMusic(currentVideo?.musicId || null);
@@ -74,6 +73,7 @@ const FollowingPage = () => {
       if (event.key !== "ArrowDown" && event.key !== "ArrowUp") {
         return;
       }
+      if( isFetchingRef.current) return;
       setIsWatched(false);
       const videoSuggestId = Cookies.get("suggestVideoId");
 
@@ -82,11 +82,9 @@ const FollowingPage = () => {
           const newIndex = currentVideoIndex + 1;
           setCurrentVideoIndex(newIndex);
           setCurrentVideo(videoData[newIndex]);
-          if (newIndex >= videoData.length - 3) {
-            setRequestCount((prev) => prev + 1);
-          }
         } else if (currentVideoIndex === videoData.length - 1) {
-          setRequestCount((prev) => prev + 1);
+          isFetchingRef.current = true;
+          getVideoData();
         }
 
         if (accessToken && user) {
@@ -126,51 +124,73 @@ const FollowingPage = () => {
   ]);
 
   // Scroll navigation
-  const handleScroll = async (event: React.WheelEvent) => {
-    if ((event.target as HTMLElement).closest(".video-controls")) {
-      return;
-    }
-    if (showNotification) {
-      return;
-    }
-    event.preventDefault();
-    setIsWatched(false);
-
-    if (accessToken && user) {
-      const videoSuggestId = Cookies.get("suggestVideoId");
-      await sendRequest<IBackendRes<IVideo[]>>({
-        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/wishlist`,
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: {
-          userId: user._id,
-          id: videoSuggestId || currentVideo?._id,
-          triggerAction: "ScrollVideo",
-        },
-      });
-    }
-
-    if (event.deltaY > 0) {
-      if (currentVideoIndex < videoData.length - 1) {
-        const newIndex = currentVideoIndex + 1;
-        setCurrentVideoIndex(newIndex);
-        setCurrentVideo(videoData[newIndex]);
-        if (newIndex >= videoData.length - 3) {
-          setRequestCount((prev) => prev + 1);
-        }
-      } else if (currentVideoIndex == videoData.length - 1) {
-        setRequestCount((prev) => prev + 1);
-      }
-    } else {
-      if (currentVideoIndex > 0) {
-        const newIndex = currentVideoIndex - 1;
-        setCurrentVideoIndex(newIndex);
-        setCurrentVideo(videoData[newIndex]);
-      }
-    }
-  };
+ const handleScroll = useCallback(
+   async (event: WheelEvent) => {
+     if (isFetchingRef.current) return;
+ 
+     // Chặn ngay từ đầu
+     isFetchingRef.current = true;
+ 
+     console.log("Scroll event detected");
+ 
+     if ((event.target as HTMLElement).closest(".video-controls")) {
+       isFetchingRef.current = false;
+       return;
+     }
+ 
+     if (showNotification) {
+       isFetchingRef.current = false;
+       return;
+     }
+ 
+     event.preventDefault();
+ 
+     if (accessToken && user) {
+       const videoSuggestId = Cookies.get("suggestVideoId");
+       await sendRequest<IBackendRes<IVideo[]>>({
+         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/wishlist`,
+         method: "POST",
+         headers: {
+           Authorization: `Bearer ${accessToken}`,
+         },
+         body: {
+           userId: user._id,
+           id: videoSuggestId || currentVideo?._id,
+           triggerAction: "ScrollVideo",
+         },
+       });
+     }
+ 
+     if (event.deltaY > 0) {
+       if (currentVideoIndex < videoData.length - 1) {
+         const newIndex = currentVideoIndex + 1;
+         setCurrentVideoIndex(newIndex);
+         setCurrentVideo(videoData[newIndex]);
+         isFetchingRef.current = false; // Cho phép scroll tiếp
+       } else if (currentVideoIndex === videoData.length - 1) {
+         console.log("Fetching more videos by scroll");
+         await getVideoData();
+         isFetchingRef.current = false;
+       }
+     } else {
+       if (currentVideoIndex > 0) {
+         const newIndex = currentVideoIndex - 1;
+         setCurrentVideoIndex(newIndex);
+         setCurrentVideo(videoData[newIndex]);
+       }
+       isFetchingRef.current = false;
+     }
+   },
+   [
+     accessToken,
+     user,
+     showNotification,
+     currentVideo,
+     currentVideoIndex,
+     videoData
+   ]
+ );
+ 
 
   // Data fetching - LOGIC RIÊNG CỦA FOLLOWING PAGE
   const getVideoData = async () => {
@@ -190,10 +210,12 @@ const FollowingPage = () => {
           setVideoData((prev) => [...prev, ...(data || [])]);
           setRequestCount((prev) => prev + 1);
         }
+         isFetchingRef.current = false;
       } else if (requestCount === 0) {
         // Không có video nào từ following
         setNoFollowingVideos(true);
       }
+      
     } catch (error) {
       console.log("Failed to fetch following videos:", error);
       if (requestCount === 0) {
@@ -246,16 +268,12 @@ const FollowingPage = () => {
   };
 
   const nextVideo = async () => {
-    setIsWatched(false);
     if (currentVideoIndex < videoData.length - 1) {
       const newIndex = currentVideoIndex + 1;
       setCurrentVideoIndex(newIndex);
       setCurrentVideo(videoData[newIndex]);
-      if (newIndex >= videoData.length - 3) {
-        setRequestCount((prev) => prev + 1);
-      }
     } else if (currentVideoIndex === videoData.length - 1) {
-      setRequestCount((prev) => prev + 1);
+      getVideoData();
     }
   };
 
@@ -418,24 +436,6 @@ const FollowingPage = () => {
     }
   };
 
-  const handleNextVideo = () => {
-    setCurrentVideoIndex((prevIndex) =>
-      prevIndex < videoData.length - 1 ? prevIndex + 1 : prevIndex
-    );
-  };
-
-  const handlePrevVideo = () => {
-    setCurrentVideoIndex((prevIndex) =>
-      prevIndex > 0 ? prevIndex - 1 : prevIndex
-    );
-  };
-
-  useEffect(() => {
-    if (requestCount > 0) {
-      getVideoData();
-    }
-  }, [requestCount]);
-
   // Hiển thị thông báo khi không có video following
   if (noFollowingVideos) {
     return (
@@ -488,8 +488,6 @@ const FollowingPage = () => {
                         videoRef={videoRef}
                         onPlay={() => setIsPlaying(true)}
                         onPause={() => setIsPlaying(false)}
-                        onScrollNext={handleNextVideo}
-                        onScrollPrev={handlePrevVideo}
                       />
                     </div>
                   </div>
