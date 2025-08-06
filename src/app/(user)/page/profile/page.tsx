@@ -95,7 +95,7 @@ const ProfilePage = () => {
 
   return (
     <div className="min-h-screen w-full flex flex-col items-center px-0 py-0 main-layout ">
-      <div className="w-full max-w-6xl mx-auto pt-10 pb-16">
+      <div className="w-full max-w-6xl mx-auto pt-10 pb-16 ml-[17rem]">
         {/* Profile Header */}
         <div className="relative flex flex-col items-center md:flex-row md:items-end gap-6 px-6 pb-8">
           <div className="relative">
@@ -210,11 +210,10 @@ const ProfilePage = () => {
             {TABS.map((tab) => (
               <button
                 key={tab.key}
-                className={`flex items-center gap-2 px-4 py-2 font-semibold text-lg transition ${
-                  activeTab === tab.key
-                    ? "border-b-2 border-purple-400 text-white"
-                    : "text-purple-300 hover:text-white"
-                }`}
+                className={`flex items-center gap-2 px-4 py-2 font-semibold text-lg transition ${activeTab === tab.key
+                  ? "border-b-2 border-purple-400 text-white"
+                  : "text-purple-300 hover:text-white"
+                  }`}
                 onClick={() => setActiveTab(tab.key)}
               >
                 {tab.icon}

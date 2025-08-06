@@ -9,7 +9,8 @@ const MusicDetail = async ({ params }: any) => {
     return <div>Not found id</div>;
   }
 
-  return <MusicDetailClient data={data} id={id} />;
+  return <div className="main-layout bg-gray-900 min-h-screen h-full">
+    <MusicDetailClient data={data} id={id} /></div>;
 };
 
 export default MusicDetail;

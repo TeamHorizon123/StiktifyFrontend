@@ -79,7 +79,7 @@ const UserDetail = () => {
   }, [id, accessToken]);
 
   const fetchUserDetail = async () => {
-    if(!accessToken) return
+    if (!accessToken) return
     try {
       const res = await sendRequest<any>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/get-user/${id}`,
@@ -192,7 +192,7 @@ const UserDetail = () => {
 
   return (
     <div className="min-h-screen w-full flex flex-col items-center px-0 py-0 main-layout">
-      <div className="w-full max-w-6xl mx-auto pt-10 pb-16">
+      <div className="w-full max-w-6xl mx-auto pt-10 pb-16 ml-[17rem]">
         {/* Profile Header */}
         <div className="relative flex flex-col items-center md:flex-row md:items-end gap-6 px-6 pb-8">
           <div className="relative">
@@ -242,25 +242,24 @@ const UserDetail = () => {
                       isFriend
                         ? "Unfriend"
                         : friendRequestSent
-                        ? "Request Sent"
-                        : "Add Friend"
+                          ? "Request Sent"
+                          : "Add Friend"
                     }
-                    className={`${
-                      friendRequestSent
+                    className={`${friendRequestSent
                         ? "bg-gray-400"
                         : "bg-purple-600 hover:bg-purple-800"
-                    } text-white`}
+                      } text-white`}
                     onClick={
                       user
                         ? isFriend
                           ? unfriend
                           : sendFriendRequest
                         : () => {
-                            notification.warning({
-                              message:
-                                "Please create an account to send friend request.",
-                            });
-                          }
+                          notification.warning({
+                            message:
+                              "Please create an account to send friend request.",
+                          });
+                        }
                     }
                     disabled={friendRequestSent}
                   />
@@ -268,11 +267,10 @@ const UserDetail = () => {
                     onClick={handleFollowClick}
                     icon={<LuBellRing />}
                     text={`${isFollow ? "Unfollow" : "Follow"}`}
-                    className={`${
-                      isFollow
+                    className={`${isFollow
                         ? "bg-purple-600 hover:bg-purple-800 text-white"
                         : "bg-gray-200 hover:bg-gray-300 text-gray-700"
-                    }`}
+                      }`}
                   />
                 </>
               )}
@@ -364,11 +362,10 @@ const UserDetail = () => {
               (tab) => (
                 <button
                   key={tab}
-                  className={`flex items-center gap-2 px-4 py-2 font-semibold text-lg transition ${
-                    activeTab === tab
+                  className={`flex items-center gap-2 px-4 py-2 font-semibold text-lg transition ${activeTab === tab
                       ? "border-b-2 border-purple-400 text-white"
                       : "text-purple-300 hover:text-white"
-                  }`}
+                    }`}
                   onClick={() => setActiveTab(tab)}
                 >
                   {tabConfig[tab].icon}

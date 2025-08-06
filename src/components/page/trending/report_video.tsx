@@ -107,11 +107,10 @@ const ReportModal: React.FC<{
             <button
               onClick={handleReport}
               disabled={loading || reason.trim().length < 10}
-              className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 ${
-                loading || reason.trim().length < 10
+              className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 ${loading || reason.trim().length < 10
                   ? "bg-gray-600 text-gray-400 cursor-not-allowed"
                   : "bg-purple-600 hover:bg-purple-700 text-white shadow-lg hover:shadow-purple-500/25"
-              }`}
+                }`}
             >
               {loading ? (
                 <>
@@ -136,9 +135,9 @@ const ReportModal: React.FC<{
         </div>
 
         {/* Disclaimer */}
-        <div className="mt-4 p-3 bg-gray-700/50 rounded-lg border-l-4 border-yellow-500">
+        <div className="mt-4 p-3 bg-gray-700/50 rounded-lg border-l-4 border-purple-500">
           <p className="text-xs text-gray-300">
-            <span className="font-semibold text-yellow-400">Note:</span> False
+            <span className="font-semibold text-purple-400">Note:</span> False
             reports may result in account restrictions. Please only report
             content that violates our community guidelines.
           </p>

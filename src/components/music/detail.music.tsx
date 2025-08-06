@@ -125,99 +125,95 @@ const DisplayMusicDetail = ({ item }: IProps) => {
   };
 
   return (
-    <div className="h-[40vh] w-full bg-gray-900 rounded-sm shadow-gray-400/50 flex items-center px-16 relative">
-      <div
+    <div className="relative h-[40vh] w-full shadow-lg overflow-hidden flex items-center justify-center bg-gradient-to-r from-[#18192a] via-[#2d225a] to-[#3a2e5f]">
+      {/* Back button */}
+      {/* <div
         onClick={handleNavigate}
-        className="absolute left-2 top-3 bg-gray-800 rounded-full hover:bg-gray-700 cursor-pointer"
+        className="absolute left-4 top-4 bg-white/20 hover:bg-white/40 transition-colors rounded-full p-2 cursor-pointer shadow-md border border-white/30 z-10"
       >
-        <IoMdArrowRoundBack color="white" className="m-2" size={20} />
-      </div>
-      <div className="flex w-full justify-between items-end">
-        <div className="flex gap-5 items-center justify-around">
-          <Image
-            alt="thumbnail"
-            src={item.musicThumbnail}
-            width={200}
-            height={100}
-            className="rounded-md"
-          />
-          <div>
-            <div className="text-white text-[80px] font-roboto font-bold truncate w-[70vw]">
+        <IoMdArrowRoundBack color="#7c3aed" size={24} />
+      </div> */}
+
+      {/* Main content */}
+      <div className="flex w-full h-full items-center justify-between px-12">
+        {/* Thumbnail & Info */}
+        <div className="flex items-center gap-8">
+          <div className="shadow-xl rounded-xl overflow-hidden border-4 border-white/30">
+            <Image
+              alt="thumbnail"
+              src={item.musicThumbnail}
+              width={180}
+              height={180}
+              className="object-cover w-[180px] h-[180px] rounded-xl"
+            />
+          </div>
+          <div className="flex flex-col gap-2 max-w-[60vw]">
+            <div className="text-white text-5xl md:text-6xl font-extrabold font-roboto drop-shadow-lg truncate">
               {item.musicDescription}
             </div>
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center">
-                {item.musicTag?.map((tag, index) => (
-                  <div key={index} className="text-white flex items-center">
-                    {index !== 0 && <LuDot size={40} />}
-                    <div
-                      onClick={() =>
-                        router.push(`/page/detail_user/${tag._id}`)
-                      }
-                      className="relative group"
-                    >
-                      <span className="cursor-pointer after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-full after:h-[2px] after:bg-white after:scale-x-0 after:transition-transform after:duration-300 group-hover:after:scale-x-100">
-                        {tag?.fullname}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-                <div className="text-white flex items-center">
-                  <LuDot size={40} />
-                  <span>{formatNumber(item.totalListener)}</span>
-                </div>
-              </div>
-              <div className="flex gap-5">
-                <div
-                  className="flex gap-2 items-center cursor-pointer"
-                  onClick={handleLike}
-                >
-                  {isLiked ? (
-                    <MdFavorite size={20} className="text-red-500" /> // Icon like (đã like)
-                  ) : (
-                    <MdFavoriteBorder size={20} className="text-gray-400" /> // Icon like (chưa like)
-                  )}
-                  <span className="text-gray-400">
-                    {formatNumber(totalFavorite)}
+            <div className="flex flex-wrap items-center gap-2 mt-1">
+              {item.musicTag?.map((tag, index) => (
+                <div key={index} className="flex items-center">
+                  {index !== 0 && <LuDot size={28} className="text-white/70" />}
+                  <span
+                    onClick={() => router.push(`/page/detail_user/${tag._id}`)}
+                    className="text-white/90 font-medium cursor-pointer hover:underline hover:text-[#a78bfa] transition-colors"
+                  >
+                    {tag?.fullname}
                   </span>
                 </div>
-                <div className="flex gap-2 items-center cursor-pointer">
-                  <FaRegComment size={20} className="text-gray-400" />
-                  <span className="text-gray-400">
-                    {formatNumber(item.totalComment)}
-                  </span>
-                </div>
-                <div
-                  className="flex gap-2 items-center cursor-pointer"
-                  onClick={handleShareClick}
-                >
-                  <RiShareForwardLine size={20} className="text-gray-400" />
-                  {/* <span className="text-gray-400">
-                    {formatNumber(item.totalShare)}
-                  </span> */}
-                  {copied && <div style={{ color: 'green', marginTop: '8px' }}>Copied Link Successfully</div>}
-
-                </div>
-                <div
-                  className="flex gap-2 items-center cursor-pointer"
-                  onClick={handleReport}
-                >
-                  <BiFlag size={20} className="text-gray-400" />
-                  <span className="text-gray-400">Report</span>
-                </div>
+              ))}
+              <div className="flex items-center ml-2">
+                <LuDot size={28} className="text-white/70" />
+                <span className="text-white/80 font-semibold">{formatNumber(item.totalListener)}</span>
               </div>
+            </div>
+            {/* Action buttons */}
+            <div className="flex gap-6 mt-4">
+              <button
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold shadow transition-all border-2 border-transparent ${isLiked ? 'bg-pink-100 text-pink-600' : 'bg-white/20 text-white hover:bg-white/40 hover:text-[#7c3aed]'}`}
+                onClick={handleLike}
+              >
+                {isLiked ? (
+                  <MdFavorite size={22} className="text-pink-500" />
+                ) : (
+                  <MdFavoriteBorder size={22} className="" />
+                )}
+                <span>{formatNumber(totalFavorite)}</span>
+              </button>
+              <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/20 text-white font-semibold shadow border-2 border-transparent">
+                <FaRegComment size={22} />
+                <span>{formatNumber(item.totalComment)}</span>
+              </div>
+              <button
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/20 text-white font-semibold shadow border-2 border-transparent hover:bg-white/40 hover:text-[#7c3aed] transition-all"
+                onClick={handleShareClick}
+              >
+                <RiShareForwardLine size={22} />
+                {copied && <span className="text-green-400 ml-1">Copied!</span>}
+              </button>
+              <button
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/20 text-white font-semibold shadow border-2 border-transparent hover:bg-white/40 hover:text-[#7c3aed] transition-all"
+                onClick={handleReport}
+              >
+                <BiFlag size={22} />
+                <span>Report</span>
+              </button>
             </div>
           </div>
         </div>
-        <div>
+        {/* Player */}
+        <div className="flex items-center justify-center h-full">
           <ButtonPlayer
-            className="w-16 h-16"
+            className="w-20 h-20 shadow-2xl bg-gradient-to-br from-[#a78bfa] to-[#7c3aed] rounded-full flex items-center justify-center"
             current={item._id}
             isPlaying={isPlaying}
             togglePlay={() => handlePlayer(item)}
           />
         </div>
       </div>
+
+      {/* Modal */}
       {isModalOpen && (
         <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50 z-50">
           <ReportModal onClose={handleCloseModal} musicId={item._id} />
