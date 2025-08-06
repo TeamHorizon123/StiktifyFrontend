@@ -9,7 +9,7 @@ const PageLayout = ({ children }: { children: React.ReactNode }) => {
     <div className="flex flex-wrap content-start">
       {/* {!showComments && <SideBar />} */}
       <SideBar />
-      <main className="grow ml-[13rem]">{children}</main>
+      <main className="grow ml-[15rem]">{children}</main>
     </div>
   );
 };

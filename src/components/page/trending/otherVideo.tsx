@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import { sendRequest } from "@/utils/api";
 import { AuthContext } from "@/context/AuthContext";
+import { ArrowDownOutlined } from "@ant-design/icons";
 
 interface OtherVideosProps {
   isVisible: boolean;
@@ -102,11 +103,10 @@ const OtherVideos: React.FC<OtherVideosProps> = ({
         <div
           key={`${video._id}-${index}`}
           className={`flex gap-3 p-3 rounded-lg cursor-pointer transition-colors mb-2
-                      ${
-                        index === currentVideoIndex
-                          ? "bg-purple-600/20 border-2 border-purple-400 shadow-lg"
-                          : "hover:bg-white/5"
-                      }
+                      ${index === currentVideoIndex
+              ? "bg-purple-600/20 border-2 border-purple-400 shadow-lg"
+              : "hover:bg-white/5"
+            }
                     `}
           onClick={() => handleChooseVideo(index)}
         >
@@ -146,7 +146,7 @@ const OtherVideos: React.FC<OtherVideosProps> = ({
       {/* No more videos indicator */}
       {!hasMore && videoData.length > 0 && (
         <div className="text-center py-4 text-gray-400 text-sm">
-          No more videos to load
+          Click <ArrowDownOutlined className="text-purple-500" /> to load more videos
         </div>
       )}
     </div>

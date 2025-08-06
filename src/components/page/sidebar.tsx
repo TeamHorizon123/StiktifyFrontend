@@ -65,6 +65,11 @@ const SideBar: React.FC<SideBarProps> = () => {
 
   // Handle logout
   const handleLogout = () => {
+    //remove user from local storage
+    //remove cookies
+    localStorage.removeItem("userId");
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     logout?.();
     router.push("/page/trending");
   };
