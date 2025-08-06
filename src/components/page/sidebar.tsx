@@ -64,10 +64,12 @@ const SideBar: React.FC<SideBarProps> = () => {
   };
 
   // Handle logout
-  const handleLogout = () => {
-    logout?.();
-    router.push("/page/trending");
-  };
+    const handleLogout = () => {
+      console.log("Logging out...");
+      logout?.(); 
+      window.location.href = "/page/trending"; 
+    };
+
 
   return (
     <div className="fixed z-20 flex ">

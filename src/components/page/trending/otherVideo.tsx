@@ -1,12 +1,10 @@
 import React, {
   Dispatch,
   SetStateAction,
-  useEffect,
   useRef,
   useContext,
   useState,
 } from "react";
-import { sendRequest } from "@/utils/api";
 import { AuthContext } from "@/context/AuthContext";
 
 interface OtherVideosProps {
@@ -25,13 +23,10 @@ const OtherVideos: React.FC<OtherVideosProps> = ({
   setCurrentVideoIndex,
   setCurrentVideo,
   setIsShowOtherVideos,
-  setVideoData,
 }) => {
-  const { user, accessToken } = useContext(AuthContext) ?? {};
   const containerRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
-  const [page, setPage] = useState(1);
 
   const handleChooseVideo = (index: number) => {
     setCurrentVideo(videoData[index]);
@@ -39,59 +34,6 @@ const OtherVideos: React.FC<OtherVideosProps> = ({
     setIsShowOtherVideos(false);
   };
 
-  const loadMoreVideos = async () => {
-    if (loading || !hasMore || !accessToken) return;
-    setLoading(true);
-    try {
-      const res = await sendRequest<IBackendRes<IVideo[]>>({
-        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/trending-user-videos`,
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: {
-          userId: user?._id,
-          page: page + 1,
-          limit: 10,
-        },
-      });
-
-      if (res?.data && res.data.length > 0) {
-        setVideoData((prev) => [...prev, ...res.data]);
-        setPage((prev) => prev + 1);
-      } else {
-        setHasMore(false);
-      }
-    } catch (error) {
-      console.error("Error loading more videos:", error);
-      setHasMore(false);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Handle scroll event
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const handleScroll = () => {
-      const { scrollTop, scrollHeight, clientHeight } = container;
-      const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
-
-      // Nếu còn 2 video cuối cùng thì tự động load thêm
-      if (videoData.length - currentVideoIndex <= 2 && hasMore && !loading) {
-        loadMoreVideos();
-      }
-      // Hoặc vẫn giữ điều kiện scroll gần cuối
-      else if (distanceFromBottom < 100 && hasMore && !loading) {
-        loadMoreVideos();
-      }
-    };
-
-    container.addEventListener("scroll", handleScroll);
-    return () => container.removeEventListener("scroll", handleScroll);
-  }, [hasMore, loading, page, videoData.length, currentVideoIndex]);
 
   return (
     <div

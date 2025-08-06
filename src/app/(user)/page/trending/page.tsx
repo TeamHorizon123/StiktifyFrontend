@@ -36,8 +36,8 @@ const TrendingPage = () => {
   const [sidebarMode, setSidebarMode] = useState<SidebarMode>("videos");
   const [newComment, setNewComment] = useState("");
   const [refreshComments, setRefreshComments] = useState(0);
-  const [isFetchingByScroll, setIsFetchingByScroll] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const isFetchingRef = useRef(false);
   useEffect(() => {
     if (currentVideo) {
       setCurrentMusic(currentVideo?.musicId || null);
@@ -54,7 +54,6 @@ const TrendingPage = () => {
   }, []);
 
   useEffect(() => {
-    console.log("TrendingPage mounted");
     getVideoData();
   }, [accessToken, user]);
 
@@ -74,9 +73,7 @@ const TrendingPage = () => {
   }, [videoData, currentVideoIndex]);
 
   useEffect(() => {
-    console.log(currentVideo?._id, "Current video ID");
     if (currentVideo && currentVideo?.segments?.length && currentVideo.segments.length > 0) {
-      console.log("Current video segments:", currentVideo.segments);
       const playFromM3U8 = async () => {
         try {
           const mediaSource = new MediaSource();
@@ -113,7 +110,6 @@ const TrendingPage = () => {
           // GÁN src SAU KHI đã có event listener
           videoRef.current!.src = URL.createObjectURL(mediaSource);
         } catch (error) {
-          console.error("MediaSource error:", error);
         }
       };
 
@@ -124,6 +120,7 @@ const TrendingPage = () => {
   // Keyboard navigation
   useEffect(() => {
     const handleArrowKey = async (event: KeyboardEvent) => {
+      if( isFetchingRef.current) return;
       if (event.key !== "ArrowDown" && event.key !== "ArrowUp") {
         return;
       }
@@ -134,14 +131,8 @@ const TrendingPage = () => {
           const newIndex = currentVideoIndex + 1;
           setCurrentVideoIndex(newIndex);
           setCurrentVideo(videoData[newIndex]);
-          // Check if we're near the end and need to load more videos
-          if (newIndex >= videoData.length - 3) {
-            // Load when 3 videos remaining
-            setRequestCount((prev) => prev + 1);
-            getVideoData();
-          }
         } else if (currentVideoIndex === videoData.length - 1) {
-          setRequestCount((prev) => prev + 1);
+          isFetchingRef.current = true;
           getVideoData();
         }
 
@@ -197,59 +188,74 @@ const TrendingPage = () => {
     user,
     currentVideo,
   ]);
-  const handleNextVideo = () => {
-    setCurrentVideoIndex((prevIndex) =>
-      prevIndex < videoData.length - 1 ? prevIndex + 1 : prevIndex
-    );
-  };
-
-  const handlePrevVideo = () => {
-    setCurrentVideoIndex((prevIndex) =>
-      prevIndex > 0 ? prevIndex - 1 : prevIndex
-    );
-  };
-
   // Scroll navigation
- const handleScroll = useCallback(async (event: WheelEvent) => {
-  if( isFetchingByScroll) return;
-  console.log(currentVideoIndex, "Current video index");
-  console.log(videoData.length, "Video data length");
-  if ((event.target as HTMLElement).closest(".video-controls")) return;
-  if (showNotification) return;
+const handleScroll = useCallback(
+  async (event: WheelEvent) => {
+    if (isFetchingRef.current) return;
 
-  event.preventDefault(); // ✅ Giờ không lỗi nữa
-  if (accessToken && user) {
-    const videoSuggestId = Cookies.get("suggestVideoId");
-    await sendRequest<IBackendRes<IVideo[]>>({
-      url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/wishlist`,
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: {
-        userId: user._id,
-        id: videoSuggestId || currentVideo?._id,
-        triggerAction: "ScrollVideo",
-      },
-    });
-  }
+    // Chặn ngay từ đầu
+    isFetchingRef.current = true;
 
-  if (event.deltaY > 0) {
-    if (currentVideoIndex < videoData.length - 1) {
-      const newIndex = currentVideoIndex + 1;
-      setCurrentVideoIndex(newIndex);
-      setCurrentVideo(videoData[newIndex]);
-    } else if (currentVideoIndex === videoData.length - 1) {
-      getVideoData();
+    console.log("Scroll event detected");
+
+    if ((event.target as HTMLElement).closest(".video-controls")) {
+      isFetchingRef.current = false;
+      return;
     }
-  } else {
-    if (currentVideoIndex > 0) {
-      const newIndex = currentVideoIndex - 1;
-      setCurrentVideoIndex(newIndex);
-      setCurrentVideo(videoData[newIndex]);
+
+    if (showNotification) {
+      isFetchingRef.current = false;
+      return;
     }
-  }
-}, [handleNextVideo, handlePrevVideo]);
+
+    event.preventDefault();
+
+    if (accessToken && user) {
+      const videoSuggestId = Cookies.get("suggestVideoId");
+      await sendRequest<IBackendRes<IVideo[]>>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/wishlist`,
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: {
+          userId: user._id,
+          id: videoSuggestId || currentVideo?._id,
+          triggerAction: "ScrollVideo",
+        },
+      });
+    }
+
+    if (event.deltaY > 0) {
+      if (currentVideoIndex < videoData.length - 1) {
+        const newIndex = currentVideoIndex + 1;
+        setCurrentVideoIndex(newIndex);
+        setCurrentVideo(videoData[newIndex]);
+        isFetchingRef.current = false; // Cho phép scroll tiếp
+      } else if (currentVideoIndex === videoData.length - 1) {
+        console.log("Fetching more videos by scroll");
+        await getVideoData();
+        isFetchingRef.current = false;
+      }
+    } else {
+      if (currentVideoIndex > 0) {
+        const newIndex = currentVideoIndex - 1;
+        setCurrentVideoIndex(newIndex);
+        setCurrentVideo(videoData[newIndex]);
+      }
+      isFetchingRef.current = false;
+    }
+  },
+  [
+    accessToken,
+    user,
+    showNotification,
+    currentVideo,
+    currentVideoIndex,
+    videoData
+  ]
+);
+
 
 const containerRef = useRef<HTMLDivElement>(null);
 
@@ -298,7 +304,6 @@ useEffect(() => {
         console.log("res", res);
       }
       setIsFetchId(false);
-      setIsFetchingByScroll(false);
       if (res?.data && Array.isArray(res.data)) {
         if (requestCount === 0) {
           setVideoData(res.data);
@@ -308,13 +313,13 @@ useEffect(() => {
           setRequestCount((prev) => prev + 1);
         }
       }
+      isFetchingRef.current = false;
     } catch (error) {
       console.log("Failed to fetch trending videos:", error);
     }
   };
 
   const handleVideoWatched = async () => {
-    console.log('isWatched:', isWatched);
     if (isWatched || !accessToken) return;
     setIsWatched(true);
     try {
@@ -339,7 +344,6 @@ useEffect(() => {
           videoId: currentVideo?._id,
         },
       });
-      console.log("Update view response:", res1);
       setCurrentVideo((prev) => {
         if (!prev) return prev;
         return {
@@ -367,16 +371,7 @@ useEffect(() => {
       const newIndex = currentVideoIndex + 1;
       setCurrentVideoIndex(newIndex);
       setCurrentVideo(videoData[newIndex]);
-
-      // Check if we're near the end and need to load more videos
-      if (newIndex >= videoData.length - 3) {
-        // Load when 3 videos remaining
-        // setRequestCount((prev) => prev + 1);
-        getVideoData();
-      }
     } else if (currentVideoIndex === videoData.length - 1) {
-      // At the last video, fetch more
-      // setRequestCount((prev) => prev + 1);
       getVideoData();
     }
   };
@@ -561,7 +556,7 @@ useEffect(() => {
     }
 
     const text = new TextDecoder().decode(new Uint8Array(bytes));
-    console.log("📜 M3U8 content:", text);
+
     const lines = text
       .split("\n")
       .filter((line) => line.trim() && !line.startsWith("#"))
@@ -654,8 +649,6 @@ useEffect(() => {
                         videoRef={videoRef}
                         onPlay={() => setIsPlaying(true)}
                         onPause={() => setIsPlaying(false)}
-                        onScrollNext={handleNextVideo}
-                        onScrollPrev={handlePrevVideo}
                       />
                     </div>
                   </div>
