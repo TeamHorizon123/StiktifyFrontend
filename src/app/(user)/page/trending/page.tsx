@@ -40,18 +40,16 @@ const TrendingPage = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   useEffect(() => {
     if (currentVideo) {
-      // Debug để kiểm tra type của musicId
+      // kiểm tra type của musicId
       console.log("currentVideo.musicId type:", typeof currentVideo.musicId);
       console.log("currentVideo.musicId data:", currentVideo.musicId);
 
       // Kiểm tra xem musicId có tồn tại và có phải là object không
       if (currentVideo.musicId) {
         if (typeof currentVideo.musicId === 'object' && currentVideo.musicId._id) {
-          // Nếu là object và có _id thì dùng trực tiếp
           console.log("Setting currentMusic to object:", currentVideo.musicId);
           setCurrentMusic(currentVideo.musicId as IMusic);
         } else if (typeof currentVideo.musicId === 'string') {
-          // Nếu là string ID thì cần fetch data (case này hiếm xảy ra)
           console.log("musicId is string, setting currentMusic to null");
           setCurrentMusic(null);
         } else {
