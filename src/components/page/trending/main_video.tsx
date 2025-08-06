@@ -1,94 +1,567 @@
-import React, { useRef, useEffect, useState } from "react";
+"use client";
+
+import type React from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
+import {
+  Play,
+  Pause,
+  Volume2,
+  VolumeX,
+  Maximize,
+  Minimize,
+  PictureInPicture2,
+  Loader,
+} from "lucide-react";
+import { Switch } from "antd";
 
 interface MainVideoProps {
   videoUrl: string;
+  videoRef: React.RefObject<HTMLVideoElement>;
   onVideoWatched?: () => void;
   onVideoDone?: () => void;
+  onScrollNext?: () => void;
+  onScrollPrev?: () => void;
 }
 
 const MainVideo: React.FC<MainVideoProps> = ({
   videoUrl,
   onVideoWatched,
   onVideoDone,
+  onScrollNext,
+  onScrollPrev,
+  videoRef,
 }) => {
-  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [volume, setVolume] = useState(50);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [bufferedTime, setBufferedTime] = useState(0);
   const [isAutoNext, setIsAutoNext] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [videoAspectRatio, setVideoAspectRatio] = useState<
+    "portrait" | "landscape" | "square"
+  >("portrait");
+  const [showControls, setShowControls] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isBuffering, setIsBuffering] = useState(false);
+
+  const togglePlayPause = useCallback(() => {
+    if (videoRef.current) {
+      if (videoRef.current.paused) {
+        const playPromise = videoRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              setIsPlaying(true);
+            })
+            .catch((error) => {
+              console.error("Error playing video:", error);
+            });
+        }
+      } else {
+        videoRef.current.pause();
+        setIsPlaying(false);
+      }
+    }
+  }, []);
+
+  const toggleMute = useCallback(() => {
+    if (videoRef.current) {
+      const newMuted = !isMuted;
+      videoRef.current.muted = newMuted;
+      setIsMuted(newMuted);
+    }
+  }, [isMuted]);
+
+  const handleVolumeChange = useCallback((value: number[]) => {
+    if (videoRef.current && Array.isArray(value) && value.length > 0) {
+      const newVolume = Math.max(0, Math.min(100, value[0]));
+      const normalizedVolume = newVolume / 100;
+
+      if (isFinite(normalizedVolume) && !isNaN(normalizedVolume)) {
+        videoRef.current.volume = normalizedVolume;
+        setVolume(newVolume);
+        setIsMuted(newVolume === 0);
+      }
+    }
+  }, []);
+
+  const handleTimeUpdate = useCallback(() => {
+    if (videoRef.current) {
+      const current = videoRef.current.currentTime;
+      const total = videoRef.current.duration;
+
+      if (isFinite(current) && isFinite(total)) {
+        setCurrentTime(current);
+
+        if (videoRef.current.buffered.length > 0) {
+          const buffered = videoRef.current.buffered.end(
+            videoRef.current.buffered.length - 1
+          );
+          setBufferedTime(buffered);
+        }
+
+        const percentage = (current / total) * 100;
+        if (percentage >= 5 && current >= 10) {
+          onVideoWatched?.();
+        }
+      }
+    }
+  }, [onVideoWatched]);
+
+  const handleProgressChange = useCallback(
+    (value: number[]) => {
+      if (
+        videoRef.current &&
+        duration > 0 &&
+        Array.isArray(value) &&
+        value.length > 0
+      ) {
+        const newTime = (value[0] / 100) * duration;
+        if (
+          isFinite(newTime) &&
+          !isNaN(newTime) &&
+          newTime >= 0 &&
+          newTime <= duration
+        ) {
+          videoRef.current.currentTime = newTime;
+          setCurrentTime(newTime);
+        }
+      }
+    },
+    [duration]
+  );
+
+  const toggleFullscreen = useCallback(() => {
+    if (videoRef.current) {
+      if (!document.fullscreenElement) {
+        videoRef.current.requestFullscreen().catch((err) => {
+          console.error(
+            `Error attempting to enable fullscreen: ${err.message} (${err.name})`
+          );
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    }
+  }, []);
+
+  const formatTime = (time: number) => {
+    if (!isFinite(time) || isNaN(time) || time < 0) return "0:00";
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+  };
+  const containerRef = useRef<HTMLDivElement>(null);
+
+ const handleWheel = useCallback((e: WheelEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const target = e.target as HTMLElement;
+    if (target.closest(".video-controls")) return;
+
+    if (e.deltaY > 0) {
+      onScrollNext?.();
+    } else {
+      onScrollPrev?.();
+    }
+  }, [onScrollNext, onScrollPrev]);
+ useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    container.addEventListener("wheel", handleWheel, { passive: false });
+
+    return () => {
+      container.removeEventListener("wheel", handleWheel);
+    };
+  }, [handleWheel]);
 
   useEffect(() => {
     const videoElement = videoRef.current;
     if (!videoElement) return;
 
-    const handleTimeUpdate = () => {
-      const percentage =
-        (videoElement.currentTime / videoElement.duration) * 100;
-      if (percentage >= 5 && videoElement.currentTime >= 10) {
-        onVideoWatched?.();
-        videoElement.removeEventListener("timeupdate", handleTimeUpdate);
+    const handleLoadStart = () => {
+      setIsLoading(true);
+      setIsBuffering(true);
+    };
+
+    const handleCanPlay = () => {
+      setIsLoading(false);
+      setIsBuffering(false);
+    };
+
+    const handleWaiting = () => {
+      setIsBuffering(true);
+    };
+
+    const handlePlaying = () => {
+      setIsBuffering(false);
+    };
+
+    const handleLoadedMetadata = () => {
+      if (isFinite(videoElement.duration)) {
+        setDuration(videoElement.duration);
+      }
+      const aspectRatio = videoElement.videoWidth / videoElement.videoHeight;
+      if (aspectRatio < 0.8) {
+        setVideoAspectRatio("portrait");
+      } else if (aspectRatio > 1.2) {
+        setVideoAspectRatio("landscape");
+      } else {
+        setVideoAspectRatio("square");
+      }
+      setIsLoading(false);
+    };
+
+    const handlePlayEvent = () => setIsPlaying(true);
+    const handlePauseEvent = () => setIsPlaying(false);
+    const handleEndedEvent = () => {
+      setIsPlaying(false);
+      onVideoDone?.();
+    };
+    const handleVolumeChangeEvent = () => {
+      const vol = videoElement.volume * 100;
+      if (isFinite(vol)) {
+        setVolume(vol);
+      }
+      setIsMuted(videoElement.muted || videoElement.volume === 0);
+    };
+    const handleFullscreenChangeEvent = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    videoElement.addEventListener("loadstart", handleLoadStart);
+    videoElement.addEventListener("canplay", handleCanPlay);
+    videoElement.addEventListener("waiting", handleWaiting);
+    videoElement.addEventListener("playing", handlePlaying);
+    videoElement.addEventListener("loadedmetadata", handleLoadedMetadata);
+    videoElement.addEventListener("timeupdate", handleTimeUpdate);
+    videoElement.addEventListener("play", handlePlayEvent);
+    videoElement.addEventListener("pause", handlePauseEvent);
+    videoElement.addEventListener("ended", handleEndedEvent);
+    videoElement.addEventListener("volumechange", handleVolumeChangeEvent);
+    document.addEventListener("fullscreenchange", handleFullscreenChangeEvent);
+
+    setIsPlaying(!videoElement.paused);
+    setIsMuted(videoElement.muted);
+    const initialVolume = videoElement.volume * 100;
+    if (isFinite(initialVolume)) {
+      setVolume(initialVolume);
+    }
+
+    return () => {
+      videoElement.removeEventListener("loadstart", handleLoadStart);
+      videoElement.removeEventListener("canplay", handleCanPlay);
+      videoElement.removeEventListener("waiting", handleWaiting);
+      videoElement.removeEventListener("playing", handlePlaying);
+      videoElement.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      videoElement.removeEventListener("timeupdate", handleTimeUpdate);
+      videoElement.removeEventListener("play", handlePlayEvent);
+      videoElement.removeEventListener("pause", handlePauseEvent);
+      videoElement.removeEventListener("ended", handleEndedEvent);
+      videoElement.removeEventListener("volumechange", handleVolumeChangeEvent);
+      document.removeEventListener(
+        "fullscreenchange",
+        handleFullscreenChangeEvent
+      );
+    };
+  }, [handleTimeUpdate, onVideoDone]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement;
+      const tag = target.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || target.isContentEditable) {
+        return;
+      }
+
+      if (!videoRef.current) return;
+
+      if (event.code === "Space") {
+        event.preventDefault();
+        togglePlayPause();
+      } else if (event.key.toLowerCase() === "m") {
+        event.preventDefault();
+        toggleMute();
+      } else if (event.key.toLowerCase() === "f") {
+        event.preventDefault();
+        toggleFullscreen();
+      } else if (event.key === "ArrowRight") {
+        event.preventDefault();
+        if (duration > 0) {
+          const newTime = Math.min(duration, videoRef.current.currentTime + 5);
+          videoRef.current.currentTime = newTime;
+          setCurrentTime(newTime);
+        }
+      } else if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        const newTime = Math.max(0, videoRef.current.currentTime - 5);
+        videoRef.current.currentTime = newTime;
+        setCurrentTime(newTime);
+      } else if (event.key === "ArrowUp") {
+        event.preventDefault();
+        onScrollPrev?.();
+      } else if (event.key === "ArrowDown") {
+        event.preventDefault();
+        onScrollNext?.();
       }
     };
 
-    const handlePlay = () => setIsPaused(false);
-    const handlePause = () => setIsPaused(true);
-    const handleEnded = () => {
-      onVideoDone?.();
-    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [
+    togglePlayPause,
+    toggleMute,
+    toggleFullscreen,
+    duration,
+    onScrollNext,
+    onScrollPrev,
+  ]);
 
-    videoElement.addEventListener("timeupdate", handleTimeUpdate);
-    videoElement.addEventListener("play", handlePlay);
-    videoElement.addEventListener("pause", handlePause);
-    videoElement.addEventListener("ended", handleEnded);
+  const getVideoContainerClasses = () => {
+    if (isFullscreen) {
+      return "w-full h-full";
+    }
+    switch (videoAspectRatio) {
+      case "portrait":
+        return "w-[460px] h-[700px]";
+      case "landscape":
+        return "w-[830px] h-[515px]";
+      case "square":
+        return "w-[600px] h-[600px]";
+      default:
+        return "w-[460px] h-[700px]";
+    }
+  };
 
-    return () => {
-      videoElement.removeEventListener("timeupdate", handleTimeUpdate);
-      videoElement.removeEventListener("play", handlePlay);
-      videoElement.removeEventListener("pause", handlePause);
-      videoElement.removeEventListener("ended", handleEnded);
-    };
-  }, [onVideoWatched, videoRef.current]); // Cập nhật dependency
+  const getVideoClasses = () => {
+    const baseClasses = "transition-all duration-300 rounded-lg";
+    if (isFullscreen) {
+      return `${baseClasses} w-full h-full object-contain`;
+    }
+    return `${baseClasses} w-full h-full object-cover`;
+  };
+
+  const togglePictureInPicture = useCallback(() => {
+    const video = videoRef.current;
+
+    if (video && document.pictureInPictureEnabled) {
+      if (document.pictureInPictureElement) {
+        document.exitPictureInPicture();
+      } else {
+        if (video.readyState >= 1) {
+          video
+            .requestPictureInPicture()
+            .catch((err) => console.error("PiP error:", err));
+        } else {
+          const onMetadataLoaded = () => {
+            video
+              .requestPictureInPicture()
+              .catch((err) => console.error("PiP error:", err));
+            video.removeEventListener("loadedmetadata", onMetadataLoaded);
+          };
+          video.addEventListener("loadedmetadata", onMetadataLoaded);
+        }
+      }
+    }
+  }, []);
+
+  const handleVideoClick = useCallback(
+    (e: React.MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.closest(".video-controls")) {
+        return;
+      }
+      e.preventDefault();
+      e.stopPropagation();
+      togglePlayPause();
+    },
+    [togglePlayPause]
+  );
+
+  const currentProgress = duration > 0 ? (currentTime / duration) * 100 : 0;
+  const bufferedProgress = duration > 0 ? (bufferedTime / duration) * 100 : 0;
 
   return (
-    <div className="w-[73%] bg-white shadow-lg absolute left-30 top-[95px] h-3/4 group">
-      <video
-        ref={videoRef}
-        src={videoUrl}
-        controls
-        autoPlay
-        muted={false}
-        className="w-full h-full"
-        loop={!isAutoNext}
-      ></video>
-      {isAutoNext ? (
-        <svg
-          onClick={() => setIsAutoNext(false)}
-          xmlns="http://www.w3.org/2000/svg"
-          style={{ bottom: "min(5vh,45px" }}
-          viewBox="0 0 512 512"
-          className={`absolute left-[12%] w-[18px] h-[18px] cursor-pointer transition-opacity duration-100 ${
-            isPaused ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+    <div
+      className="flex justify-center items-center min-h-screen p-4 left-[15%] w-full max-w-[1000px] mx-auto mt-24 ml-10"
+      ref={containerRef}
+    >
+      <div
+        className={`relative ${getVideoContainerClasses()} group shadow-2xl rounded-lg overflow-hidden bg-black`}
+        onMouseEnter={() => setShowControls(true)}
+        onMouseLeave={() => setShowControls(false)}
+      >
+        {/* Video Element */}
+        <video
+          ref={videoRef}
+          src={videoUrl}
+          autoPlay
+          muted={false}
+          className={getVideoClasses()}
+          loop={!isAutoNext}
+          onClick={handleVideoClick}
+          playsInline
+          preload="metadata"
+        />
+
+        {/* Loading Overlay */}
+        {(isLoading || isBuffering) && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-30">
+            <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+              <Loader className="h-8 w-8 text-white animate-spin" />
+            </div>
+          </div>
+        )}
+
+        {/* Play/Pause Overlay */}
+        {!isPlaying && !isLoading && !isBuffering && (
+          <div
+            className="absolute inset-0 flex items-center justify-center bg-black/30 z-10"
+            onClick={togglePlayPause}
+          >
+            <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+              <Play className="h-10 w-10 text-white ml-1" />
+            </div>
+          </div>
+        )}
+
+        {/* Video Controls Bar */}
+        <div
+          className={`video-controls absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 pt-8 transition-opacity duration-300 z-20 ${
+            showControls || !isPlaying ? "opacity-100" : "opacity-0"
           }`}
         >
-          <path
-            fill="#ffffff"
-            d="M0 224c0 17.7 14.3 32 32 32s32-14.3 32-32c0-53 43-96 96-96l160 0 0 32c0 12.9 7.8 24.6 19.8 29.6s25.7 2.2 34.9-6.9l64-64c12.5-12.5 12.5-32.8 0-45.3l-64-64c-9.2-9.2-22.9-11.9-34.9-6.9S320 19.1 320 32l0 32L160 64C71.6 64 0 135.6 0 224zm512 64c0-17.7-14.3-32-32-32s-32 14.3-32 32c0 53-43 96-96 96l-160 0 0-32c0-12.9-7.8-24.6-19.8-29.6s-25.7-2.2-34.9 6.9l-64 64c-12.5 12.5-12.5 32.8 0 45.3l64 64c9.2 9.2 22.9 11.9 34.9 6.9s19.8-16.6 19.8-29.6l0-32 160 0c88.4 0 160-71.6 160-160z"
-          />
-        </svg>
-      ) : (
-        <svg
-          onClick={() => setIsAutoNext(true)}
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 512 512"
-          style={{ bottom: "min(5vh,45px" }}
-          className={`absolute left-[12%] w-[18px] h-[18px] cursor-pointer transition-opacity duration-100 ${
-            isPaused ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-          }`}
-        >
-          <path
-            fill="#ffffff"
-            d="M52.5 440.6c-9.5 7.9-22.8 9.7-34.1 4.4S0 428.4 0 416L0 96C0 83.6 7.2 72.3 18.4 67s24.5-3.6 34.1 4.4l192 160L256 241l0-145c0-17.7 14.3-32 32-32s32 14.3 32 32l0 320c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-145-11.5 9.6-192 160z"
-          />
-        </svg>
-      )}
+          <div className="w-full mb-4 relative h-2 flex items-center">
+            <div className="absolute w-full h-1 bg-white/30 rounded-full" />
+            <div
+              className="absolute h-1 bg-white/50 rounded-full transition-all duration-300"
+              style={{ width: `${bufferedProgress}%` }}
+            />
+            <div className="relative w-full h-2">
+              <input
+                type="range"
+                min="0"
+                max="100"
+                step="0.1"
+                value={currentProgress}
+                onChange={(e) =>
+                  handleProgressChange([parseFloat(e.target.value)])
+                }
+                className="absolute w-full h-1 opacity-0 cursor-pointer z-10"
+              />
+
+              <div className="absolute w-full h-1 rounded-full overflow-hidden top-[25%]">
+                <div
+                  className="h-full bg-purple-500 rounded-full transition-all duration-300"
+                  style={{ width: `${currentProgress}%` }}
+                />
+              </div>
+
+              <div
+                className="absolute w-3 h-3 bg-purple-500 rounded-full shadow-lg -mt-0.5 transition-all duration-300"
+                style={{ left: `calc(${currentProgress}% - 6px)` }}
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between text-white">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={togglePlayPause}
+                className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+              >
+                {isPlaying ? (
+                  <Pause className="h-5 w-5" />
+                ) : (
+                  <Play className="h-5 w-5 ml-0.5" />
+                )}
+              </button>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={toggleMute}
+                  className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+                >
+                  {isMuted || volume === 0 ? (
+                    <VolumeX className="h-5 w-5" />
+                  ) : (
+                    <Volume2 className="h-5 w-5" />
+                  )}
+                </button>
+                <div className="w-24 relative h-2 flex items-center">
+                  <div className="absolute w-full h-1 bg-white/30 rounded-full" />
+
+                  <div className="relative w-full h-2">
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      step="1"
+                      value={volume}
+                      onChange={(e) =>
+                        handleVolumeChange([parseFloat(e.target.value)])
+                      }
+                      className="absolute w-full h-1 opacity-0 cursor-pointer z-10"
+                    />
+
+                    <div className="absolute w-full h-1 rounded-full overflow-hidden top-[25%]">
+                      <div
+                        className="h-full bg-purple-500 rounded-full transition-all duration-300"
+                        style={{ width: `${volume}%` }}
+                      />
+                    </div>
+
+                    <div
+                      className="absolute w-2 h-2 bg-purple-500 rounded-full shadow-lg -mt-0.5 transition-all duration-300 top-[20%]"
+                      style={{ left: `calc(${volume}% - 4px)` }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <span className="text-sm font-medium">
+                {formatTime(currentTime)} / {formatTime(duration)}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-sm">Auto-play</span>
+                <Switch
+                  checked={isAutoNext}
+                  onChange={setIsAutoNext}
+                  size="small"
+                  style={{
+                    backgroundColor: isAutoNext ? "#a855f7" : undefined,
+                  }}
+                />
+              </div>
+
+              <button
+                onClick={togglePictureInPicture}
+                className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+              >
+                <PictureInPicture2 className="h-5 w-5" />
+              </button>
+
+              <button
+                onClick={toggleFullscreen}
+                className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+              >
+                {isFullscreen ? (
+                  <Minimize className="h-5 w-5" />
+                ) : (
+                  <Maximize className="h-5 w-5" />
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

@@ -37,7 +37,7 @@ const DetailPage = ({ params }: { params: { detail: string } }) => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+   <div className="min-h-screen main-layout">
       <style jsx>{`
         .scrollbar-hidden {
           scrollbar-width: none;
@@ -81,15 +81,17 @@ const DetailPage = ({ params }: { params: { detail: string } }) => {
               <h1 className="text-4xl font-bold mb-2">
                 {detail.split("-")[0] === "Views"
                   ? "Top 50 - Views"
-                  : "Top 50 - Reactions"}
+                  : detail.split("-")[0] === "Reactions"
+                  ? "Top 50 - Reactions"
+                  : "Top 50 - Follow"}
               </h1>
-              <p className="text-sm text-gray-200 mb-2">
+              <p className="text-sm text-gray-300 mb-2">
                 Ranking of Creator with the highest
                 {detail.split("-")[0] === "Views"
                   ? " viewed"
                   : detail.split("-")[0] === "Reactions"
                   ? " reacted"
-                  : " follow"}{" "}
+                  : " followed"}{" "}
                 of the{" "}
                 {detail.split("-")[1] == "alltime"
                   ? "All Time"
@@ -97,7 +99,7 @@ const DetailPage = ({ params }: { params: { detail: string } }) => {
                     detail.split("-")[1].slice(1).toLowerCase()}
                 .
               </p>
-              <p className="text-sm text-gray-300">
+              <p className="text-sm text-gray-400">
                 Stiktify • {creatorData.length.toLocaleString()} Creators •{" "}
                 {new Date().toLocaleDateString("vi-VN", {
                   day: "2-digit",
@@ -110,7 +112,7 @@ const DetailPage = ({ params }: { params: { detail: string } }) => {
         </div>
 
         <div className="p-6">
-          <div className="grid grid-cols-12 gap-4 text-gray-600 text-sm font-semibold border-b border-gray-300 pb-2">
+          <div className="grid grid-cols-12 gap-4 text-gray-400 text-sm font-semibold border-b border-gray-700 pb-2">
             <div className="col-span-1">#</div>
             <div className="col-span-7">FullName</div>
             <div className="col-span-1">Views</div>
@@ -121,9 +123,9 @@ const DetailPage = ({ params }: { params: { detail: string } }) => {
           {creatorData.map((creator, index) => (
             <div
               key={index}
-              className="grid grid-cols-12 gap-4 items-center py-2 hover:bg-gray-100 rounded-lg"
+              className="grid grid-cols-12 gap-4 items-center py-2 hover:bg-gray-800 rounded-lg"
             >
-              <div className="col-span-1 w-8 h-8 flex items-center justify-center rounded-full text-gray-600 transition-colors duration-200">
+              <div className="col-span-1 w-8 h-8 flex items-center justify-center rounded-full text-gray-400 transition-colors duration-200 hover:bg-purple-600 hover:text-white group">
                 <span className="group-hover:hidden">{index + 1}</span>
                 <span className="hidden group-hover:block">
                   <svg
@@ -165,16 +167,16 @@ const DetailPage = ({ params }: { params: { detail: string } }) => {
                   />
                 </div>
                 <div className="pl-3">
-                  <p className="text-black font-medium">{creator.fullname}</p>
+                  <p className="text-white font-medium">{creator.fullname}</p>
                 </div>
               </div>
-              <div className="col-span-1 text-gray-600">
+              <div className="col-span-1 text-gray-400">
                 {creator.totalViews.toLocaleString()}
               </div>
-              <div className="col-span-1 text-gray-600">
+              <div className="col-span-1 text-gray-400">
                 {creator.totalReactions}
               </div>
-              <div className="col-span-2 text-gray-600 text-right">
+              <div className="col-span-2 text-gray-400 text-right">
                 {creator.totalFollows}
               </div>
             </div>

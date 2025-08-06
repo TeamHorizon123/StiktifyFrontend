@@ -13,6 +13,9 @@ import ReactPostNotification from "./NewPostReact";
 import CommentMusicNotification from "./NewMusicComment";
 import FavoriteMusicNotification from "./NewMusicFavorite";
 import NewMusicNotification from "./NewMusic";
+import { RxCross2 } from "react-icons/rx";
+import { PiBellSimpleFill } from "react-icons/pi";
+
 
 interface Notification {
   _id: string;
@@ -47,6 +50,7 @@ const NotificationModel = () => {
   console.log(notifications);
 
   const fetchNotifications = async (reset = false) => {
+    if (!user || !accessToken) return;
     try {
       const res = await sendRequest<{
         statusCode: number;
@@ -114,113 +118,113 @@ const NotificationModel = () => {
   }, [user, accessToken]);
 
   return (
-    <div className="fixed top-8 right-36 z-50 ">
-      <button
+    <div>
+      <div
+        className="relative w-full hover:bg-purple-500 rounded-md transition ease-in-out cursor-pointer"
         onClick={() => {
-          setIsOpen(!isOpen);
+          setIsOpen(true);
           setShowNotification(true);
           setHasNewNotification(false);
         }}
-        className="relative flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 transition"
       >
-        {hasNewNotification && unreadCount > 0 && (
-          <div className="absolute inset-0 animate-ping rounded-full border-2 border-green-300"></div>
-        )}
-
-        <Bell
-          className={`w-8 h-8 text-gray-700 ${
-            hasNewNotification && unreadCount > 0 ? "animate-wiggle" : ""
-          }`}
-        />
-
-        {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 text-xs text-white bg-red-500 rounded-full">
-            {unreadCount}
-          </span>
-        )}
-      </button>
-
-      {isOpen && (
-        <div className="z-50 absolute -right-16 w-96 mt-2 bg-white border rounded-lg shadow-lg">
-          <div className="p-2 font-semibold text-gray-700 border-b">
-            Notifications
-          </div>
-
-          {notifications?.length > 0 ? (
-            <ul className="max-h-[75vh] overflow-y-auto">
-              {notifications.map((notification) => (
-                <li
-                  key={notification._id}
-                  className="p-2 text-sm border-b bg-white"
-                >
-                  {notification.type === "friend-request" ||
-                  notification.type === "accept-friend-request" ? (
-                    <FriendRequest
-                      notification={notification}
-                      setNotifications={setNotifications}
-                      setUnreadCount={setUnreadCount}
-                    />
-                  ) : notification.type === "new-video" ? (
-                    <PostNotification
-                      notification={notification}
-                      setNotifications={setNotifications}
-                      setUnreadCount={setUnreadCount}
-                    />
-                  ) : notification.type === "new-comment" ? (
-                    <CommentPostNotification
-                      notification={notification}
-                      setNotifications={setNotifications}
-                      setUnreadCount={setUnreadCount}
-                    />
-                  ) : notification.type === "new-react" ? (
-                    <ReactPostNotification
-                      notification={notification}
-                      setNotifications={setNotifications}
-                      setUnreadCount={setUnreadCount}
-                    />
-                  ) : notification.type === "new-music-comment" ? (
-                    <CommentMusicNotification
-                      notification={notification}
-                      setNotifications={setNotifications}
-                      setUnreadCount={setUnreadCount}
-                    />
-                  ) : notification.type === "new-music-favorite" ? (
-                    <FavoriteMusicNotification
-                      notification={notification}
-                      setNotifications={setNotifications}
-                      setUnreadCount={setUnreadCount}
-                    />
-                  ) : notification.type === "new-music" ? (
-                    <NewMusicNotification
-                      notification={notification}
-                      setNotifications={setNotifications}
-                      setUnreadCount={setUnreadCount}
-                    />
-                  ) : (
-                    "Có thông báo mới"
-                  )}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div className="p-4 text-center text-gray-500">
-              No Notification yet!
-            </div>
+        <div className="flex items-center space-x-2">
+          <PiBellSimpleFill className="text-xl" />
+          {hasNewNotification && (
+            <span className="absolute top-2 left-6 w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
           )}
-
-          {hasMore && (
-            <button
-              className="w-full p-2 text-center text-blue-500 hover:underline"
-              onClick={() => {
-                setPage((prev) => prev + 1);
-                // fetchNotifications();
-              }}
-            >
-              See More
-            </button>
-          )}
+          <p className="text-base sm:hidden max-[600px]:hidden lg:block">Notification</p>
         </div>
-      )}
+      </div>
+
+      {/* Panel notification */}
+      <div
+        className={`fixed top-0 right-0 w-[15rem] h-full bg-[#21201E] text-white z-50 
+    border-l border-r border-zinc-700 p-2 transform transition-transform duration-500 ease-in-out origin-right
+    ${isOpen ? 'translate-x-0' : 'translate-x-full'} ${isOpen ? '' : 'hidden'}`}
+      >
+
+
+        <div className="flex items-center justify-between mt-2 mb-6 mx-2">
+          <p className="text-lg font-bold">Notifications</p>
+          <button
+            className="p-2 rounded-full bg-zinc-700 hover:bg-zinc-600"
+            onClick={() => setIsOpen(false)}
+          >
+            <RxCross2 />
+          </button>
+        </div>
+
+
+
+        {notifications.length > 0 ? (
+          <ul className="space-y-1 overflow-y-auto max-h-[80vh] pr-2 scrollbar-thin scrollbar-thumb-zinc-600 scrollbar-track-transparent">
+            {notifications.map((notification) => (
+              <div
+                key={notification._id}
+                className="w-full p-2 rounded hover:bg-[#514f4b] transition cursor-pointer"
+              >
+                {notification.type === "friend-request" ||
+                  notification.type === "accept-friend-request" ? (
+                  <FriendRequest
+                    notification={notification}
+                    setNotifications={setNotifications}
+                    setUnreadCount={setUnreadCount}
+                  />
+                ) : notification.type === "new-video" ? (
+                  <PostNotification
+                    notification={notification}
+                    setNotifications={setNotifications}
+                    setUnreadCount={setUnreadCount}
+                  />
+                ) : notification.type === "new-comment" ? (
+                  <CommentPostNotification
+                    notification={notification}
+                    setNotifications={setNotifications}
+                    setUnreadCount={setUnreadCount}
+                  />
+                ) : notification.type === "new-react" ? (
+                  <ReactPostNotification
+                    notification={notification}
+                    setNotifications={setNotifications}
+                    setUnreadCount={setUnreadCount}
+                  />
+                ) : notification.type === "new-music-comment" ? (
+                  <CommentMusicNotification
+                    notification={notification}
+                    setNotifications={setNotifications}
+                    setUnreadCount={setUnreadCount}
+                  />
+                ) : notification.type === "new-music-favorite" ? (
+                  <FavoriteMusicNotification
+                    notification={notification}
+                    setNotifications={setNotifications}
+                    setUnreadCount={setUnreadCount}
+                  />
+                ) : notification.type === "new-music" ? (
+                  <NewMusicNotification
+                    notification={notification}
+                    setNotifications={setNotifications}
+                    setUnreadCount={setUnreadCount}
+                  />
+                ) : (
+                  <span>Có thông báo mới</span>
+                )}
+              </div>
+            ))}
+          </ul>
+        ) : (
+          <div className="text-center text-gray-400 mt-10">No Notification yet!</div>
+        )}
+
+        {hasMore && (
+          <button
+            className="w-full p-3 mt-4 text-center text-blue-400 hover:underline transition"
+            onClick={() => setPage((prev) => prev + 1)}
+          >
+            See More
+          </button>
+        )}
+      </div>
     </div>
   );
 };

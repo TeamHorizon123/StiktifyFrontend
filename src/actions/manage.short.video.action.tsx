@@ -6,31 +6,10 @@ import { cookies } from "next/headers";
 const cookieStore = cookies();
 const token = cookieStore.get("token")?.value;
 
-export const handleGetAllShortVideo = async (
-  current: string,
-  pageSize: string
-) => {
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/list-video?current=${current}&pageSize=${pageSize}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        next: { tags: ["list-short-video"] },
-      }
-    );
-    const result: IBackendRes<any> = await res.json();
-    return result;
-  } catch (error) {
-    return null;
-  }
-};
 
 export const handleFlagShortVideoAction = async (id: string, flag: boolean) => {
   try {
+    if (!token) return null;
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/flag-video`,
       {
@@ -55,16 +34,45 @@ export const handleFlagShortVideoAction = async (id: string, flag: boolean) => {
   }
 };
 
-export const handleSearchAndFilterShortVideos = async (
+export const handleBlockShortVideoAction = async (id: string, isBlock: boolean) => {
+  try {
+    if (!token) return null;
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/block-video`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          _id: id,
+          isBlock: isBlock,
+        }),
+      }
+    );
+    
+    revalidateTag("list-short-video");
+    revalidateTag("list-report");
+    const result: IBackendRes<any> = await res.json();
+    return result;
+  } catch (error) {
+    return null;
+  }
+};
+
+export const handleGetAllShortVideo = async (
   searchText: string,
   filterReq: string,
   current: number,
   pageSize: number
 ) => {
   try {
+    if (!token) return null;
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL
-      }/api/v1/short-videos/search-video?search=${encodeURIComponent(
+      }/api/v1/short-videos/list-video?search=${encodeURIComponent(
         searchText
       )}&filterReq=${encodeURIComponent(
         filterReq
@@ -75,7 +83,7 @@ export const handleSearchAndFilterShortVideos = async (
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        next: { tags: ["search-short-video"] },
+        next: { tags: ["list-short-video"] },
       }
     );
     const result = await res.json();
@@ -90,6 +98,7 @@ export const handleFilterByCategory = async (
   current: number,
   pageSize: number
 ) => {
+  if (!token) return null;
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/filter-by-category?category=${encodeURIComponent(category)}&current=${current}&pageSize=${pageSize}`,

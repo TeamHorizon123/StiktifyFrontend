@@ -6,56 +6,13 @@ import { cookies } from "next/headers";
 const cookieStore = cookies();
 const token = cookieStore.get("token")?.value;
 
-export const handleGetAllReportAction = async (
-  current: string,
-  pageSize: string
-) => {
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/report/list-report?current=${current}&pageSize=${pageSize}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        next: { tags: ["list-report"] },
-      }
-    );
-    const result: IBackendRes<any> = await res.json();
-    return result;
-  } catch (error) {
-    return null;
-  }
-};
 
-export const handleGetAllReportMusicAction = async (
-  current: string,
-  pageSize: string
-) => {
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/report/list-report-music?current=${current}&pageSize=${pageSize}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        next: { tags: ["list-report-music"] },
-      }
-    );
-    const result: IBackendRes<any> = await res.json();
-    return result;
-  } catch (error) {
-    return null;
-  }
-};
 
 export const handleDeleteReportVideoAction = async (id: string) => {
+  if (!token) return null;
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/report/delete-report/${id}`,
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/report/delete-video-report/${id}`,
       {
         method: "DELETE",
         headers: {
@@ -66,7 +23,30 @@ export const handleDeleteReportVideoAction = async (id: string) => {
       }
     );
 
-    revalidateTag("list-report");
+    revalidateTag("list-report-video");
+    const result: IBackendRes<any> = await res.json();
+    return result;
+  } catch (error) {
+    return null;
+  }
+};
+
+export const handleDeleteReportMusicAction = async (id: string) => {
+  if (!token) return null;
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/report/delete-music-report/${id}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    revalidateTag("list-report-music");
     const result: IBackendRes<any> = await res.json();
     return result;
   } catch (error) {
@@ -75,6 +55,7 @@ export const handleDeleteReportVideoAction = async (id: string) => {
 };
 
 export const handleFlagMusicAction = async (id: string, flag: boolean) => {
+  if (!token) return null;
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/flag-music`,
@@ -91,8 +72,8 @@ export const handleFlagMusicAction = async (id: string, flag: boolean) => {
         }),
       }
     );
-    revalidateTag("list-music");
     revalidateTag("list-report-music");
+    revalidateTag("list-music");
     const result: IBackendRes<any> = await res.json();
     return result;
   } catch (error) {
@@ -100,18 +81,42 @@ export const handleFlagMusicAction = async (id: string, flag: boolean) => {
   }
 };
 
-export const handleSearchMusicReportAction = async (
-  search: string,
-  startDate?: string
+export const handleBlockMusicAction = async (id: string, isBlock: boolean) => {
+  if (!token) return null;
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/block-music`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          _id: id,
+          isBlock: isBlock,
+        }),
+      }
+    );
+    revalidateTag("list-report-music");
+    revalidateTag("list-music");
+    const result: IBackendRes<any> = await res.json();
+    return result;
+  } catch (error) {
+    return null;
+  }
+};
+
+export const handleGetAllReportMusicAction = async (
+  current: number, pageSize: number, search: string, filterRes: string
 ) => {
   try {
-    const query = new URLSearchParams();
-    query.append("search", search);
-    if (startDate) query.append("startDate", startDate);
+    if (!token) return null;
     const res = await fetch(
       `${
         process.env.NEXT_PUBLIC_BACKEND_URL
-      }/api/v1/report/search-music?${query.toString()}`,
+      }/api/v1/report/list-report-music?current=${current}&pageSize=${pageSize}&search=${search}&filterReq=${filterRes}`,
       {
         method: "GET",
         headers: {
@@ -129,18 +134,15 @@ export const handleSearchMusicReportAction = async (
   }
 };  
 
-export const handleSearchVideoReportAction = async (
-  search: string,
-  startDate?: string
+export const handleListVideoReportAction = async (
+ current: number, pageSize: number, search: string, filterRes: string
 ) => {
+  if (!token) return null;
   try {
-    const query = new URLSearchParams();
-    query.append("search", search);
-    if (startDate) query.append("startDate", startDate);
     const res = await fetch(
       `${
         process.env.NEXT_PUBLIC_BACKEND_URL
-      }/api/v1/report/search-video?${query.toString()}`,
+      }/api/v1/report/list-report-video?current=${current}&pageSize=${pageSize}&search=${search}&filterReq=${filterRes}`,
       {
         method: "GET",
         headers: {

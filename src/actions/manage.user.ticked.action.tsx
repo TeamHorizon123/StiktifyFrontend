@@ -11,6 +11,7 @@ export const handleGetAllUserTickedAction = async (
   pageSize: number
 ) => {
   try {
+    if (!token) return null;
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/ticked-users/list-ticked?current=${current}&pageSize=${pageSize}`,
       {
@@ -32,6 +33,7 @@ export const handleGetAllUserTickedAction = async (
 // Action để đồng ý yêu cầu
 export const handleAcceptUserTickedAction = async (id: string) => {
   try {
+    if (!token) return null;
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/ticked-users/${id}/approve`,
       {
@@ -58,6 +60,7 @@ export const handleDenyUserTickedAction = async (
   reason: string
 ) => {
   try {
+    if (!token) return null;
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/ticked-users/${id}/reject`,
       {
@@ -86,6 +89,7 @@ export const handleFilterAndSearchUserRequest = async (
   filterReq: string 
 ) => {
   try {
+    if (!token) return null;
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/ticked-users/filter-search?current=${current}&pageSize=${pageSize}&search=${search}&filterReq=${filterReq}`,
       {

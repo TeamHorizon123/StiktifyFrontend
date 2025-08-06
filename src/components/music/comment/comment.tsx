@@ -39,6 +39,7 @@ const Comment = ({
 
   // Lưu comment đã chỉnh sửa
   const handleSaveEdit = async () => {
+    if(!accessToken) return;
     try {
       const res = await sendRequest<IBackendRes<any>>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/comments/update`,
@@ -62,7 +63,7 @@ const Comment = ({
   // Xác nhận xóa
   const handleConfirmDelete = async () => {
     console.log("comment ?>>>>", comment._id);
-
+    if(!accessToken) return;
     try {
       const res = await sendRequest<IBackendRes<any>>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/comments/deleteMusicComment`,

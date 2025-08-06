@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect, useContext } from "react";
-import { usePathname, useSearchParams } from "next/navigation"; 
+import { usePathname, useSearchParams } from "next/navigation";
 import { fetchMyVideos } from "@/actions/videoPosted.video.action";
 import { formatNumber } from "@/utils/utils";
 import VideoCustomize from "@/components/video/video.customize";
 import { AuthContext } from "@/context/AuthContext";
 import { sendRequest } from "@/utils/api";
+import { Eye, MessageCircle, Heart, Trash2 } from "lucide-react";
 
 // Định nghĩa interface cho video
 interface IShortVideo {
@@ -20,15 +21,23 @@ interface IShortVideo {
   isDelete?: boolean;
 }
 
+// Định nghĩa interface cho props của MyVideo
+interface MyVideoProps {
+  userId?: string;
+  isOwner?: boolean;
+}
+
 const DELETED_VIDEOS_KEY = "deletedVideos";
 
-const MyVideo = () => {
+const MyVideo = ({ userId }: MyVideoProps) => {
+  const { user } = useContext(AuthContext) ?? {};
+  // Ưu tiên prop userId, fallback context
+  const currentUserId = userId || user?._id;
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { user, accessToken } = useContext(AuthContext) ?? {};
+  const { accessToken } = useContext(AuthContext) ?? {};
   const userIdFromURL = pathname.split("/").pop();
   const queryUserId = searchParams.get("userId");
-  const currentUserId = userIdFromURL || queryUserId || user?._id;
   const [videos, setVideos] = useState<IShortVideo[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -102,7 +111,7 @@ const MyVideo = () => {
             video._id === videoId ? { ...video, isDelete: true } : video
           )
         );
-        addDeletedVideoId(videoId); 
+        addDeletedVideoId(videoId);
       } catch (error) {
         console.error("Error in handleDelete:", error);
       }
@@ -113,62 +122,63 @@ const MyVideo = () => {
   const visibleVideos = videos.filter((video) => !video.isDelete);
 
   return (
-    <div className="p-6 bg-white shadow-md rounded-lg mb-40 mt-[-22px]">
+    <div className="p-0 bg-transparent">
       {loading ? (
-        <p className="text-gray-500 text-center">Loading...</p>
+        <p className="text-gray-300 text-center">Loading...</p>
       ) : visibleVideos.length > 0 ? (
-        <div className="overflow-x-auto">
-          <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow-md">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="border px-4 py-2 text-left">Thumbnail</th>
-                <th className="border px-4 py-2 text-left">Views</th>
-                <th className="border px-4 py-2 text-left">Reactions</th>
-                <th className="border px-4 py-2 text-left">Comments</th>
-                <th className="border px-4 py-2 text-left">Description</th>
-                {user?._id === currentUserId && (
-                  <th className="border px-4 py-2 text-left">Action</th>
-                )}
-              </tr>
-            </thead>
-            <tbody>
-              {visibleVideos.map((video) => (
-                <tr key={video._id} className="hover:bg-gray-50">
-                  <td className="border px-4 py-2">
-                    <VideoCustomize
-                      videoThumbnail={video.videoThumbnail}
-                      videoUrl={video.videoUrl}
-                    />
-                  </td>
-                  <td className="border px-4 py-2 text-gray-700">
-                    {formatNumber(video.totalViews ?? 0)}
-                  </td>
-                  <td className="border px-4 py-2 text-gray-700">
-                    {formatNumber(video.totalReaction ?? 0)}
-                  </td>
-                  <td className="border px-4 py-2 text-gray-700">
-                    {formatNumber(video.totalComment ?? 0)}
-                  </td>
-                  <td className="border px-4 py-2 text-gray-700">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 px-4 py-6">
+          {visibleVideos.map((video) => (
+            <div
+              key={video._id}
+              className="relative bg-[#2d2250cc] rounded-2xl shadow-xl overflow-hidden flex flex-col group transition-all duration-300 hover:scale-[1.02]"
+            >
+              <div className="relative h-48 w-full">
+                <VideoCustomize
+                  videoThumbnail={video.videoThumbnail}
+                  videoId={video._id}
+                  // Có thể truyền thêm prop className nếu cần
+                />
+                {/* Overlay thông tin */}
+                <span className="absolute bottom-2 right-3 text-xs text-white bg-black/40 px-2 py-0.5 rounded">
+                  {video.videoDescription && video.videoDescription.length > 30
+                    ? video.videoDescription.slice(0, 30) + "..."
+                    : video.videoDescription || "No description"}
+                </span>
+              </div>
+              <div className="p-4 flex-1 flex flex-col justify-between">
+                <div>
+                  <div className="text-white font-semibold text-base mb-1">
                     {video.videoDescription || "No description"}
-                  </td>
-                  {user?._id === currentUserId && (
-                    <td className="border px-4 py-2 text-gray-700">
-                      <button
-                        onClick={() => handleDelete(video._id)}
-                        className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  )}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </div>
+                  <div className="flex items-center gap-4 text-purple-200 text-xs">
+                    <span className="flex items-center gap-1">
+                      <Eye size={16} /> {formatNumber(video.totalViews ?? 0)}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Heart size={16} />{" "}
+                      {formatNumber(video.totalReaction ?? 0)}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <MessageCircle size={16} />{" "}
+                      {formatNumber(video.totalComment ?? 0)}
+                    </span>
+                  </div>
+                </div>
+                {user?._id === currentUserId && (
+                  <button
+                    onClick={() => handleDelete(video._id)}
+                    className="absolute top-3 right-3  hover:bg-red-600 text-white p-2 rounded-full shadow transition"
+                    title="Delete"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
       ) : (
-        <p className="text-gray-500 text-center">No videos found.</p>
+        <p className="text-gray-300 text-center">No videos found.</p>
       )}
     </div>
   );

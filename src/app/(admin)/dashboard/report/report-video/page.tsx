@@ -1,4 +1,4 @@
-import { handleGetAllReportAction } from "@/actions/manage.report.action";
+import {handleListVideoReportAction } from "@/actions/manage.report.action";
 import ManageReportTable from "@/components/admin/report.video.table";
 
 const ShortVideoPage = async ({ searchParams }: any) => {
@@ -7,8 +7,7 @@ const ShortVideoPage = async ({ searchParams }: any) => {
     const result = current ? current : 1;
     const LIMIT = pageSize ? pageSize : 5;
 
-    const res = await handleGetAllReportAction(result, LIMIT)
-
+    const res = await handleListVideoReportAction(result, LIMIT,searchParams.search || "", searchParams.filterReq || "");
     const data = res?.data
 
     const meta = {
@@ -19,7 +18,7 @@ const ShortVideoPage = async ({ searchParams }: any) => {
 
     return (
         <div>
-            <ManageReportTable dataSource={data?.result || []} meta={meta} />
+            <ManageReportTable dataSource={data?.result || []} meta={meta}/>
         </div>
     )
 }

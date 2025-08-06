@@ -16,6 +16,7 @@ const TickedUser: React.FC<TickedUserProps> = ({ userId }) => {
   }, [userId, accessToken]);
 
   const fetchRequestById = async () => {
+    if (!userId || !accessToken) return;
     try {
       const res = await sendRequest<any>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/ticked-users/${userId}`,

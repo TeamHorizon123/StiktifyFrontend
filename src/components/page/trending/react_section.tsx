@@ -1,7 +1,8 @@
 import React, { useContext, useState, useEffect } from "react";
 import { sendRequest } from "@/utils/api";
 import { AuthContext } from "@/context/AuthContext";
-import { FaThumbsUp } from "react-icons/fa";
+import { FaRegThumbsUp, FaThumbsUp } from "react-icons/fa";
+import { notification } from "antd";
 
 import like_gif from "@/assets/reaction/gif/thumb-up.gif";
 import like_img from "@/assets/reaction/image/thumb-up.png";
@@ -35,12 +36,12 @@ const lastReactions: Reaction[] = [
   {
     _id: "6741b8a5342097607f012a76",
     icon: (
-      <div className="relative w-4 h-4">
+      <div className="relative w-5 h-5">
         <Image
           src={like_img}
-          alt="Like GIF"
-          width={30}
-          height={30}
+          alt="Like"
+          width={20}
+          height={20}
           className="absolute inset-0 transition-opacity duration-300"
         />
       </div>
@@ -49,12 +50,12 @@ const lastReactions: Reaction[] = [
   {
     _id: "6741b8a5342097607f012a77",
     icon: (
-      <div className="relative w-4 h-4">
+      <div className="relative w-5 h-5">
         <Image
           src={in_love_img}
-          alt="Like GIF"
-          width={30}
-          height={30}
+          alt="Love"
+          width={20}
+          height={20}
           className="absolute inset-0 transition-opacity duration-300"
         />
       </div>
@@ -63,12 +64,12 @@ const lastReactions: Reaction[] = [
   {
     _id: "6741b8a5342097607f012a7b",
     icon: (
-      <div className="relative w-4 h-4">
+      <div className="relative w-5 h-5">
         <Image
           src={happy_img}
-          alt="Like GIF"
-          width={30}
-          height={30}
+          alt="Haha"
+          width={20}
+          height={20}
           className="absolute inset-0 transition-opacity duration-300"
         />
       </div>
@@ -77,12 +78,12 @@ const lastReactions: Reaction[] = [
   {
     _id: "6741b8a5342097607f012a78",
     icon: (
-      <div className="relative w-4 h-4">
+      <div className="relative w-5 h-5">
         <Image
           src={surprised_img}
-          alt="Like GIF"
-          width={30}
-          height={30}
+          alt="Wow"
+          width={20}
+          height={20}
           className="absolute inset-0 transition-opacity duration-300"
         />
       </div>
@@ -91,12 +92,12 @@ const lastReactions: Reaction[] = [
   {
     _id: "6741b8a5342097607f012a79",
     icon: (
-      <div className="relative w-4 h-4">
+      <div className="relative w-5 h-5">
         <Image
           src={sad_img}
-          alt="Like GIF"
-          width={30}
-          height={30}
+          alt="Sad"
+          width={20}
+          height={20}
           className="absolute inset-0 transition-opacity duration-300"
         />
       </div>
@@ -105,12 +106,12 @@ const lastReactions: Reaction[] = [
   {
     _id: "6741b8a5342097607f012a7a",
     icon: (
-      <div className="relative w-4 h-4">
+      <div className="relative w-5 h-5">
         <Image
           src={angry_img}
-          alt="Like GIF"
-          width={30}
-          height={30}
+          alt="Angry"
+          width={20}
+          height={20}
           className="absolute inset-0 transition-opacity duration-300"
         />
       </div>
@@ -126,19 +127,18 @@ const reactions: Reaction[] = [
       <div className="relative w-8 h-8">
         <Image
           src={like_img}
-          alt="Like GIF"
-          width={30}
-          height={30}
+          alt="Like"
+          width={32}
+          height={32}
           className="absolute inset-0 transition-opacity duration-300 hover:opacity-0"
         />
         <Image
           unoptimized
           src={like_gif}
           alt="Like GIF"
-          width={30}
-          height={30}
-          className="absolute inset-0 opacity-0 transition-opacity duration-300 hover:opacity-100 h-100 w-100"
-          style={{ scale: 1.5 }}
+          width={32}
+          height={32}
+          className="absolute inset-0 opacity-0 transition-opacity duration-300 hover:opacity-100"
         />
       </div>
     ),
@@ -150,19 +150,18 @@ const reactions: Reaction[] = [
       <div className="relative w-8 h-8">
         <Image
           src={in_love_img}
-          alt="Like GIF"
-          width={30}
-          height={30}
+          alt="Love"
+          width={32}
+          height={32}
           className="absolute inset-0 transition-opacity duration-300 hover:opacity-0"
         />
         <Image
           unoptimized
           src={in_love_gif}
-          alt="Like GIF"
-          width={30}
-          height={30}
+          alt="Love GIF"
+          width={32}
+          height={32}
           className="absolute inset-0 opacity-0 transition-opacity duration-300 hover:opacity-100"
-          style={{ scale: 1.5 }}
         />
       </div>
     ),
@@ -174,19 +173,18 @@ const reactions: Reaction[] = [
       <div className="relative w-8 h-8">
         <Image
           src={happy_img}
-          alt="Like GIF"
-          width={30}
-          height={30}
+          alt="Haha"
+          width={32}
+          height={32}
           className="absolute inset-0 transition-opacity duration-300 hover:opacity-0"
         />
         <Image
           unoptimized
           src={happy_gif}
-          alt="Like GIF"
-          width={30}
-          height={30}
+          alt="Haha GIF"
+          width={32}
+          height={32}
           className="absolute inset-0 opacity-0 transition-opacity duration-300 hover:opacity-100"
-          style={{ scale: 1.5 }}
         />
       </div>
     ),
@@ -198,19 +196,18 @@ const reactions: Reaction[] = [
       <div className="relative w-8 h-8">
         <Image
           src={surprised_img}
-          alt="Like GIF"
-          width={30}
-          height={30}
+          alt="Wow"
+          width={32}
+          height={32}
           className="absolute inset-0 transition-opacity duration-300 hover:opacity-0"
         />
         <Image
           unoptimized
           src={surprised_gif}
-          alt="Like GIF"
-          width={30}
-          height={30}
+          alt="Wow GIF"
+          width={32}
+          height={32}
           className="absolute inset-0 opacity-0 transition-opacity duration-300 hover:opacity-100"
-          style={{ scale: 1.5 }}
         />
       </div>
     ),
@@ -222,19 +219,18 @@ const reactions: Reaction[] = [
       <div className="relative w-8 h-8">
         <Image
           src={sad_img}
-          alt="Like GIF"
-          width={30}
-          height={30}
+          alt="Sad"
+          width={32}
+          height={32}
           className="absolute inset-0 transition-opacity duration-300 hover:opacity-0"
         />
         <Image
           unoptimized
           src={sad_gif}
-          alt="Like GIF"
-          width={30}
-          height={30}
+          alt="Sad GIF"
+          width={32}
+          height={32}
           className="absolute inset-0 opacity-0 transition-opacity duration-300 hover:opacity-100"
-          style={{ scale: 1.5 }}
         />
       </div>
     ),
@@ -246,19 +242,18 @@ const reactions: Reaction[] = [
       <div className="relative w-8 h-8">
         <Image
           src={angry_img}
-          alt="Like GIF"
-          width={30}
-          height={30}
+          alt="Angry"
+          width={32}
+          height={32}
           className="absolute inset-0 transition-opacity duration-300 hover:opacity-0"
         />
         <Image
           unoptimized
           src={angry_gif}
-          alt="Like GIF"
-          width={30}
-          height={30}
+          alt="Angry GIF"
+          width={32}
+          height={32}
           className="absolute inset-0 opacity-0 transition-opacity duration-300 hover:opacity-100"
-          style={{ scale: 1.5 }}
         />
       </div>
     ),
@@ -277,27 +272,48 @@ const ReactSection: React.FC<ReactionSectionProp> = ({
   );
   const [showReactions, setShowReactions] = useState(false);
   const [loading, setLoading] = useState(true);
-
-  const [thisReactions, setThisReactions] = useState<Reaction[]>([]);
-  const [thisFirstReactions, setFirstThisReactions] = useState<Reaction[]>([]);
+  const [topReactions, setTopReactions] = useState<
+    { reaction: Reaction; count: number }[]
+  >([]);
   useEffect(() => {
     if (!videoId) return;
 
     const fetchReactions = async () => {
+      if (!user || !user._id) {
+        return;
+      }
       try {
-        const res = await sendRequest<any>({
+        const res = await sendRequest<{
+          statusCode: number;
+          data: string[];
+          reactionCounts?: Record<string, number>;
+        }>({
           url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/video-reactions/${videoId}/reactions`,
           method: "GET",
           headers: { Authorization: `Bearer ${accessToken}` },
         });
 
         if (res.statusCode === 200) {
-          // Lọc các reaction có trong dữ liệu trả về
-          const fetchedReactions = lastReactions.filter((reaction) =>
-            res.data.includes(reaction._id)
-          );
-          setThisReactions(fetchedReactions);
-          setFirstThisReactions(fetchedReactions);
+          // Get top 3 reactions count
+          if (res.reactionCounts) {
+            const topReactionsData = Object.entries(res.reactionCounts)
+              .map(([reactionId, count]) => {
+                const foundReaction = lastReactions.find(
+                  (r) => r._id === reactionId
+                );
+                return foundReaction
+                  ? { reaction: foundReaction, count: count }
+                  : null;
+              })
+              .filter(
+                (item): item is { reaction: Reaction; count: number } =>
+                  item !== null
+              )
+              .sort((a, b) => b.count - a.count)
+              .slice(0, 3);
+
+            setTopReactions(topReactionsData);
+          }
         }
       } catch (error) {
         console.error("Error fetching reactions:", error);
@@ -305,7 +321,7 @@ const ReactSection: React.FC<ReactionSectionProp> = ({
     };
 
     fetchReactions();
-  }, [videoId]);
+  }, [videoId, accessToken]);
 
   useEffect(() => {
     setSelectedReaction(null);
@@ -317,12 +333,14 @@ const ReactSection: React.FC<ReactionSectionProp> = ({
       if (!videoId || !accessToken) return;
 
       try {
-        const res = await sendRequest<IBackendRes<any>>({
-          url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/video-reactions/getReactByUser`,
-          method: "POST",
-          body: { videoId },
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
+        const res = await sendRequest<IBackendRes<{ reactionTypeId?: string }>>(
+          {
+            url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/video-reactions/getReactByUser`,
+            method: "POST",
+            body: { videoId },
+            headers: { Authorization: `Bearer ${accessToken}` },
+          }
+        );
 
         if (res && res?.data?.reactionTypeId) {
           const foundReaction = reactions.find(
@@ -331,7 +349,7 @@ const ReactSection: React.FC<ReactionSectionProp> = ({
           if (foundReaction) setSelectedReaction(foundReaction);
         }
       } catch (error) {
-        console.error("Lỗi khi lấy trạng thái reaction:", error);
+        console.error("Error getting reaction status:", error);
       } finally {
         setLoading(false);
       }
@@ -341,14 +359,17 @@ const ReactSection: React.FC<ReactionSectionProp> = ({
   }, [videoId, accessToken]);
 
   const handleTriggerWishListScore = async (videoId: string) => {
-    const res = await sendRequest<IBackendRes<IVideo[]>>({
+    if (!user || !user._id) {
+      return;
+    }
+    await sendRequest<IBackendRes<IVideo[]>>({
       url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/wishlist`,
       method: "POST",
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
       body: {
-        userId: user._id,
+        userId: user?._id,
         id: videoId,
         triggerAction: "ReactionAboutVideo",
       },
@@ -356,8 +377,11 @@ const ReactSection: React.FC<ReactionSectionProp> = ({
   };
 
   const handleAddUserAction = async (videoId: string) => {
+    if (!user || !user._id) {
+      return;
+    }
     try {
-      const res = await sendRequest<IBackendRes<any>>({
+      await sendRequest<IBackendRes<{ success: boolean }>>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/kafka/action?action=reaction&id=${videoId}&`,
         method: "POST",
         headers: {
@@ -370,72 +394,113 @@ const ReactSection: React.FC<ReactionSectionProp> = ({
   };
 
   const handleAddReaction = async (reaction: Reaction) => {
-    if (!videoId || !accessToken) return;
+    if (!user || !accessToken) {
+      notification.error({
+        message: "Authentication Required",
+        description: "Please log in to react to videos",
+      });
+      return;
+    }
+
+    if (!videoId) return;
     const oldSelectedReaction = selectedReaction;
-    // Tìm reaction trong lastReactions
 
     setSelectedReaction(reaction);
     setShowReactions(false);
 
     try {
-      const res = await sendRequest<IBackendRes<any>>({
+      await sendRequest<IBackendRes<{ success: boolean }>>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/video-reactions/react`,
         method: "POST",
         body: { videoId, reactionTypeId: reaction._id },
         headers: { Authorization: `Bearer ${accessToken}` },
       });
-      oldSelectedReaction! ? "" : onReactionAdded();
-      const reactionToAdd = lastReactions.find((r) => r._id === reaction._id);
 
-      if (reactionToAdd) {
-        setThisReactions((prevReactions) => {
-          // Kiểm tra xem oldSelectedReaction có trong thisReactions nhưng không có trong thisFirstReactions không
-          const isInThisReactions = prevReactions.some(
-            (r) => r._id === oldSelectedReaction!?._id
-          );
-          const isNotInFirstReactions = !thisFirstReactions.some(
-            (r) => r._id === oldSelectedReaction!?._id
-          );
-          console.log("CHECK >>>: ", isInThisReactions, isNotInFirstReactions);
-
-          // Nếu thỏa điều kiện, mới xóa nó khỏi mảng
-          if (isInThisReactions && isNotInFirstReactions) {
-            return prevReactions.filter((r) => r._id !== selectedReaction!._id);
-          }
-
-          // Nếu không thỏa điều kiện, giữ nguyên mảng
-          return prevReactions;
-        });
-        // Thêm reaction vào mảng thisReactions nếu chưa tồn tại
-        setThisReactions((prevReactions) => {
-          const isReactionExists = prevReactions.some(
-            (r) => r._id === reactionToAdd._id
-          );
-          if (!isReactionExists) {
-            return [...prevReactions, reactionToAdd];
-          }
-          return prevReactions;
-        });
+      if (!oldSelectedReaction) {
+        onReactionAdded();
       }
+      setTopReactions((prev) => {
+        const updated = [...prev];
+
+        // Nếu user đã từng react và đổi sang reaction mới
+        if (oldSelectedReaction && oldSelectedReaction._id !== reaction._id) {
+          const oldIndex = updated.findIndex(
+            (item) => item.reaction._id === oldSelectedReaction._id
+          );
+          if (oldIndex >= 0) {
+            // Giảm count của reaction cũ
+            if (updated[oldIndex].count > 1) {
+              updated[oldIndex] = {
+                ...updated[oldIndex],
+                count: updated[oldIndex].count - 1,
+              };
+            } else {
+              // Nếu count còn 0 thì xóa khỏi topReactions
+              updated.splice(oldIndex, 1);
+            }
+          }
+        }
+
+        // Xử lý tăng count cho reaction mới
+        const existingIndex = updated.findIndex(
+          (item) => item.reaction._id === reaction._id
+        );
+        if (existingIndex >= 0) {
+          updated[existingIndex] = {
+            ...updated[existingIndex],
+            count: updated[existingIndex].count + 1,
+          };
+        } else {
+          const foundReaction = lastReactions.find(
+            (r) => r._id === reaction._id
+          );
+          if (foundReaction) {
+            updated.push({ reaction: foundReaction, count: 1 });
+          }
+        }
+
+        return updated.sort((a, b) => b.count - a.count).slice(0, 3);
+      });
+
       await handleAddUserAction(videoId);
       await handleTriggerWishListScore(videoId);
     } catch (error) {
       console.error("Error updating reaction:", error);
+      setSelectedReaction(oldSelectedReaction);
     }
   };
 
   const handleRemoveReaction = async () => {
-    if (!videoId || !accessToken) return;
+    if (!user || !accessToken) {
+      notification.error({
+        message: "Authentication Required",
+        description: "Please log in to remove reactions",
+      });
+      return;
+    }
 
-    // Xóa reaction khỏi mảng thisReactions
-    setThisReactions((prevReactions) =>
-      prevReactions.filter((r) => r._id !== selectedReaction!._id)
-    );
+    if (!videoId || !selectedReaction) return;
 
+    const reactionToRemove = selectedReaction;
     setSelectedReaction(null);
     setShowReactions(false);
+
+    // Update the top reactions list
+    setTopReactions((prev) => {
+      return prev
+        .map((item) => {
+          if (item.reaction._id === reactionToRemove._id) {
+            // Nếu count > 1 thì giảm, nếu = 1 thì sẽ bị filter ở dưới
+            return { ...item, count: item.count - 1 };
+          }
+          return item;
+        })
+        .filter((item) => item.count > 0) // Loại bỏ reaction có count <= 0
+        .sort((a, b) => b.count - a.count);
+    });
+
     try {
-      const res = await sendRequest<IBackendRes<any>>({
+      await sendRequest<IBackendRes<{ success: boolean }>>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/video-reactions/unreact`,
         method: "POST",
         body: { videoId },
@@ -444,65 +509,94 @@ const ReactSection: React.FC<ReactionSectionProp> = ({
       onReactionRemove();
     } catch (error) {
       console.error("Error updating reaction:", error);
+      // Restore state if there was an error
+      setSelectedReaction(reactionToRemove);
     }
   };
 
   return (
-    <div className="relative inline-block">
+    <div className="flex items-center">
       {loading ? (
-        <FaThumbsUp className="text-gray-400 mr-3" size={24} />
+        <div className="flex items-center">
+          <FaThumbsUp className="text-gray-400 mr-2" size={20} />
+          <span className="text-white">{numberReaction || 0} Reaction</span>
+        </div>
       ) : (
         <>
-          {showReactions && (
-            <div
-              className="absolute bottom-full left-1/3 transform -translate-x-1/2 -translate-y-2 bg-white border p-2 rounded-md shadow-md flex gap-2"
-              onMouseEnter={() => setShowReactions(true)}
-              onMouseLeave={() => setShowReactions(false)}
-            >
-              {reactions.map((reaction) => (
-                <div
-                  key={reaction._id}
-                  className="cursor-pointer p-1 flex items-center justify-center"
-                  onClick={() => handleAddReaction(reaction)}
-                >
-                  {reaction.icon}
-                </div>
-              ))}
-            </div>
-          )}
-          <div
-            className="cursor-pointer w-auto h-auto pr-3 flex items-center justify-center"
-            onMouseEnter={() => setShowReactions(true)}
-            onMouseLeave={() => setShowReactions(false)}
-            onClick={() => handleRemoveReaction}
-          >
-            {selectedReaction ? (
-              <div onClick={handleRemoveReaction} className="flex items-center">
-                {selectedReaction.icon}{" "}
-                <p className="ml-1">{selectedReaction.type}</p>
-              </div>
-            ) : (
-              <div className="flex items-center box-border">
-                <div className="relative w-8 h-8">
-                  <FaThumbsUp
-                    className="text-gray-400 scale-[2] ml-2 mb-5"
-                    size={15}
-                  />
-                </div>
-                <p className="ml-1 mb-2">Like</p>
-              </div>
-            )}
-          </div>
-          {thisReactions.length > 0 && (
-            <div className="flex items-center mt-1">
-              <div className="flex items-center mr-2">
-                {thisReactions.slice(-3).map((reaction) => (
-                  <div key={reaction._id} className="ml-1">
+          <div className="relative">
+            {showReactions && (
+              <div
+                className="absolute bottom-4 left-0 mb-2 bg-white border p-2 rounded-lg shadow-lg flex gap-2 z-50"
+                onMouseEnter={() => setShowReactions(true)}
+                onMouseLeave={() => setShowReactions(false)}
+              >
+                {reactions.map((reaction) => (
+                  <div
+                    key={reaction._id}
+                    className="cursor-pointer p-1 hover:scale-110 transition-transform"
+                    onClick={() => handleAddReaction(reaction)}
+                  >
                     {reaction.icon}
                   </div>
                 ))}
               </div>
-              {numberReaction}
+            )}
+            <div
+              className="cursor-pointer flex items-center justify-center"
+              onMouseEnter={() => user && setShowReactions(true)}
+              onMouseLeave={() => setShowReactions(false)}
+              onClick={
+                selectedReaction
+                  ? handleRemoveReaction
+                  : () => {
+                      if (!user) {
+                        notification.error({
+                          message: "Authentication Required",
+                          description: "Please log in to react to videos",
+                        });
+                      }
+                    }
+              }
+            >
+              {selectedReaction ? (
+                <div className="flex items-center">
+                  <div className="w-6 h-6 mr-2 mt-1 flex items-center justify-center">
+                    {selectedReaction.icon}
+                  </div>
+                  <span className="text-white text-base">
+                    {numberReaction || 0} Reaction
+                  </span>
+                </div>
+              ) : (
+                <div className="flex items-center">
+                  <div className="w-6 h-6 mr-2 flex items-center justify-center">
+                    <FaRegThumbsUp
+                      className="text-gray-400"
+                      size={20}
+                      color="#f3f3f3"
+                    />
+                  </div>
+                  <span className="text-white text-base">
+                    {numberReaction || 0} Reaction
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {topReactions.length > 0 && (
+            <div className="flex items-center ml-2">
+              <div className="flex items-center">
+                {topReactions.map((item, index) => (
+                  <div
+                    key={item.reaction._id}
+                    className={`${index > 0 ? "-ml-1" : ""} w-5 h-5`}
+                    title={`${item.reaction.type || "Reaction"}: ${item.count}`}
+                  >
+                    {item.reaction.icon}
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </>

@@ -8,7 +8,7 @@ const roleRoutes: Record<string, (string | RegExp)[]> = {
     "/page/following",
     "/page/profile",
     "/page/search-user-video",
-    "/personal/videohistory",
+    "/page/videohistory",
     /^\/page\/share\/[\w-]+$/,
     /^\/page\/shareMusic\/[\w-]+$/,
     /^\/page\/music\/[\w-]+$/,
@@ -40,12 +40,13 @@ const roleRoutes: Record<string, (string | RegExp)[]> = {
     /^\/page\/shop\/rating\/[\w-]+$/,
     /^\/page\/shop\/store\/[\w-]+$/,
     "/page/karaoke",
+    "/page/profile/edit",
   ],
   GUEST: [
     "/page/trending",
     "/page/rankings",
-     /^\/page\/detail_user\/[\w-]+$/, 
-     "/page/search-user-video",
+    /^\/page\/detail_user\/[\w-]+$/,
+    "/page/search-user-video",
     /^\/page\/rankings\/music\/[\w-]+$/,
     /^\/page\/rankings\/video\/[\w-]+$/,
     /^\/page\/rankings\/creator\/[\w-]+$/,
@@ -62,6 +63,7 @@ const roleRoutes: Record<string, (string | RegExp)[]> = {
     /^\/page\/store\/[\w-]+$/,
     "/page/shop",
     /^\/page\/product-detail\/[\w-]+$/,
+    "/page/trending-new-ui",
   ],
   ADMIN: [
     "/dashboard/user",
@@ -75,7 +77,7 @@ const roleRoutes: Record<string, (string | RegExp)[]> = {
     "/dashboard/ticked",
     "/dashboard/statistic/users",
     "/dashboard/statistic/videos",
-    "/dashboard/statistic/musics"
+    "/dashboard/statistic/musics",
   ],
 };
 

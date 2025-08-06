@@ -1,204 +1,211 @@
-import React, { useState, useEffect, useRef, useContext } from "react";
+"use client";
+
+import React, { useState, useEffect, useContext, Fragment } from "react";
 import { sendRequest } from "@/utils/api";
 import { AuthContext } from "@/context/AuthContext";
-
+import { ThumbsUp, ChevronDown, ChevronUp, User } from "lucide-react";
+import { Button } from "antd";
 import Comment from "./comment";
-import CreateCommentModal from "./create-comment-modal";
+import TickedUser from "@/components/ticked-user/TickedUser";
 
 interface CommentSectionProps {
   videoId: string | undefined;
-  onCommentClick: () => void;
   showComments: boolean;
+  user: any;
+  userAvatar: string;
   onCommentAdded?: () => void;
   onCommentRemove?: () => void;
 }
 
-interface Comment {
+interface CommentI {
   _id: string;
   username: string;
   image?: string;
-  parentId: any;
+  parentId: string | null;
   CommentDescription: string;
   totalOfChildComments: number;
   totalReactions: number;
-  user?: any;
+  createdAt?: string;
 }
 
+const CommentItem: React.FC<{
+  comment: CommentI;
+  depth?: number;
+  canExpand?: boolean;
+  childCount?: number;
+  isExpanded?: boolean;
+  onToggleReplies?: (parentId: string) => void;
+}> = ({
+  comment,
+  depth = 0,
+  canExpand,
+  childCount = 0,
+  isExpanded,
+  onToggleReplies,
+}) => {
+  return (
+    <div className={depth === 0 ? "space-y-3" : `space-y-3 ml-${depth * 4}`}>
+      <div className="flex gap-3">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1 truncate">
+            <span className="text-white font-medium text-sm truncate">
+              {comment.username}
+            </span>
+            {comment.createdAt && (
+              <span className="text-gray-400 text-xs">
+                {new Date(comment.createdAt).toLocaleDateString()}
+              </span>
+            )}
+          </div>
+          <p className="text-gray-300 text-sm break-words mb-2">
+            {comment.CommentDescription}
+          </p>
+
+          <div className="flex items-center gap-4 text-xs select-none">
+            <Button
+              size="small"
+              className="text-gray-400 hover:text-white p-0 h-auto flex items-center gap-1"
+            >
+              <ThumbsUp className="h-3 w-3" />
+              {comment.totalReactions}
+            </Button>
+
+            {canExpand && (
+              <Button
+                size="small"
+                className="text-gray-400 hover:text-white p-0 h-auto flex items-center gap-1"
+                onClick={() => onToggleReplies?.(comment._id)}
+              >
+                {isExpanded ? (
+                  <>
+                    Hide replies <ChevronUp className="h-3 w-3 ml-1" />
+                  </>
+                ) : (
+                  <>
+                    {childCount} replies{" "}
+                    <ChevronDown className="h-3 w-3 ml-1" />
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 const CommentSection: React.FC<CommentSectionProps> = ({
   videoId,
-  onCommentClick,
+  user,
   showComments,
   onCommentAdded,
-  onCommentRemove,
 }) => {
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [childComments, setChildComments] = useState<Map<string, Comment[]>>(
+  const { accessToken } = useContext(AuthContext) ?? {};
+  const [loading, setLoading] = useState<boolean>(true);
+  const [comments, setComments] = useState<CommentI[]>([]);
+  const [childComments, setChildComments] = useState<Map<string, CommentI[]>>(
     new Map()
   );
   const [expandedComments, setExpandedComments] = useState<Set<string>>(
     new Set()
   );
-  const [loading, setLoading] = useState<boolean>(true);
-  const [newComment, setNewComment] = useState<string>("");
-  const commentSectionRef = useRef<HTMLDivElement | null>(null);
-
-  const { accessToken, user } = useContext(AuthContext) ?? {};
-  const userAvatar =
-    user?.image ||
-    "https://firebasestorage.googleapis.com/v0/b/stiktify-bachend.firebasestorage.app/o/avatars%2Fdefault_avatar.png?alt=media&token=93109c9b-d284-41ea-95e7-4786e3c69328"; // Avatar mặc định
-
   useEffect(() => {
+    if (!videoId || !showComments || !accessToken) return;
+
     const fetchComments = async () => {
       try {
         setLoading(true);
         const res = await sendRequest<any>({
           url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/comments/video/${videoId}`,
           method: "GET",
-          headers: { Authorization: `Bearer ${accessToken}` },
+          headers: accessToken
+            ? { Authorization: `Bearer ${accessToken}` }
+            : {},
         });
         if (res.statusCode === 200) {
           setComments(res.data);
         }
-      } catch (error) {
-        console.error("Error fetching comments:", error);
+      } catch (err) {
+        console.error("Error fetching comments", err);
       } finally {
         setLoading(false);
       }
     };
-    if (videoId) fetchComments();
-  }, [videoId]);
 
-  const handleRemoveComment = (commentId: string, parentId: string | null) => {
+    fetchComments();
+  }, [videoId, accessToken, showComments]);
+
+  const toggleReplies = async (parentId: string) => {
+    if (!accessToken) {
+      return;
+    }
+    setExpandedComments((prev) => {
+      const n = new Set(prev);
+      if (n.has(parentId)) n.delete(parentId);
+      else n.add(parentId);
+      return n;
+    });
+
+    if (!childComments.has(parentId)) {
+      try {
+        const res = await sendRequest<any>({
+          url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/comments/child-comments/${parentId}`,
+          method: "GET",
+          headers: accessToken
+            ? { Authorization: `Bearer ${accessToken}` }
+            : {},
+        });
+        if (res.statusCode === 200) {
+          setChildComments((prev) => new Map(prev).set(parentId, res.data));
+        }
+      } catch (err) {
+        console.error("Error fetching child comments", err);
+      }
+    }
+  };
+  const handleDeleteComment = (commentId: string, parentId: string | null) => {
+    setComments((prev) => prev.filter((c) => c._id !== commentId));
     if (parentId) {
-      console.log("hello");
-
-      // Nếu comment có parentId, xóa nó khỏi danh sách childComments của parent
       setChildComments((prev) => {
-        const updatedMap = new Map(prev);
-        const parentCommentReplies = updatedMap.get(parentId);
-        if (parentCommentReplies) {
-          updatedMap.set(
-            parentId,
-            parentCommentReplies.filter((c) => c._id !== commentId)
-          );
-        }
-        return updatedMap;
+        const updated = new Map(prev);
+        const arr = updated.get(parentId) || [];
+        updated.set(
+          parentId,
+          arr.filter((c) => c._id !== commentId)
+        );
+        return updated;
       });
-    } else {
-      // Nếu comment không có parentId, xóa nó khỏi danh sách comments chính
-      setComments((prev) => prev.filter((c) => c._id !== commentId));
-    }
-
-    // Gọi hàm onCommentRemove từ props (nếu có)
-    onCommentRemove!();
-  };
-
-  const handlePostComment = async () => {
-    if (newComment.trim() === "") return;
-    try {
-      const res = await sendRequest<any>({
-        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/comments/create`,
-        method: "POST",
-        headers: { Authorization: `Bearer ${accessToken}` },
-        body: { videoId, CommentDescription: newComment },
-      });
-      console.log(res);
-
-      if (res.statusCode === 201) {
-        setComments([
-          ...comments,
-          {
-            _id: res.data._id,
-            username: user.name,
-            image: userAvatar,
-            parentId: null,
-            CommentDescription: res.data.CommentDescription,
-            totalOfChildComments: 0,
-            totalReactions: 0,
-            user: {
-              _id: user._id,
-            },
-          },
-        ]);
-        setNewComment("");
-        onCommentAdded?.();
-      }
-    } catch (error) {
-      console.error("Error posting comment:", error);
     }
   };
-
-  const toggleChildComments = async (parentId: string) => {
-    const updatedExpanded = new Set(expandedComments);
-    if (updatedExpanded.has(parentId)) {
-      updatedExpanded.delete(parentId);
-    } else {
-      updatedExpanded.add(parentId);
-      if (!childComments.has(parentId)) {
-        try {
-          const res = await sendRequest<any>({
-            url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/comments/child-comments/${parentId}`,
-            method: "GET",
-            headers: { Authorization: `Bearer ${accessToken}` },
-          });
-          if (res.statusCode === 200) {
-            setChildComments(new Map(childComments.set(parentId, res.data)));
-          }
-        } catch (error) {
-          console.error("Error fetching child comments:", error);
-        }
-      }
-    }
-    setExpandedComments(updatedExpanded);
+  const renderCommentTree = (comment: CommentI, depth = 0): React.ReactNode => {
+    return (
+      <Comment
+        key={comment._id}
+        comment={comment}
+        user={user}
+        userAvatar={comment.image || ""}
+        toggleChildComments={toggleReplies}
+        expandedComments={expandedComments}
+        childComments={childComments}
+        videoId={videoId}
+        setChildComments={setChildComments}
+        onCommentAdded={onCommentAdded ?? (() => {})}
+        onDeleteComment={handleDeleteComment}
+      />
+    );
   };
+  if (!showComments) return null;
 
   return (
-    showComments && (
-      <div
-        ref={commentSectionRef}
-        className="w-[25%] bg-white shadow-lg absolute right-0 top-[95px] pt-10 pl-2 h-[87%] flex flex-col justify-between z-50"
-      >
-        <div className="flex justify-between items-center p-4 border-b">
-          <h3 className="text-xl font-semibold">Comments</h3>
-          <button onClick={onCommentClick} className="text-sm text-blue-500">
-            Hide
-          </button>
-        </div>
-
-        <div className="comments-list p-4 overflow-y-auto flex-1">
-          {loading ? (
-            <p>Loading comments...</p>
-          ) : comments.length > 0 ? (
-            comments.map((comment) => (
-              <Comment
-                comment={comment}
-                childComments={childComments}
-                expandedComments={expandedComments}
-                toggleChildComments={toggleChildComments}
-                user={user}
-                userAvatar={userAvatar}
-                key={comment._id}
-                videoId={videoId}
-                setChildComments={setChildComments}
-                onDeleteComment={handleRemoveComment}
-                onCommentAdded={onCommentAdded!}
-              />
-            ))
-          ) : (
-            <p>No comments yet.</p>
-          )}
-        </div>
-
-        {user && (
-          <CreateCommentModal
-            handlePostComment={handlePostComment}
-            newComment={newComment}
-            setNewComment={setNewComment}
-            userAvatar={userAvatar}
-          />
-        )}
-      </div>
-    )
+    <div className="space-y-4">
+      {loading ? (
+        <p className="text-gray-400">Loading comments...</p>
+      ) : comments.length === 0 ? (
+        <p className="text-gray-400">No comments yet.</p>
+      ) : (
+        comments.map((c) => renderCommentTree(c))
+      )}
+    </div>
   );
 };
 

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import ListenedHistory from "@/components/personal/history/listened-history";
-import SettingListenHistory from "@/components/personal/history/setting-listen-history";
+import ListenedHistory from "@/components/page/history/listened-history";
+import SettingListenHistory from "@/components/page/history/setting-listen-history";
 import Header from "@/components/page/trending/header";
 import { handleSearchHistory } from "@/actions/music.action";
 
@@ -75,17 +75,17 @@ const HistoryMusicPage = () => {
   }, [watchedDate, history, searchValue]);
 
   return (
-    <div>
-      <div>
+    <div className="flex-grow p-5 pl-64 main-layout">
+      {/* <div>
         <Header
           searchValue={searchValue}
           setSearchValue={setSearchValue}
           isGuest={false}
           onClick={() => handleSearchMusic(searchValue)}
         />
-      </div>
+      </div> */}
       <div className="flex p-4">
-        <div className="flex-1 mr-8">
+        <div className="flex-1 mr-8 bg-[#18182c] p-4 text-white">
           {searchedMusic.length > 0 ? (
             <div className="space-y-4">
               {searchedMusic.map((item) => {
@@ -93,7 +93,7 @@ const HistoryMusicPage = () => {
                 return (
                   <div
                     key={item._id}
-                    className="flex items-center bg-white shadow-md rounded-lg p-4"
+                    className="flex items-center bg-[#18182c] shadow-md rounded-lg p-4"
                   >
                     <img
                       src={music?.musicThumbnail}
@@ -101,16 +101,16 @@ const HistoryMusicPage = () => {
                       alt={music?.musicDescription}
                     />
                     <div className="ml-4">
-                      <h3 className="text-lg font-semibold text-gray-900">
+                      <h3 className="text-lg font-semibold text-white-900">
                         {music?.musicDescription}
                       </h3>
-                      <p className="text-sm text-gray-700">
+                      <p className="text-sm text-white-700">
                         Views: {music?.totalListener || 0}
                       </p>
-                      <p className="text-sm text-gray-700">
+                      <p className="text-sm text-white-700">
                         Reactions: {music?.totalReactions || 0}
                       </p>
-                      <p className="text-sm text-gray-700">
+                      <p className="text-sm text-white-700">
                         View At: {new Date(item.createdAt).toLocaleTimeString()}{" "}
                         {new Date(item.createdAt).toLocaleDateString()}
                       </p>
@@ -120,7 +120,7 @@ const HistoryMusicPage = () => {
               })}
             </div>
           ) : searchValue.trim() ? (
-            <p className="text-center text-gray-500">No results found.</p>
+            <p className="text-center text-white-500">No results found.</p>
           ) : (
             <ListenedHistory setHistory={setHistory} />
           )}

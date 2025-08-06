@@ -10,6 +10,7 @@ export const fetchMyVideos = async (
   current: number,
   pageSize: number
 ) => {
+  if (!token) return null;
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/my-videos/${userId}?current=${current}&pageSize=${pageSize}`,
