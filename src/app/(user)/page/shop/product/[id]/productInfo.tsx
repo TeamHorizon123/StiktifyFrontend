@@ -70,7 +70,7 @@ const ProductInfo = ({ data }: ProductInfo) => {
                     },
                     queryParams: {
                         $filter: `ProductId eq '${data?.Id}'`,
-                        $expand: "ProductVariants"
+                        $expand: "ProductVariants,"
                     }
                 });
 
@@ -312,34 +312,40 @@ const ProductInfo = ({ data }: ProductInfo) => {
                                         }
                                     </div>
                                 </div>
-                                <div className='flex items-center space-x-5'>
-                                    <span>Quantity:</span>
-                                    <div className='flex items-center space-x-4'>
-                                        <button
-                                            className='p-2 text-xl bg-[#C04FD4] disabled:bg-[#C04FD480] rounded-lg'
-                                            onClick={() => { handleUpdateQuantity(-1) }}
-                                            disabled={quantity <= 1}><FaMinus /></button>
-                                        <span className='text-2xl w-16 px-2 text-center'>{quantity}</span>
-                                        <button
-                                            className='p-2 text-xl bg-[#C04FD4] disabled:bg-[#C04FD480] rounded-lg'
-                                            onClick={() => { handleUpdateQuantity(1) }}
-                                            disabled={quantity >= maxQuantity}><FaPlus /></button>
-                                    </div>
-                                </div>
-                                <div className='py-4 grid grid-cols-2 gap-2'>
-                                    <button
-                                        onClick={() => handleAddCart()}
-                                        className='p-3 rounded-md border border-[#18181B] hover:border-white bg-[#18181B] flex items-center justify-center space-x-2'>
-                                        <FaCartPlus />
+                                {
+                                    data.ShopId != user?._id
+                                    && <>
+                                        <div className='flex items-center space-x-5'>
+                                            <span>Quantity:</span>
+                                            <div className='flex items-center space-x-4'>
+                                                <button
+                                                    className='p-2 text-xl bg-[#C04FD4] disabled:bg-[#C04FD480] rounded-lg'
+                                                    onClick={() => { handleUpdateQuantity(-1) }}
+                                                    disabled={quantity <= 1}><FaMinus /></button>
+                                                <span className='text-2xl w-16 px-2 text-center'>{quantity}</span>
+                                                <button
+                                                    className='p-2 text-xl bg-[#C04FD4] disabled:bg-[#C04FD480] rounded-lg'
+                                                    onClick={() => { handleUpdateQuantity(1) }}
+                                                    disabled={quantity >= maxQuantity}><FaPlus /></button>
+                                            </div>
+                                        </div>
+                                        <div className='py-4 grid grid-cols-2 gap-2'>
+                                            <button
+                                                onClick={() => handleAddCart()}
+                                                className='p-3 rounded-md border border-[#18181B] hover:border-white bg-[#18181B] flex items-center justify-center space-x-2'>
+                                                <FaCartPlus />
 
-                                        <span>Add to cart</span>
-                                    </button>
-                                    <button
-                                        onClick={() => handleBuyNow()}
-                                        className='p-3 rounded-md border border-[#C04FD4] hover:border-white bg-[#C04FD4] text-center'>
-                                        <span>Buy now</span>
-                                    </button>
-                                </div>
+                                                <span>Add to cart</span>
+                                            </button>
+                                            <button
+                                                onClick={() => handleBuyNow()}
+                                                className='p-3 rounded-md border border-[#C04FD4] hover:border-white bg-[#C04FD4] text-center'>
+                                                <span>Buy now</span>
+                                            </button>
+                                        </div>
+                                    </>
+                                }
+
                             </div>
                         </div>
                         <ProductFooter data={data.Shop || null} />
