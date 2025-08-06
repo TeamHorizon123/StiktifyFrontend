@@ -6,7 +6,7 @@ const ShopPage = () => {
 
   return (
     <>
-      <div>
+      <div className="main-layout min-h-screen ">
         <div className="flex items-center justify-center text-white space-x-2 text-4xl font-black">
           <FaShop />
           <p className="">Stiktify Shop</p>

@@ -45,13 +45,13 @@ const ProductFooter = ({ data }: ShopInfo) => {
                         </div>
                     </div>
                 </div>
-                <div className='w-1/4 grid grid-cols-2 gap-2'>
-                    <Link
+                <div className='w-1/4 flex items-center justify-end'>
+                    {/* <Link
                         className='h-fit p-2 flex space-x-2 items-center bg-[#C04FD4] justify-center rounded-lg border border-[#C04FD4] hover:border-white'
                         href="">
                         <IoChatbox />
                         <span>Chat</span>
-                    </Link>
+                    </Link> */}
                     <Link
                         className='h-fit p-2 bg-[#18181B] text-center rounded-lg border border-[#18181B] hover:border-white'
                         href={`/page/shop/store/${data.Id}`}>

@@ -5,7 +5,7 @@ import React from 'react'
 
 const CheckoutSuccess = () => {
     return (
-        <div>
+        <div className='main-layout min-h-screen'>
             <Result
                 status="success"
                 title={<p className='text-white'>Successfully order</p>}

@@ -31,7 +31,7 @@ const roleRoutes: Record<string, (string | RegExp)[]> = {
     "/page/shop",
     "/page/shop/recommend",
     "/page/shop/cart",
-    "/page/shop/address",
+    "/page/address",
     "/page/shop/check-out",
     "/page/shop/check-out/success",
     "/page/shop/check-out/fail",
@@ -60,9 +60,6 @@ const roleRoutes: Record<string, (string | RegExp)[]> = {
     /^\/page\/music\/[\w-]+$/,
     /^\/page\/shareMusic\/[\w-]+$/,
     /^\/page\/detail_user\/[\w-]+$/,
-    /^\/page\/store\/[\w-]+$/,
-    "/page/shop",
-    /^\/page\/product-detail\/[\w-]+$/,
     "/page/trending-new-ui",
   ],
   ADMIN: [

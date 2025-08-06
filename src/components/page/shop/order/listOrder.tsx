@@ -5,7 +5,6 @@ import RatingOrder from '@/components/page/shop/order/ratingOrder';
 import { AuthContext } from '@/context/AuthContext';
 import { sendRequest } from '@/utils/api';
 import { List, message, notification, Spin } from 'antd';
-import { skip } from 'node:test';
 import React, { useContext, useEffect, useState } from 'react'
 import { FaStore } from "react-icons/fa6";
 
@@ -163,7 +162,7 @@ const ListOrder = (orderType: { orderType: string }) => {
     }
 
     return (
-        <>
+        <div className='w-[80vw]'>
             {contextHolder}
             <List
                 grid={{ gutter: 16, column: 1 }}
@@ -237,7 +236,7 @@ const ListOrder = (orderType: { orderType: string }) => {
                     )
                 }
             />
-        </>
+        </div>
 
     );
 }

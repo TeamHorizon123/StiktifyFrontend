@@ -194,138 +194,142 @@ const CheckoutPage = () => {
         )
 
     if (success)
-        return (<>
-            <Result
-                status="success"
-                title={<p className='text-white'>Successfully order</p>}
-                extra={
-                    <Link
-                        href={'/page/shop'}
-                        className='py-2.5 px-4 bg-[#1C1B33] rounded-full hover:scale-110 text-white' >
-                        Go Shop
-                    </Link>
-                }
-            />
-            <ListProduct />
-        </>)
+        return (
+            <div className='main-layout min-h-screen'>
+                <Result
+                    status="success"
+                    title={<p className='text-white'>Successfully order</p>}
+                    extra={
+                        <Link
+                            href={'/page/shop'}
+                            className='py-2.5 px-4 bg-[#1C1B33] rounded-full hover:scale-110 text-white' >
+                            Go Shop
+                        </Link>
+                    }
+                />
+                <ListProduct />
+            </div>)
 
     return (
-        <div className='text-white p-2 sm:w-full md:w-[80vw] m-auto space-y-2'>
-            {/* List Address */}
-            <div className='text-base'>
-                <div className='p-4 flex space-x-2 items-center bg-[#1C1B33] rounded-tl-lg rounded-tr-lg'>
-                    <FaLocationDot />
-                    <p>Receiving address</p>
+        <div className='main-layout min-h-screen'>
+            <div className='text-white p-2 sm:w-full md:w-[80vw] m-auto space-y-2'>
+                {/* List Address */}
+                <div className='text-base'>
+                    <div className='p-4 flex space-x-2 items-center bg-[#1C1B33] rounded-tl-lg rounded-tr-lg'>
+                        <FaLocationDot />
+                        <p>Receiving address</p>
+                    </div>
+                    <div className='p-4 bg-[#454B79] flex space-x-4 items-center rounded-bl-sm rounded-br-sm'>
+                        <div className='flex space-x-2 items-center'>
+                            <p>{chooseAddress?.Receiver ?? "Name"}</p>
+                            <p>(+84) {chooseAddress?.PhoneReceive.substring(1) ?? "000000000"}</p>
+                        </div>
+                        <p className='font-extralight'>{chooseAddress?.Address ?? "Address"}</p>
+                        <button
+                            onClick={() => setShowAddresses(true)}
+                            className='ml-2 rounded border p-2 hover:bg-slate-600'>Choose other</button>
+                    </div>
+                    <div
+                        className="w-full h-0.5"
+                        style={{
+                            backgroundImage: `repeating-linear-gradient(-45deg, #009dff 0 10px, transparent 10px 20px, #fb1500 20px 30px, transparent 30px 40px)`
+                        }}
+                    ></div>
                 </div>
-                <div className='p-4 bg-[#454B79] flex space-x-4 items-center rounded-bl-sm rounded-br-sm'>
-                    <div className='flex space-x-2 items-center'>
-                        <p>{chooseAddress?.Receiver ?? "Name"}</p>
-                        <p>(+84) {chooseAddress?.PhoneReceive.substring(1) ?? "000000000"}</p>
-                    </div>
-                    <p className='font-extralight'>{chooseAddress?.Address ?? "Address"}</p>
-                    <button
-                        onClick={() => setShowAddresses(true)}
-                        className='ml-2 rounded border p-2 hover:bg-slate-600'>Choose other</button>
-                </div>
-                <div
-                    className="w-full h-0.5"
-                    style={{
-                        backgroundImage: `repeating-linear-gradient(-45deg, #009dff 0 10px, transparent 10px 20px, #fb1500 20px 30px, transparent 30px 40px)`
-                    }}
-                ></div>
-            </div>
-            {/* list product item */}
-            <div className='p-2 bg-[#454B79] rounded-md space-y-3'>
+                {/* list product item */}
+                <div className='p-2 bg-[#454B79] rounded-md space-y-3'>
 
-                {
-                    Object.entries(groupOrder).map(([shopId, items]) => (
-                        <>
-                            <CheckoutProduct key={shopId} shopId={shopId} items={items} />
-                        </>
-                    ))
-                }
-
-            </div>
-            {/* Payment method */}
-            <div className='p-2 bg-[#454B79] rounded-md space-y-3'>
-                <List
-                    size="large"
-                    header={<div className='flex items-center text-lg text-white space-x-2'>
-                        <MdOutlinePayment />
-                        <span>Payment method</span>
-                    </div>}
-                    dataSource={methods}
-                    // dataSource={methods}
-                    renderItem={(item) =>
-                        <List.Item
-                            key={item.Id}
-                            actions={[
-
-                            ]}>
-                            <div className='text-white flex justify-between items-center w-full'>
-                                <p>{item.Name ?? "COD"}</p>
-                                <Checkbox
-                                    checked={item.Id === chooseMethod?.Id}
-                                    onClick={() => {
-                                        setChooseMethod(item.Id === chooseMethod?.Id ? null : item)
-                                    }} key={item.Id} />
-                            </div>
-                        </List.Item>}
-                />
-            </div>
-
-            {/* Summary order */}
-            <div className='p-2 bg-[#454B79] rounded-md space-y-3 flex flex-col items-end'>
-                <div className='w-80 space-y-4'>
-                    <div className='flex justify-between items-center'>
-                        <p>Merchandise Subtotal</p>
-                        <p>{formatCurrencyVND(total)}</p>
-                    </div>
-                    <div className='flex justify-between items-center'>
-                        <p>Shipping Subtotal</p>
-                        <p>0</p>
-                    </div>
-                    <div className='flex justify-between items-center'>
-                        <p>Total Payment:</p>
-                        <p className=' font-bold text-[#EF4444] text-2xl'>{formatCurrencyVND(total)}</p>
-                    </div>
-                </div>
-                <div className='p-4 w-full flex justify-between items-center'>
-                    <p className='font-extralight text-sm'>{"By clicking 'Place Order', you are agreeing to Stiktify's "}
-                        <Link className='font-bold' href={''}>General Transaction Terms</Link>
-                    </p>
                     {
-                        chooseMethod?.Name === "Cash On Delivery (COD)" &&
-                        <button onClick={async () => await handlePlaceOrder()} className='py-2.5 px-4 bg-[#1C1B33] rounded-full hover:scale-110'>Place order</button>
+                        Object.entries(groupOrder).map(([shopId, items]) => (
+                            <>
+                                <CheckoutProduct key={shopId} shopId={shopId} items={items} />
+                            </>
+                        ))
                     }
-                    {
-                        chooseMethod?.Name === "E-wallet" &&
-                        <button onClick={async () => await handlePlaceOrder()} className='py-2.5 px-4 bg-[#1C1B33] rounded-full hover:scale-110'>Place order with VNPay</button>
-                    }
-                </div>
-            </div>
 
-            <Modal
-                open={showAddresses}
-                footer
-                destroyOnClose
-                onCancel={() => setShowAddresses(false)}
-                title="My Address">
-                <ModalChooseAddress
-                    default={chooseAddress?.Id ?? ""}
-                    listAddress={addresses}
-                    onClose={() => setShowAddresses(false)}
-                    setChooseAddress={() => setChooseAddress} />
-            </Modal>
-            <Modal
-                open={showModal}
-                footer
-                destroyOnClose
-                onCancel={() => setShowModal(false)}
-                title="New address (use information after merged)">
-                <ModalAddAddress showModal={() => setShowModal(false)} />
-            </Modal>
+                </div>
+                {/* Payment method */}
+                <div className='p-2 bg-[#454B79] rounded-md space-y-3'>
+                    <List
+                        size="large"
+                        header={<div className='flex items-center text-lg text-white space-x-2'>
+                            <MdOutlinePayment />
+                            <span>Payment method</span>
+                        </div>}
+                        dataSource={methods}
+                        // dataSource={methods}
+                        renderItem={(item) =>
+                            <List.Item
+                                key={item.Id}
+                                actions={[
+
+                                ]}>
+                                <div className='text-white flex justify-between items-center w-full'>
+                                    <p>{item.Name ?? "COD"}</p>
+                                    <Checkbox
+                                        checked={item.Id === chooseMethod?.Id}
+                                        onClick={() => {
+                                            setChooseMethod(item.Id === chooseMethod?.Id ? null : item)
+                                        }} key={item.Id} />
+                                </div>
+                            </List.Item>}
+                    />
+                </div>
+
+                {/* Summary order */}
+                <div className='p-2 bg-[#454B79] rounded-md space-y-3 flex flex-col items-end'>
+                    <div className='w-80 space-y-4'>
+                        <div className='flex justify-between items-center'>
+                            <p>Merchandise Subtotal</p>
+                            <p>{formatCurrencyVND(total)}</p>
+                        </div>
+                        <div className='flex justify-between items-center'>
+                            <p>Shipping Subtotal</p>
+                            <p>0</p>
+                        </div>
+                        <div className='flex justify-between items-center'>
+                            <p>Total Payment:</p>
+                            <p className=' font-bold text-[#EF4444] text-2xl'>{formatCurrencyVND(total)}</p>
+                        </div>
+                    </div>
+                    <div className='p-4 w-full flex justify-between items-center'>
+                        <p className='font-extralight text-sm'>{"By clicking 'Place Order', you are agreeing to Stiktify's "}
+                            <Link className='font-bold' href={''}>General Transaction Terms</Link>
+                        </p>
+                        {
+                            chooseMethod?.Name === "Cash On Delivery (COD)" &&
+                            <button onClick={async () => await handlePlaceOrder()} className='py-2.5 px-4 bg-[#1C1B33] rounded-full hover:scale-110'>Place order</button>
+                        }
+                        {
+                            chooseMethod?.Name === "E-wallet" &&
+                            <button onClick={async () => await handlePlaceOrder()} className='py-2.5 px-4 bg-[#1C1B33] rounded-full hover:scale-110'>Place order with VNPay</button>
+                        }
+                    </div>
+                </div>
+
+                <Modal
+                    open={showAddresses}
+                    footer
+                    destroyOnClose
+                    onCancel={() => setShowAddresses(false)}
+                    title="My Address">
+                    <ModalChooseAddress
+                        default={chooseAddress?.Id ?? ""}
+                        listAddress={addresses}
+                        onClose={() => setShowAddresses(false)}
+                        setChooseAddress={() => setChooseAddress} />
+                </Modal>
+                <Modal
+                    open={showModal}
+                    footer
+                    destroyOnClose
+                    onCancel={() => setShowModal(false)}
+                    title="New address (use information after merged)">
+                    <ModalAddAddress showModal={() => setShowModal(false)} />
+                </Modal>
+            </div>
         </div>
+
     )
 }
 

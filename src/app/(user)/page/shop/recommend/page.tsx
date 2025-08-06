@@ -1,6 +1,7 @@
 "use client";
 
 import LoadingItem from '@/components/page/shop/loading/loadingItem';
+import LoadingPage from '@/components/page/shop/loading/loadingPage';
 import Product from '@/components/page/shop/product/product'
 import Search from '@/components/page/shop/searchProduct'
 import { AuthContext } from '@/context/AuthContext'
@@ -13,7 +14,7 @@ const RecommendPage = () => {
     const { accessToken } = useContext(AuthContext) ?? {};
     const [loading, setLoading] = useState(true);
     const [products, setProducts] = useState<Product[] | []>([]);
-    const [total, setTotal] = useState(0);
+    // const [total, setTotal] = useState(0);
     const [page, setPage] = useState(0);
     const [hasMore, setHasMore] = useState(true);
 
@@ -35,7 +36,7 @@ const RecommendPage = () => {
             });
 
             if (res.value) setProducts((prev) => [...prev, ...res.value]);
-            setTotal(res["@odata.count"] ?? 0);
+            // setTotal(res["@odata.count"] ?? 0);
             setHasMore(res.value.length > 0);
             setPage(prev => prev + 1);
         } catch {
@@ -65,9 +66,14 @@ const RecommendPage = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, [page, loading, hasMore]);
 
+    if (loading)
+        return (
+            <LoadingPage notifyLoading='Loading...'/>
+        )
+
     return (
-        <>
-            <div className="w-3/4 m-auto mt-4 p-2">
+        <div className='min-h-screen main-layout p-4'>
+            <div className="w-3/4 m-auto p-2">
                 <div className="flex items-center justify-center text-white space-x-2 text-4xl font-black">
                     <FaShop />
                     <p className="">Stiktify Shop</p>
@@ -82,7 +88,7 @@ const RecommendPage = () => {
                                 ))
                             }
                             {
-                                loading??<LoadingItem notifyLoading='Loading'/>
+                                loading ?? <LoadingItem notifyLoading='Loading' />
                             }
                         </div>
 
@@ -94,7 +100,7 @@ const RecommendPage = () => {
                     )}
                 </div>
             </div>
-        </>
+        </div>
     )
 }
 

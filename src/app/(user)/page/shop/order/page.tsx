@@ -16,11 +16,11 @@ const PageOrder = () => {
   const [orderType, setOrderType] = useState<string>("all");
 
   return (
-    <div className='px-6 py-4 w-full space-y-2'>
-      <Row className='bg-[#1C1B33] text-white rounded-xl overflow-hidden' justify="start">
+    <div className='px-6 py-4 space-y-2 main-layout min-h-screen'>
+      <Row className='bg-[#1C1B33] text-white rounded-xl overflow-hidden w-[80vw]'>
         {
           orderTabs.map((tab) => (
-            <Col className="gutter-row" span={4} key={tab.key}>
+            <Col className="gutter-row" span={2} key={tab.key}>
               <div
                 className={`text-center py-4 ${orderType === tab.key
                   ? 'bg-[#454B79] cursor-default'

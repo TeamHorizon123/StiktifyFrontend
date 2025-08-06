@@ -8,9 +8,9 @@ interface IMessage {
 
 const LoadingPage = ({ notifyLoading }: IMessage) => {
     return (
-        <div className='h-[100vh] bg-white flex flex-col items-center justify-center'>
-            <Spin indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} />
-            <span>{notifyLoading}</span>
+        <div className='h-[100vh] main-layout flex flex-col items-center justify-center'>
+            <Spin indicator={<LoadingOutlined style={{ fontSize: 48, color: 'white' }} spin />} />
+            <span className='text-white'>{notifyLoading}</span>
         </div>
     )
 }

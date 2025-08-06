@@ -55,20 +55,23 @@ const ProductDetailPage = () => {
         )
 
     return (
-        <div className='w-3/4 py-2 h-fit m-auto flex flex-col space-y-4'>
-            <div className='flex space-x-2 text-white text-sm'>
-                <p><Link className='hover:underline hover:text-white text-gray-400' href="/page/shop">Stiktify shop</Link></p>
-                <p>/</p>
-                <p>{product?.Name}</p>
+        <div className='main-layout'>
+            <div className='w-3/4 py-2 h-fit m-auto flex flex-col space-y-4 '>
+                <div className='flex space-x-2 text-white text-sm'>
+                    <p><Link className='hover:underline hover:text-white text-gray-400' href="/page/shop">Stiktify shop</Link></p>
+                    <p>/</p>
+                    <p>{product?.Name}</p>
+                </div>
+                {
+                    product ? (<>
+                        <ProductInfo data={product} />
+                    </>) : (<></>)
+                }
+
+
             </div>
-            {
-                product ? (<>
-                    <ProductInfo data={product} />
-                </>) : (<></>)
-            }
-
-
         </div>
+
     )
 }
 
