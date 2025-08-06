@@ -1,18 +1,15 @@
 import Link from 'next/link'
-import React from 'react'
-import { IoChatbox } from "react-icons/io5";
+import React, { useContext } from 'react'
 import { FaStar, FaRegCalendarDays } from "react-icons/fa6";
 import { formatMonthYear } from '@/utils/utils';
+import { AuthContext } from '@/context/AuthContext';
 
 interface ShopInfo {
     data: Shop | null
 }
 
 const ProductFooter = ({ data }: ShopInfo) => {
-    // const { data: shop } = useFetchItem<Shop>({
-    //     url: `${process.env.NEXT_PUBLIC_BACKEND_SHOP_URL}odata/shop/shop/${id}`,
-    //     method: "GET"
-    // })
+    const { user } = useContext(AuthContext) ?? {};
 
     if (data)
         return (
@@ -45,16 +42,16 @@ const ProductFooter = ({ data }: ShopInfo) => {
                         </div>
                     </div>
                 </div>
-                <div className='w-1/4 grid grid-cols-2 gap-2'>
-                    <Link
+                <div className='w-1/4 flex items-center justify-end'>
+                    {/* <Link
                         className='h-fit p-2 flex space-x-2 items-center bg-[#C04FD4] justify-center rounded-lg border border-[#C04FD4] hover:border-white'
                         href="">
                         <IoChatbox />
                         <span>Chat</span>
-                    </Link>
+                    </Link> */}
                     <Link
                         className='h-fit p-2 bg-[#18181B] text-center rounded-lg border border-[#18181B] hover:border-white'
-                        href={`/page/shop/store/${data.Id}`}>
+                        href={data.Id != user?._id ? `/page/shop/store/${data.Id}` :"/page/store"}>
                         <span>View shop</span>
                     </Link>
                 </div>

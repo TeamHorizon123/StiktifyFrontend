@@ -48,26 +48,15 @@ const RatingOrder = (id: { id: string }) => {
     }, []);
 
 
-    const handleViewRating = () => {
-
-    }
-
     return (
         <>
             {
-                hasRating ? (
-                    <button
-                        onClick={() => handleViewRating()}
-                        className='py-1.5 px-2 bg-[#1C1B33] hover:bg-[#1c1b33a6] rounded-md'>
-                        View Rating
-                    </button>
-                ) : (
-                    <button
-                        onClick={() => setShowModal(true)}
-                        className='py-1.5 px-2 bg-[#1C1B33] hover:bg-[#1c1b33a6] rounded-md'>
-                        Rating
-                    </button>
-                )
+                !hasRating && <button
+                    onClick={() => setShowModal(true)}
+                    className='py-1.5 px-2 bg-[#1C1B33] hover:bg-[#1c1b33a6] rounded-md'>
+                    Rating
+                </button>
+
             }
             <Modal
                 title={"Rating product"}

@@ -2,7 +2,7 @@
 import { AuthContext } from "@/context/AuthContext";
 import Link from "next/link";
 import { useContext, useEffect, useState, useRef } from "react";
-import { FaHeadphonesSimple, FaRankingStar } from "react-icons/fa6";
+import { FaHeadphonesSimple, FaLocationDot, FaRankingStar } from "react-icons/fa6";
 import { AiFillHome } from "react-icons/ai";
 import { FaGlobeAsia, FaSearch } from "react-icons/fa";
 import { AiFillMessage } from "react-icons/ai";
@@ -229,12 +229,21 @@ const SideBar: React.FC<SideBarProps> = () => {
                 </p>
               </Link>
               <Link
-                href="/page/manage-shop"
-                className={`test-base flex items-center space-x-2 ${getLinkClass("/page/manage-shop")}`}
+                href="/page/address"
+                className={`test-base flex items-center space-x-2 ${getLinkClass("/page/address")}`}
+              >
+                <FaLocationDot />
+                <p className="text-base sm:hidden max-[600px]:hidden lg:block">
+                  Address
+                </p>
+              </Link>
+              <Link
+                href="/page/store"
+                className={`test-base flex items-center space-x-2 ${getLinkClass("/page/store")}`}
               >
                 <MdDashboard />
                 <p className="text-base sm:hidden max-[600px]:hidden lg:block">
-                  Manage Shop
+                  Seller Centre
                 </p>
               </Link>
               <hr />

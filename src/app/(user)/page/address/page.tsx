@@ -66,7 +66,7 @@ const AddressPage = () => {
     }
 
     return (
-        <div className='p-4 text-white'>
+        <div className='p-4 text-white main-layout min-h-screen'>
             <List
                 header={
                     <>

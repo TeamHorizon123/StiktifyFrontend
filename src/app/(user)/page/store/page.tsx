@@ -172,7 +172,7 @@ const StorePage = () => {
 
   if (!shop)
     return (
-      <div className='p-2 min-h-[100vh] bg-white text-center items-center flex justify-center flex-col'>
+      <div className='p-4 min-h-screen w-[90vw] text-center items-center flex justify-center flex-col'>
         <Empty
           description={
             <Typography.Text>
@@ -198,7 +198,7 @@ const StorePage = () => {
     )
 
   return (
-    <div className='p-4 min-h-[100vh] bg-white'>
+    <div className=' p-4 min-h-[100vh] w-[80vw]'>
       <div className='flex items-center space-x-2 border-b p-2'>
         <div className='flex flex-col items-center space-y-4'>
           <img className='w-[200px] h-[200xp] bg-white' src={shop.AvatarUri ?? ""} alt="Shop avatar" />

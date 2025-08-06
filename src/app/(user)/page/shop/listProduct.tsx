@@ -10,7 +10,7 @@ import { AuthContext } from "@/context/AuthContext";
 import { sendRequest } from "@/utils/api";
 
 export default function ListProduct() {
-    const { accessToken } = useContext(AuthContext) ?? {};
+    const { accessToken, user } = useContext(AuthContext) ?? {};
     const [loading, setLoading] = useState(true);
     const [products, setProducts] = useState<Product[] | []>([]);
     const [total, setTotal] = useState(0);
@@ -26,7 +26,7 @@ export default function ListProduct() {
                         Authorization: `Bearer ${accessToken}`,
                     },
                     queryParams: {
-                        $filter: 'IsHidden eq false',
+                        $filter: `IsHidden eq false and ShopId ne '${user?._id}'`,
                         $top: 8,
                         $skip: 0,
                         $count: true

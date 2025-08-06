@@ -196,6 +196,7 @@ const ManageOrder = () => {
                     current: skip / top + 1,
                     total: total,
                     pageSize: top,
+                    showSizeChanger: false,
                     defaultCurrent: defaultCurrent,
                     onChange: async (page, pageSize) => {
                         const newSkip = (page - 1) * pageSize;

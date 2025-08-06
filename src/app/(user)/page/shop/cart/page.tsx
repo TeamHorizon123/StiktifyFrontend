@@ -69,14 +69,14 @@ const CartPage = () => {
 
     if (loading)
         return (
-            <div className="w-full h-[80vh] text-white flex flex-col items-center justify-center space-y-4">
+            <div className="w-full h-[80vh] main-layout text-white flex flex-col items-center justify-center space-y-4">
                 <Spin indicator={<LoadingOutlined style={{ fontSize: 64, color: 'white' }} spin />} />
                 <span className="font-bold uppercase">Loading cart...</span>
             </div>
         )
 
     return (
-        <div className='text-white p-4'>
+        <div className='text-white p-4 main-layout min-h-screen'>
             <Link
                 className='flex items-center space-x-2 hover:underline'
                 href="/page/shop">

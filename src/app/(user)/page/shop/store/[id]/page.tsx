@@ -1,15 +1,15 @@
 "use client";
 
+import LoadingPage from '@/components/page/shop/loading/loadingPage';
 import ListAllProduct from '@/components/page/shop/product/listAllProduct';
 import { AuthContext } from '@/context/AuthContext';
 import { sendRequest } from '@/utils/api';
 import { timeAgo } from '@/utils/utils';
-import { LoadingOutlined } from '@ant-design/icons';
-import { Dropdown, MenuProps, Pagination, Spin } from 'antd';
+import { Dropdown, MenuProps } from 'antd';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import React, { useContext, useEffect, useState } from 'react'
-import { FaStore, FaStar, FaUserCheck, FaListUl } from "react-icons/fa6";
+import { FaStore, FaStar, FaUserCheck } from "react-icons/fa6";
 
 
 
@@ -21,6 +21,7 @@ const StorePage = () => {
     const [totalProduct, setTotalProduct] = useState(0);
     const [orderBy, setOrderBy] = useState<string>("Order desc");
     const [skip, setSkip] = useState(0);
+    const [page, setPage] = useState(0);
     const items: MenuProps['items'] = [
         {
             key: '1',
@@ -87,18 +88,19 @@ const StorePage = () => {
         getShop();
     }, [accessToken, id]);
 
+    useEffect(() => {
+        setSkip(10 * page);
+    }, [page]);
+
     if (loading)
         return (
             <>
-                <div className="w-full h-[80vh] text-white flex flex-col items-center justify-center space-y-4">
-                    <Spin indicator={<LoadingOutlined style={{ fontSize: 64, color: 'white' }} spin />} />
-                    <span className="font-bold uppercase">Loading store...</span>
-                </div>
+                <LoadingPage notifyLoading='Loading store...' />
             </>
         )
 
     return (
-        <div className='w-full h-fit '>
+        <div className='w-full min-h-screen main-layout '>
             <div className='flex bg-gradient-to-b from-[#1C1B33] to-[#2E335A] shadow-[#0C103380] shadow-sm'>
                 <div className='w-[35%] p-3 flex space-x-3'>
                     <img
@@ -139,6 +141,14 @@ const StorePage = () => {
                         </Dropdown>
                     </div>
                     <ListAllProduct id={id.toString()} orderBy={orderBy} skip={skip} />
+                    <div className='flex items-center justify-end space-x-4'>
+                        <button
+                            className='border border-purple-500 bg-purple-500 px-3.5 py-1.5 rounded disabled:bg-purple-800 disabled:opacity-70'
+                            onClick={() => setPage(prev => prev >= 1 ? prev - 1 : 0)} disabled={page == 0}>Prev</button>
+                        <button
+                            className='border border-purple-500 bg-purple-500 px-3.5 py-1.5 rounded disabled:bg-purple-800 disabled:opacity-70'
+                            onClick={() => setPage(prev => prev + 1)} disabled={page >= Math.ceil(totalProduct / 10) - 1}>Next</button>
+                    </div>
                 </div>
             </div>
         </div>
