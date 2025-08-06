@@ -48,8 +48,6 @@ const LikedVideo = ({ userId }: LikedVideoProps) => {
   }, [targetId, accessToken]);
 
   const fetchLikedVideos = async () => {
-    setLoading(true);
-    setError("");
     try {
       const res = await sendRequest<{ data: LikedVideoReaction[] }>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/video-reactions/user/${targetId}`,
@@ -60,36 +58,24 @@ const LikedVideo = ({ userId }: LikedVideoProps) => {
       });
 
       const reactions = res.data || [];
-      if (!Array.isArray(reactions) || reactions.length === 0) {
-        setLikedVideos([]);
-        setLoading(false);
-        return;
-      }
 
-      const videos: ShortVideo[] = (
-        await Promise.all(
-          reactions.map(async (reaction) => {
-            try {
-              const videoRes = await sendRequest<{ data: ShortVideo }>({
-                url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/${reaction.videoId}`,
-                method: "GET",
-                headers: {
-                  Authorization: `Bearer ${accessToken}`,
-                },
-              });
-              return videoRes.data;
-            } catch {
-              return null;
-            }
-          })
-        )
-      ).filter(Boolean) as ShortVideo[];
+      const videos: ShortVideo[] = await Promise.all(
+        reactions.map(async (reaction) => {
+          const videoRes = await sendRequest<{ data: ShortVideo }>({
+            url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/${reaction.videoId}`,
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
+          return videoRes.data;
+        })
+      );
 
       setLikedVideos(videos);
     } catch (err) {
-      setError("Failed to fetch liked videos. Please try again.");
-      setLikedVideos([]);
-      console.error("Error fetching liked videos:", err);
+      setError("Failed to fetch liked videos");
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -103,7 +89,7 @@ const LikedVideo = ({ userId }: LikedVideoProps) => {
   };
 
   return (
-    <div className="p-6 shadow-md rounded-lg mb-40 mt-[-22px]">
+    <div className="p-6 mb-40 mt-[-22px]">
       <div className="flex justify-between items-center mb-4 mx-20">
         {isOwner && (
           <button

@@ -124,9 +124,9 @@ const ProfilePage = () => {
                 <span className="text-purple-200 text-lg font-mono">
                   @{profileData?.email}
                 </span>
-                <span className="ml-2 px-2 py-0.5 bg-green-500/80 text-xs rounded-full text-white">
+                {/* <span className="ml-2 px-2 py-0.5 bg-green-500/80 text-xs rounded-full text-white">
                   ● Online
-                </span>
+                </span> */}
               </div>
             </div>
             <div className="flex gap-3 mt-4 md:mt-0">
@@ -154,7 +154,7 @@ const ProfilePage = () => {
             </p>
             <div className="flex items-center gap-3 text-purple-300 text-sm mt-2">
               <FiMapPin />
-              <span>{profileData?.address || "Can Tho"}</span>
+              <span>{profileData?.address || "Unknown"}</span>
             </div>
             <div className="flex items-center gap-3 text-purple-300 text-sm">
               <FiCalendar />
@@ -162,7 +162,7 @@ const ProfilePage = () => {
                 Joined{" "}
                 {profileData?.createdAt
                   ? new Date(profileData.createdAt).toLocaleDateString()
-                  : "March 2020"}
+                  : "Unknown"}
               </span>
             </div>
           </div>

@@ -64,7 +64,7 @@ const ListFavoriteMusic = ({ userId }: ListFavoriteMusicProps) => {
   };
 
   return (
-    <div className="p-6 shadow-md rounded-lg mb-40 mt-[-22px]">
+    <div className="p-6 mb-40 mt-[-22px]">
       <div className="flex justify-between items-center mb-4 mx-20">
         {isOwner && (
           <button
@@ -98,16 +98,22 @@ const ListFavoriteMusic = ({ userId }: ListFavoriteMusicProps) => {
           This is user privacy.
         </p>
       ) : favoriteMusic.length > 0 ? (
-        <div className="flex flex-wrap justify-start gap-5 my-3 mx-20">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 my-3 mx-2">
           {favoriteMusic
             .filter((item) => item && item._id)
             .map((item) => (
-              <CardMusic
+              <div
                 key={item._id}
-                handlePlayer={() => { }}
-                isPlaying={false}
-                item={item}
-              />
+                className="flex justify-center items-stretch"
+              >
+                <div className="w-[160px] sm:w-[170px] md:w-[180px] lg:w-[190px]">
+                  <CardMusic
+                    handlePlayer={() => { }}
+                    isPlaying={false}
+                    item={item}
+                  />
+                </div>
+              </div>
             ))}
         </div>
       ) : (
