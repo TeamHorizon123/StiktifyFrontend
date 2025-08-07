@@ -4,6 +4,7 @@ import { handleSearchUserAndVideo } from "@/actions/search.user.action";
 import { useState, useEffect, useContext } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AuthContext } from "@/context/AuthContext";
+import { notification } from "antd";
 
 const SearchUser = () => {
   const searchParams = useSearchParams();
@@ -16,7 +17,14 @@ const SearchUser = () => {
   const { user, accessToken, logout } = useContext(AuthContext) ?? {};
 
   const handleNavigateToUser = (userId: string) => {
-    router.push(`/page/detail_user/${userId}`);
+    if (accessToken) {
+      router.push(`/page/detail_user/${userId}`);
+    } else {
+      notification.error({
+        message: "Please login to view user details",
+        description: "Please try again later",
+      });
+    }
   };
 
   useEffect(() => {
@@ -40,6 +48,7 @@ const SearchUser = () => {
   };
 
   return (
+
     <div className="min-h-screen text-white bg-gray-900">
       {/* Search Bar */}
       <div className="w-full flex items-center justify-center py-4 bg-gray-900">
@@ -127,16 +136,15 @@ const SearchUser = () => {
                           Views: {video.totalViews}
                         </p>
                       </div>
-                    ))}
-                  </div>
-                </>
-              )}
+                    </>
+                  )}
+
 
               {users.length === 0 && videos.length === 0 && !loading && (
                 <p className="text-purple-400 text-center">No results found.</p>
               )}
-            </>
-          )}
+            </div>
+          </div>
         </div>
       </div>
     </div>

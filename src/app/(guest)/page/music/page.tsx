@@ -1,13 +1,18 @@
 import { handleGetAllMusic } from "@/actions/music.action";
 import ListMusic from "@/components/music/list.music";
 import SideBarPlaylist from "@/components/playlist/sidebar.playlist";
+import { cookies } from "next/headers";
 const MusicGuestPage = async ({ searchParams }: any) => {
   const { current, pageSize } = await searchParams;
+  const cookieStore = cookies();
+  const token = cookieStore.get("token")?.value;
+
   const result = current ? current : 1;
   const LIMIT = pageSize ? pageSize : 50;
 
   const res = await handleGetAllMusic(result, LIMIT);
   const data = res?.data;
+
 
   // return (
   //   <div className="min-h-screen flex pb-[15vh] main-layout ">
@@ -27,9 +32,9 @@ const MusicGuestPage = async ({ searchParams }: any) => {
         <ListMusic data={data ? data.result : []} />
       </div>
       {/* Sidebar Playlist */}
-      <div className="fixed top-10 right-0 h-[75%] rounded-md flex justify-center overflow-y-auto z-10">
+      {!token && <div className="fixed top-10 right-0 h-[75%] rounded-md flex justify-center overflow-y-auto z-10">
         <SideBarPlaylist />
-      </div>
+      </div>}
     </div>
   );
 };

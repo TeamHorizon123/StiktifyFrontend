@@ -22,4 +22,5 @@ interface IMusic {
     isDelete: boolean,
     flag: boolean,
     musicSeparate: string[]
+    isKaraoke: boolean,
 }

@@ -47,7 +47,7 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
   videoTags,
 }) => {
   const router = useRouter();
-  const { user, listFollow } = useContext(AuthContext) ?? {};
+  const { user, listFollow, accessToken } = useContext(AuthContext) ?? {};
   const [dataFollow, setDataFollow] = useState<string[]>([]);
   const [flag, setFlag] = useState(false);
   const isFollowing = dataFollow?.includes(userId);
@@ -68,7 +68,15 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
   };
 
   const handleProfileClick = () => {
-    router.push(`/page/detail_user/${userId}`);
+
+    if (accessToken) {
+      router.push(`/page/detail_user/${userId}`);
+    } else {
+      notification.error({
+        message: "Please login to view user details",
+        description: "Please try again later",
+      });
+    }
   };
 
   const handleShareClick = async () => {
@@ -172,11 +180,10 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
         {userId !== user?._id && (
         <button
           onClick={handleFollower}
-          className={`rounded-full w-8 h-8 p-0 flex items-center justify-center transition-all duration-200 ${
-            isFollowing
+          className={`rounded-full w-8 h-8 p-0 flex items-center justify-center transition-all duration-200 ${isFollowing
               ? "bg-gray-500 hover:bg-gray-600 hover:scale-105"
               : "bg-red-500 hover:bg-red-600 hover:scale-105"
-          } text-white shadow-lg hover:shadow-xl`}
+            } text-white shadow-lg hover:shadow-xl`}
         >
           {isFollowing ? <CheckOutlined /> : <PlusOutlined />}
         </button>

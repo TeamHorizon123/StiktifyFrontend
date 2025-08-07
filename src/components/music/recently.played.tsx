@@ -123,17 +123,15 @@ const RecentlyPlayedList = (props: IProps) => {
           {/* Track Info */}
           <div className="flex-1 min-w-0">
             <div
-              className={`font-medium truncate ${
-                trackCurrent?._id === item._id
+              className={`font-medium truncate ${trackCurrent?._id === item._id
                   ? "text-purple-500"
                   : "text-white"
-              }`}
+                }`}
             >
               {item.musicDescription}
             </div>
             <div className="text-gray-400 text-sm truncate">
-              {item.musicTag?.map((tag) => tag.fullname).join(", ") ||
-                "Unknown Artist"}
+              {item.userId.fullname || "Unknown Artist"}
             </div>
           </div>
 
