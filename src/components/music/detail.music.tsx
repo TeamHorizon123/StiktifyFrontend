@@ -15,6 +15,7 @@ import ReportModal from "./comment/report_music";
 import { AuthContext } from "@/context/AuthContext";
 import { sendRequest } from "@/utils/api";
 import { handleLikeMusicAction } from "@/actions/music.action";
+import { notification } from "antd";
 
 interface IProps {
   item: IMusic;
@@ -47,6 +48,17 @@ const DisplayMusicDetail = ({ item }: IProps) => {
     };
     checkLikeStatus();
   }, [item._id]);
+
+  const handleOnUserClick = () => {
+    if (accessToken) {
+      router.push(`/page/detail_user/${item?.userId?._id}`);
+    } else {
+      notification.error({
+        message: "Please login to view user details",
+        description: "Please try again later",
+      });
+    }
+  };
 
   const handleTriggerWishListScore = async (musicId: string) => {
     const res = await sendRequest<IBackendRes<IVideo[]>>({

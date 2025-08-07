@@ -49,7 +49,7 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
   currentMusic,
 }) => {
   const router = useRouter();
-  const { user, listFollow } = useContext(AuthContext) ?? {};
+  const { user, listFollow, accessToken } = useContext(AuthContext) ?? {};
   const [dataFollow, setDataFollow] = useState<string[]>([]);
   const [flag, setFlag] = useState(false);
   const isFollowing = dataFollow?.includes(userId);
@@ -70,7 +70,15 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
   };
 
   const handleProfileClick = () => {
-    router.push(`/page/detail_user/${userId}`);
+
+    if (accessToken) {
+      router.push(`/page/detail_user/${userId}`);
+    } else {
+      notification.error({
+        message: "Please login to view user details",
+        description: "Please try again later",
+      });
+    }
   };
 
   const handleShareClick = async () => {

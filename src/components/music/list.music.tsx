@@ -115,6 +115,8 @@ const ListMusic = (props: IProps) => {
       if (user) {
         const res = await handleGetRecommendMusic(user._id);
         const resHotMusic = await handleGetDataHotMusic();
+        console.log("Hot Music:", resHotMusic);
+
 
         setDataHotMusic(resHotMusic?.data);
         setDataRecommend(res?.data);
@@ -173,9 +175,8 @@ const ListMusic = (props: IProps) => {
           {filteredData.slice(0, 3).map((item, index) => (
             <div
               key={item._id}
-              className={`relative rounded-xl overflow-hidden cursor-pointer transform hover:scale-105 transition-all duration-300 ${
-                index === 0 ? "col-span-1 md:col-span-1" : "col-span-1"
-              }`}
+              className={`relative rounded-xl overflow-hidden cursor-pointer transform hover:scale-105 transition-all duration-300 ${index === 0 ? "col-span-1 md:col-span-1" : "col-span-1"
+                }`}
               onClick={() => handlePlayer(item)}
             >
               <div className="aspect-square bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center">
