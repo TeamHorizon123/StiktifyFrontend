@@ -110,7 +110,7 @@ const PageProductStoreInfo = () => {
     )
 
   return (
-    <div className='p-4 min-h-[100vh] bg-white'>
+    <div className='ml-[15rem] max-[600px]:ml-[16vw] p-4 min-h-[100vh] bg-white'>
       <Link className='p-2 flex items-center space-x-2 text-sm' href={'/page/store/manage-product'}>
         <FaArrowLeftLong />
         <span>Back to page manage product</span>
@@ -161,9 +161,10 @@ const PageProductStoreInfo = () => {
         onCancel={() => setShowModal(false)}
         destroyOnClose={true}
       >
-        <EditProduct product={product || null} onClose={() => setShowModal(false)} refreshProducts={() => getProduct()} />
+        <EditProduct product={product} onClose={() => setShowModal(false)} refreshProducts={() => getProduct()} />
       </Modal>
     </div>
+
   )
 }
 

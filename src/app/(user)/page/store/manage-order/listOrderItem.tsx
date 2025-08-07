@@ -104,7 +104,7 @@ const ListOrderItem = ({ id }: IData) => {
         )
 
     return (
-        <div className='w-[80vw] p-2 space-y-2 justify-end items-end flex flex-col'>
+        <div className=' p-2 space-y-2 justify-end items-end flex flex-col'>
             <Descriptions items={items} />
             {
                 order?.OrderItems.map((item) => (

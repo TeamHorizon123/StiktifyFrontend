@@ -209,9 +209,11 @@ const ManageOrder = () => {
             <Modal
                 title={"Order information"}
                 footer={null}
-                centered
+                // centered
                 onCancel={() => setShowModal(false)}
                 destroyOnClose={true}
+                height={'50vh'}
+                width={'80%'}
                 visible={showModal}>
                 <ListOrderItem id={order} />
             </Modal>
