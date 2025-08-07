@@ -6,16 +6,12 @@ import { cookies } from "next/headers";
 
 export const handleGetAllMusic = async (current: string, pageSize: string) => {
   try {
-    const cookieStore = cookies();
-    const token = cookieStore.get("token")?.value;
-    if (!token) return null;
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/list-music?current=${current}&pageSize=${pageSize}`,
       {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         next: { tags: ["list-music"] },
       }
@@ -415,15 +411,12 @@ export const getTrackRelatedAction = async (musicId: string[] | [], musicTag: { 
 export const handleGetDataHotMusic = async () => {
   try {
     const cookieStore = cookies();
-    const token = cookieStore.get("token")?.value;
-    if (!token) return null;
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/list-hot-music`,
       {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         next: { tags: ["list-hot-music"] },
       }

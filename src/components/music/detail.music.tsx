@@ -15,6 +15,7 @@ import ReportModal from "./comment/report_music";
 import { AuthContext } from "@/context/AuthContext";
 import { sendRequest } from "@/utils/api";
 import { handleLikeMusicAction } from "@/actions/music.action";
+import { notification } from "antd";
 
 interface IProps {
   item: IMusic;
@@ -47,6 +48,17 @@ const DisplayMusicDetail = ({ item }: IProps) => {
     };
     checkLikeStatus();
   }, [item._id]);
+
+  const handleOnUserClick = () => {
+    if (accessToken) {
+      router.push(`/page/detail_user/${item?.userId?._id}`);
+    } else {
+      notification.error({
+        message: "Please login to view user details",
+        description: "Please try again later",
+      });
+    }
+  };
 
   const handleTriggerWishListScore = async (musicId: string) => {
     const res = await sendRequest<IBackendRes<IVideo[]>>({
@@ -147,21 +159,18 @@ const DisplayMusicDetail = ({ item }: IProps) => {
             </div>
             <div className="flex flex-col gap-2">
               <div className="flex items-center">
-                {item.musicTag?.map((tag, index) => (
-                  <div key={index} className="text-white flex items-center">
-                    {index !== 0 && <LuDot size={40} />}
+                {item?.userId?.fullname &&
+                  <div className="text-white flex items-center">
                     <div
-                      onClick={() =>
-                        router.push(`/page/detail_user/${tag._id}`)
-                      }
+                      onClick={handleOnUserClick}
                       className="relative group"
                     >
                       <span className="cursor-pointer after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-full after:h-[2px] after:bg-white after:scale-x-0 after:transition-transform after:duration-300 group-hover:after:scale-x-100">
-                        {tag?.fullname}
+                        {item?.userId?.fullname}
                       </span>
                     </div>
                   </div>
-                ))}
+                }
                 <div className="text-white flex items-center">
                   <LuDot size={40} />
                   <span>{formatNumber(item.totalListener)}</span>

@@ -396,12 +396,14 @@ const MusicPlayer = (p: MusicPlayerProps) => {
               <FaRepeat size={18} />
             </button>
 
-            <button
-              onClick={handleKaraoke}
-              className="hover:text-purple-400 transition"
-            >
-              <GiMicrophone size={18} />
-            </button>
+            {trackCurrent?.isKaraoke && (
+              <button
+                onClick={handleKaraoke}
+                className="hover:text-purple-400 transition"
+              >
+                <GiMicrophone size={18} />
+              </button>
+            )}
           </div>
 
           {/* Thanh tiến trình */}

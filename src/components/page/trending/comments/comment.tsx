@@ -355,11 +355,10 @@ const Comment: React.FC<CommentProps> = ({
               onClick={handleReplySubmit}
               disabled={!replyText.trim() || replyLoading}
               className={`absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full
-              ${
-                replyText.trim()
+              ${replyText.trim()
                   ? "bg-purple-500 hover:bg-purple-600"
                   : "bg-purple-900/60"
-              }
+                }
               text-white transition`}
             >
               <FiMessageCircle className="h-4 w-4" />
@@ -396,7 +395,9 @@ const Comment: React.FC<CommentProps> = ({
           <div className="ml-12 mt-2">
             {replies.map((child, idx) => {
               const isChildOwner =
-                (child.user?._id || child.userId) === user?._id;
+                (child.userId?._id) === user?._id;
+              console.log("Child Comment:", child);
+
               return (
                 <div
                   key={child._id}

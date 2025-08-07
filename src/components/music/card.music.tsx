@@ -52,6 +52,7 @@ const CardMusic = (props: IProps) => {
     router.push(`/page/music/${id}`);
   };
 
+
   useEffect(() => {
     if (trackCurrent?._id === item._id) {
       setHoverPlayer(true);
@@ -269,8 +270,7 @@ const CardMusic = (props: IProps) => {
           </div>
 
           <p className="text-gray-400 text-sm truncate">
-            {item.musicTag?.map((tag) => tag.fullname).join(", ") ||
-              "Unknown Artist"}
+            {item?.userId?.fullname || "Unknown Artist"}
           </p>
           <div className="flex items-center justify-between text-xs text-gray-500">
             <span>{item.totalListener?.toLocaleString() || 0} plays</span>
