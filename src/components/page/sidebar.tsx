@@ -23,6 +23,7 @@ import NotificationModel from "../notification/NotificationModal";
 import { usePathname, useRouter } from "next/navigation";
 import { Modal } from "antd";
 import UploadVideoPost from "./trending/upload_video_post";
+import Chatbox from "@/components/page/chatBox/chatBox";
 
 interface SideBarProps {
   isHidden?: boolean;
@@ -64,11 +65,11 @@ const SideBar: React.FC<SideBarProps> = () => {
   };
 
   // Handle logout
-    const handleLogout = () => {
-      console.log("Logging out...");
-      logout?.(); 
-      window.location.href = "/page/trending"; 
-    };
+  const handleLogout = () => {
+    console.log("Logging out...");
+    logout?.();
+    window.location.href = "/page/trending";
+  };
 
 
   return (
@@ -266,7 +267,7 @@ const SideBar: React.FC<SideBarProps> = () => {
           )}
 
           {/* Term & Privacy */}
-          <div className="mt-14 ext-sm max-[600px]:text-xs flex flex-col items-center justify-center space-y-1">
+          <div className="mt-14 ext-sm max-[600px]:text-xs flex flex-col items-center justify-center space-y-2">
             <ul className="flex flex-wrap text-center items-center justify-center space-x-1 lg:text-[10px]">
               <li>
                 <Link href="/">About</Link>
@@ -278,7 +279,7 @@ const SideBar: React.FC<SideBarProps> = () => {
                 <Link href="/">Contact us</Link>
               </li>
             </ul>
-            <ul className="flex flex-wrap text-center items-center justify-center space-x-1 lg:text-[10px]">
+            <ul className="flex flex-col flex-wrap text-center items-center justify-center space-x-1 lg:text-[10px]">
               <li>
                 <Link href="/">Terms</Link>
               </li>
@@ -290,6 +291,7 @@ const SideBar: React.FC<SideBarProps> = () => {
               </li>
             </ul>
             <p className="text-xs text-center">@2025 Stiktify</p>
+            <Chatbox />
           </div>
         </nav>
       </div>
