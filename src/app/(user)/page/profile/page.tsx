@@ -15,6 +15,7 @@ import FollowingModal from "@/components/modal/modal.following";
 import { sendRequest } from "@/utils/api";
 import { CheckCircleTwoTone } from "@ant-design/icons";
 import TickedUser from "@/components/ticked-user/TickedUser";
+import { formatNumber } from "@/utils/utils";
 
 const TABS = [
   { key: "video", label: "Video", icon: <Video size={18} /> },
@@ -279,7 +280,7 @@ const ProfilePage = () => {
                 onClick={() => setShowFollowerModal(true)}
               >
                 <div className="text-2xl font-bold text-white">
-                  {profileData?.totalFollowers || 0}
+                  {profileData?.totalFollowers ? formatNumber(profileData.totalFollowers) : 0}
                 </div>
                 <div className="text-purple-300 text-xs">Followers</div>
               </div>
@@ -288,22 +289,22 @@ const ProfilePage = () => {
                 onClick={() => setShowFollowingModal(true)}
               >
                 <div className="text-2xl font-bold text-white">
-                  {profileData?.totalFollowings || 0}
+                  {profileData?.totalFollowings ? formatNumber(profileData.totalFollowings) : 0}
                 </div>
                 <div className="text-purple-300 text-xs">Following</div>
               </div>
-              <div className="p-2 rounded-lg transition-colors">
+              {/* <div className="p-2 rounded-lg transition-colors">
                 <div className="text-2xl font-bold text-white">
                   {profileData?.views || 0}
                 </div>
                 <div className="text-purple-300 text-xs">Total Views</div>
-              </div>
-              <div className="p-2 rounded-lg transition-colors">
+              </div> */}
+              {/* <div className="p-2 rounded-lg transition-colors">
                 <div className="text-2xl font-bold text-white">
                   {profileData?.likes || 0}
                 </div>
                 <div className="text-purple-300 text-xs">Total Likes</div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

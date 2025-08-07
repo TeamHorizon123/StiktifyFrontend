@@ -28,6 +28,7 @@ import {
 import { Heart, Video, Music } from "lucide-react";
 import { notification } from "antd";
 import TickedUser from "@/components/ticked-user/TickedUser";
+import { formatNumber } from "@/utils/utils";
 
 interface IUserDetail {
   _id: string;
@@ -328,7 +329,7 @@ const UserDetail = () => {
                 onClick={() => setShowFollowerModal(true)}
               >
                 <div className="text-2xl font-bold text-white">
-                  {userData.totalFollowers || 0}
+                  {userData.totalFollowers ? formatNumber(userData.totalFollowers) : 0}
                 </div>
                 <div className="text-purple-300 text-xs">Followers</div>
               </div>
@@ -337,22 +338,22 @@ const UserDetail = () => {
                 onClick={() => setShowFollowingModal(true)}
               >
                 <div className="text-2xl font-bold text-white">
-                  {userData.totalFollowings || 0}
+                  {userData.totalFollowings ? formatNumber(userData.totalFollowings) : 0}
                 </div>
                 <div className="text-purple-300 text-xs">Following</div>
               </div>
-              <div className="p-2 rounded-lg transition-colors">
+              {/* <div className="p-2 rounded-lg transition-colors">
                 <div className="text-2xl font-bold text-white">
                   {userData.totalViews || 0}
                 </div>
                 <div className="text-purple-300 text-xs">Total Views</div>
-              </div>
-              <div className="p-2 rounded-lg transition-colors">
+              </div> */}
+              {/* <div className="p-2 rounded-lg transition-colors">
                 <div className="text-2xl font-bold text-white">
                   {userData.totalLikes || 0}
                 </div>
                 <div className="text-purple-300 text-xs">Total Likes</div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
