@@ -41,9 +41,21 @@ declare global {
     url: string,
     method: string,
     page: number,
-    limit:number,
+    limit: number,
     useCredentials?: boolean,
     headers?,
     nextOption?,
+  }
+
+  interface IOdataRes<T> {
+    statusCode: number;
+    message: string;
+    value: T?
+  }
+
+  interface ICreateResponse {
+    statusCode: number;
+    message: string;
+    id?: string;
   }
 }

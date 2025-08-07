@@ -1,12 +1,15 @@
 interface Shop {
-    id: string,
-    userId: string,
-    location: string,
-    shopName: string,
-    shopType: string,
-    avatar: string,
-    isBanned: boolean,
-    rating: number,
-    createAt: Date,
-    updateAt: Date
+    UserId: string?,
+    ShopName: string?,
+    Description: string?,
+    AvatarUri: string?,
+    Email: string?,
+    Phone: string?,
+    Status: string?,
+    Address: string?,
+    ShopType: string?,
+    AveragePoint: number?,
+    Id: string?,
+    CreateAt: Date?,
+    UpdateAt: Date?
 }

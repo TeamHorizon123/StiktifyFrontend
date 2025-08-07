@@ -168,7 +168,7 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
             className="text-white font-bold text-lg truncate cursor-pointer hover:text-purple-300 transition-colors"
             onClick={handleProfileClick}
           >
-            {creatorId || "Unknown"}
+            {creatorId || "Unknown"} {userId === user?._id && "(You)"}
           </div>
           <div
             className="text-purple-200 text-sm truncate cursor-pointer hover:text-purple-100 transition-colors"
@@ -177,6 +177,7 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
             @{userId?.slice(0, 8) || "unknown"}
           </div>
         </div>
+        {userId !== user?._id && (
         <button
           onClick={handleFollower}
           className={`rounded-full w-8 h-8 p-0 flex items-center justify-center transition-all duration-200 ${isFollowing
@@ -186,6 +187,8 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
         >
           {isFollowing ? <CheckOutlined /> : <PlusOutlined />}
         </button>
+        )}
+      
       </div>
 
       {/* Video Description Section */}

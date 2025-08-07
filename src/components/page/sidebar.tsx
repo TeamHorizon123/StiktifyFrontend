@@ -2,7 +2,7 @@
 import { AuthContext } from "@/context/AuthContext";
 import Link from "next/link";
 import { useContext, useEffect, useState, useRef } from "react";
-import { FaHeadphonesSimple, FaRankingStar } from "react-icons/fa6";
+import { FaHeadphonesSimple, FaLocationDot, FaRankingStar } from "react-icons/fa6";
 import { AiFillHome } from "react-icons/ai";
 import { FaGlobeAsia, FaSearch } from "react-icons/fa";
 import { AiFillMessage } from "react-icons/ai";
@@ -18,7 +18,6 @@ import { AiOutlineHistory } from "react-icons/ai";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { AiFillCustomerService } from "react-icons/ai";
 import { MdReport, MdHelp, MdFeedback, MdDashboard } from "react-icons/md";
-import SearchBar from "@/components/page/searchBar";
 import BtnSignIn from "@/components/button/btnSignIn";
 import NotificationModel from "../notification/NotificationModal";
 import { usePathname, useRouter } from "next/navigation";
@@ -32,7 +31,6 @@ interface SideBarProps {
 const SideBar: React.FC<SideBarProps> = () => {
   const { user, logout } = useContext(AuthContext) ?? {};
   const [isGuest, setIsGuest] = useState(true);
-  const [showSearch, setShowSearch] = useState(false);
   const [openHistory, setOpenHistory] = useState(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const router = useRouter();
@@ -47,27 +45,6 @@ const SideBar: React.FC<SideBarProps> = () => {
     }
   }, [user]);
 
-  // xử lý search bar
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        searchRef.current &&
-        !searchRef.current.contains(event.target as Node)
-      ) {
-        setShowSearch(false);
-      }
-    };
-
-    if (showSearch) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [showSearch]);
 
   // Function to check if current path is active
   const isActivePath = (path: string) => {
@@ -87,14 +64,16 @@ const SideBar: React.FC<SideBarProps> = () => {
   };
 
   // Handle logout
-  const handleLogout = () => {
-    logout?.();
-    router.push("/page/trending");
-  };
+    const handleLogout = () => {
+      console.log("Logging out...");
+      logout?.(); 
+      window.location.href = "/page/trending"; 
+    };
+
 
   return (
-    <div className="fixed z-20 flex">
-      <div className="w-[13rem] max-[600px]:w-[16vw] h-[100vh] flex flex-col bg-[#18182c] text-white items-center lg:items-start overflow-auto drop-shadow-sm lg:pl-4 lg:pr-4">
+    <div className="fixed z-20 flex ">
+      <div className="w-[15rem] max-[600px]:w-[16vw] h-[100vh] flex flex-col bg-[#18182c] text-white items-center lg:items-start overflow-auto drop-shadow-sm lg:pl-4 lg:pr-4">
         {/* logo */}
         <div className="w-full mt-8 mb-4 flex flex-col space-y-4">
           <Link
@@ -104,13 +83,6 @@ const SideBar: React.FC<SideBarProps> = () => {
             <FaHeadphonesSimple />
             <p className="sm:hidden max-[600px]:hidden lg:block">Stiktify</p>
           </Link>
-          <button
-            className="w-full h-fit bg-zinc-700 p-2 pt-3 pb-3 rounded-xl flex items-center"
-            onClick={() => setShowSearch(true)}
-          >
-            <FaSearch />
-            <p className="pl-2 text-gray-400">Search</p>
-          </button>
         </div>
 
         {/* nav */}
@@ -259,12 +231,21 @@ const SideBar: React.FC<SideBarProps> = () => {
                 </p>
               </Link>
               <Link
-                href="/page/manage-shop"
-                className={`test-base flex items-center space-x-2 ${getLinkClass("/page/manage-shop")}`}
+                href="/page/address"
+                className={`test-base flex items-center space-x-2 ${getLinkClass("/page/address")}`}
+              >
+                <FaLocationDot />
+                <p className="text-base sm:hidden max-[600px]:hidden lg:block">
+                  Address
+                </p>
+              </Link>
+              <Link
+                href="/page/store"
+                className={`test-base flex items-center space-x-2 ${getLinkClass("/page/store")}`}
               >
                 <MdDashboard />
                 <p className="text-base sm:hidden max-[600px]:hidden lg:block">
-                  Manage Shop
+                  Seller Centre
                 </p>
               </Link>
               <hr />
@@ -312,13 +293,6 @@ const SideBar: React.FC<SideBarProps> = () => {
           </div>
         </nav>
       </div>
-      {/* Search bar */}
-      {showSearch && (
-        <div ref={searchRef}>
-          <SearchBar />
-        </div>
-      )}
-
       {/* Modal hiển thị form Upload Video */}
       {isUploadModalOpen && (
         <div
