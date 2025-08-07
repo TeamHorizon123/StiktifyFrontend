@@ -27,6 +27,7 @@ import {
 } from "@/actions/manage.follow.action";
 import { Heart, Video, Music } from "lucide-react";
 import { notification } from "antd";
+import TickedUser from "@/components/ticked-user/TickedUser";
 
 interface IUserDetail {
   _id: string;
@@ -213,9 +214,9 @@ const UserDetail = () => {
             <div>
               <h1 className="text-3xl font-bold text-white flex items-center gap-2">
                 {userData.fullname}
-                {isCurrent && (
-                  <span className="text-purple-300 text-base">(You)</span>
-                )}
+                <div className="text-base font-bold text-purple-300 font-normal">
+                  <TickedUser userId={userData._id} />
+                </div>
               </h1>
               <div className="flex items-center gap-2 mt-1">
                 <span className="text-purple-200 text-lg font-mono">
@@ -246,8 +247,8 @@ const UserDetail = () => {
                           : "Add Friend"
                     }
                     className={`${friendRequestSent
-                        ? "bg-gray-400"
-                        : "bg-purple-600 hover:bg-purple-800"
+                      ? "bg-gray-400"
+                      : "bg-purple-600 hover:bg-purple-800"
                       } text-white`}
                     onClick={
                       user
@@ -268,8 +269,8 @@ const UserDetail = () => {
                     icon={<LuBellRing />}
                     text={`${isFollow ? "Unfollow" : "Follow"}`}
                     className={`${isFollow
-                        ? "bg-purple-600 hover:bg-purple-800 text-white"
-                        : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+                      ? "bg-purple-600 hover:bg-purple-800 text-white"
+                      : "bg-gray-200 hover:bg-gray-300 text-gray-700"
                       }`}
                   />
                 </>
@@ -363,8 +364,8 @@ const UserDetail = () => {
                 <button
                   key={tab}
                   className={`flex items-center gap-2 px-4 py-2 font-semibold text-lg transition ${activeTab === tab
-                      ? "border-b-2 border-purple-400 text-white"
-                      : "text-purple-300 hover:text-white"
+                    ? "border-b-2 border-purple-400 text-white"
+                    : "text-purple-300 hover:text-white"
                     }`}
                   onClick={() => setActiveTab(tab)}
                 >

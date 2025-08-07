@@ -172,7 +172,7 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
             className="text-white font-bold text-lg truncate cursor-pointer hover:text-purple-300 transition-colors"
             onClick={handleProfileClick}
           >
-            {creatorId || "Unknown"} {userId === user?._id && "(You)"}
+            {creatorId || "Unknown"} {userId === user?._id && "(You)"} <TickedUser userId={userId} />
           </div>
           <div
             className="text-purple-200 text-sm truncate cursor-pointer hover:text-purple-100 transition-colors"

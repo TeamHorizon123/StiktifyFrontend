@@ -191,6 +191,18 @@ const FollowingPage = () => {
     ]
   );
 
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    container.addEventListener("wheel", handleScroll, { passive: false });
+
+    return () => {
+      container.removeEventListener("wheel", handleScroll);
+    };
+  }, [handleScroll]);
 
   // Data fetching
   const getVideoData = async () => {
@@ -488,7 +500,7 @@ const FollowingPage = () => {
           {/* Video Column (Left) */}
           <div className="flex-1 flex items-center justify-center pl-8">
             <div
-              onWheel={handleScroll}
+              ref={containerRef}
               className="relative w-full h-full flex items-center justify-center pr-4"
               style={{ minHeight: "100vh" }}
             >

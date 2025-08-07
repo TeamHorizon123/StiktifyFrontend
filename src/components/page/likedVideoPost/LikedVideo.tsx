@@ -58,7 +58,7 @@ const LikedVideo = ({ userId }: LikedVideoProps) => {
       });
 
       const reactions = res.data || [];
-
+      console.log("Res:>>>>>>>>>: ", res.data);
       const videos: ShortVideo[] = await Promise.all(
         reactions.map(async (reaction) => {
           const videoRes = await sendRequest<{ data: ShortVideo }>({
