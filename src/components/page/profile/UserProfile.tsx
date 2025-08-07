@@ -566,7 +566,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
           >
             Change Password
           </Button>
-          <Button
+          {/* <Button
             icon={<LogoutOutlined />}
             onClick={handleLogout}
             style={{
@@ -586,7 +586,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
             }}
           >
             Logout
-          </Button>
+          </Button> */}
         </div>
         <div className="flex gap-3">
           <Button

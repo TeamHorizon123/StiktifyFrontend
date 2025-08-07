@@ -138,7 +138,7 @@ const NotificationModel = () => {
 
       {/* Panel notification */}
       <div
-        className={`fixed top-0 right-0 w-[15rem] h-full bg-[#21201E] text-white z-50 
+        className={`fixed top-0 right-0 w-[15rem] h-full bg-[#18182c] text-white z-50 
     border-l border-r border-zinc-700 p-2 transform transition-transform duration-500 ease-in-out origin-right
     ${isOpen ? 'translate-x-0' : 'translate-x-full'} ${isOpen ? '' : 'hidden'}`}
       >

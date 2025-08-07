@@ -38,6 +38,7 @@ const TrendingPage = () => {
   const [refreshComments, setRefreshComments] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
   const isFetchingRef = useRef(false);
+
   useEffect(() => {
     if (currentVideo) {
       setCurrentMusic(currentVideo?.musicId || null);
@@ -120,7 +121,7 @@ const TrendingPage = () => {
   // Keyboard navigation
   useEffect(() => {
     const handleArrowKey = async (event: KeyboardEvent) => {
-      if( isFetchingRef.current) return;
+      if (isFetchingRef.current) return;
       if (event.key !== "ArrowDown" && event.key !== "ArrowUp") {
         return;
       }
@@ -189,86 +190,86 @@ const TrendingPage = () => {
     currentVideo,
   ]);
   // Scroll navigation
-const handleScroll = useCallback(
-  async (event: WheelEvent) => {
-    if (isFetchingRef.current) return;
+  const handleScroll = useCallback(
+    async (event: WheelEvent) => {
+      if (isFetchingRef.current) return;
 
-    // Chặn ngay từ đầu
-    isFetchingRef.current = true;
+      // Chặn ngay từ đầu
+      isFetchingRef.current = true;
 
-    console.log("Scroll event detected");
+      console.log("Scroll event detected");
 
-    if ((event.target as HTMLElement).closest(".video-controls")) {
-      isFetchingRef.current = false;
-      return;
-    }
+      if ((event.target as HTMLElement).closest(".video-controls")) {
+        isFetchingRef.current = false;
+        return;
+      }
 
-    if (showNotification) {
-      isFetchingRef.current = false;
-      return;
-    }
+      if (showNotification) {
+        isFetchingRef.current = false;
+        return;
+      }
 
-    event.preventDefault();
+      event.preventDefault();
 
-    if (accessToken && user) {
-      const videoSuggestId = Cookies.get("suggestVideoId");
-      await sendRequest<IBackendRes<IVideo[]>>({
-        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/wishlist`,
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: {
-          userId: user._id,
-          id: videoSuggestId || currentVideo?._id,
-          triggerAction: "ScrollVideo",
-        },
-      });
-    }
+      if (accessToken && user) {
+        const videoSuggestId = Cookies.get("suggestVideoId");
+        await sendRequest<IBackendRes<IVideo[]>>({
+          url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/wishlist`,
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: {
+            userId: user._id,
+            id: videoSuggestId || currentVideo?._id,
+            triggerAction: "ScrollVideo",
+          },
+        });
+      }
 
-    if (event.deltaY > 0) {
-      if (currentVideoIndex < videoData.length - 1) {
-        const newIndex = currentVideoIndex + 1;
-        setCurrentVideoIndex(newIndex);
-        setCurrentVideo(videoData[newIndex]);
-        isFetchingRef.current = false; // Cho phép scroll tiếp
-      } else if (currentVideoIndex === videoData.length - 1) {
-        console.log("Fetching more videos by scroll");
-        await getVideoData();
+      if (event.deltaY > 0) {
+        if (currentVideoIndex < videoData.length - 1) {
+          const newIndex = currentVideoIndex + 1;
+          setCurrentVideoIndex(newIndex);
+          setCurrentVideo(videoData[newIndex]);
+          isFetchingRef.current = false; // Cho phép scroll tiếp
+        } else if (currentVideoIndex === videoData.length - 1) {
+          console.log("Fetching more videos by scroll");
+          await getVideoData();
+          isFetchingRef.current = false;
+        }
+      } else {
+        if (currentVideoIndex > 0) {
+          const newIndex = currentVideoIndex - 1;
+          setCurrentVideoIndex(newIndex);
+          setCurrentVideo(videoData[newIndex]);
+        }
         isFetchingRef.current = false;
       }
-    } else {
-      if (currentVideoIndex > 0) {
-        const newIndex = currentVideoIndex - 1;
-        setCurrentVideoIndex(newIndex);
-        setCurrentVideo(videoData[newIndex]);
-      }
-      isFetchingRef.current = false;
-    }
-  },
-  [
-    accessToken,
-    user,
-    showNotification,
-    currentVideo,
-    currentVideoIndex,
-    videoData
-  ]
-);
+    },
+    [
+      accessToken,
+      user,
+      showNotification,
+      currentVideo,
+      currentVideoIndex,
+      videoData
+    ]
+  );
 
 
-const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-useEffect(() => {
-  const container = containerRef.current;
-  if (!container) return;
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
 
-  container.addEventListener("wheel", handleScroll, { passive: false });
+    container.addEventListener("wheel", handleScroll, { passive: false });
 
-  return () => {
-    container.removeEventListener("wheel", handleScroll);
-  };
-}, [handleScroll]);
+    return () => {
+      container.removeEventListener("wheel", handleScroll);
+    };
+  }, [handleScroll]);
 
   // Data fetching
   const getVideoData = async () => {
@@ -351,7 +352,7 @@ useEffect(() => {
           totalViews: res1?.data?.totalViews ?? prev.totalViews,
         };
       });
-      setVideoData((prevVideos) => 
+      setVideoData((prevVideos) =>
         prevVideos.map((video) =>
           video._id === currentVideo?._id
             ? { ...video, totalViews: res1?.data?.totalViews ?? video.totalViews }
@@ -416,9 +417,6 @@ useEffect(() => {
     } catch (error) {
       console.error("Failed to post comment:", error);
     }
-  };
-  const handleNavigate = (id: string) => {
-    router.push(`music/${id}`);
   };
 
   useEffect(() => {
@@ -592,10 +590,35 @@ useEffect(() => {
 
     return new Uint8Array(tsBytes);
   };
+  useEffect(() => {
+    if (currentVideo) {
+      // kiểm tra type của musicId
+      console.log("currentVideo.musicId type:", typeof currentVideo.musicId);
+      console.log("currentVideo.musicId data:", currentVideo.musicId);
+
+      // Kiểm tra xem musicId có tồn tại và có phải là object không
+      if (currentVideo.musicId) {
+        if (typeof currentVideo.musicId === 'object' && currentVideo.musicId._id) {
+          console.log("Setting currentMusic to object:", currentVideo.musicId);
+          setCurrentMusic(currentVideo.musicId as IMusic);
+        } else if (typeof currentVideo.musicId === 'string') {
+          console.log("musicId is string, setting currentMusic to null");
+          setCurrentMusic(null);
+        } else {
+          console.log("musicId is invalid object, setting currentMusic to null");
+          setCurrentMusic(null);
+        }
+      } else {
+        console.log("No musicId found, setting currentMusic to null");
+        setCurrentMusic(null);
+      }
+      setIsWatched(false);
+    }
+  }, [currentVideo?._id]);
 
   return (
     <div className="relative min-h-screen main-layout text-white">
-       <div className="fixed top-4 left-1/2 transform -translate-x-[68%] flex items-center justify-center z-50">
+      <div className="fixed top-4 left-1/2 transform -translate-x-[68%] flex items-center justify-center z-50">
         <input
           type="text"
           onKeyDown={(e) => {
@@ -632,7 +655,7 @@ useEffect(() => {
               style={{ minHeight: "100vh" }}
             >
               {currentVideo ? (
-                <div className="relative flex flex-col items-center justify-center w-full h-full rounded-2xl left-[4%]">
+                <div className="relative flex flex-col items-center justify-center w-full h-full rounded-2xl left-[9%]">
                   {/* Video player */}
                   <div
                     className="flex items-center justify-center w-full"
@@ -665,21 +688,19 @@ useEffect(() => {
           <div className="w-[450px] max-w-full h-full bg-[#18182c] flex flex-col">
             <div className="flex gap-2 p-4">
               <button
-                className={`flex-1 px-4 py-2 rounded-lg font-semibold flex items-center justify-center gap-2 transition ${
-                  sidebarMode === "videos"
-                    ? "bg-purple-600 text-white shadow"
-                    : "bg-purple-900 text-purple-200 hover:bg-purple-800"
-                }`}
+                className={`flex-1 px-4 py-2 rounded-lg font-semibold flex items-center justify-center gap-2 transition ${sidebarMode === "videos"
+                  ? "bg-purple-600 text-white shadow"
+                  : "bg-purple-900 text-purple-200 hover:bg-purple-800"
+                  }`}
                 onClick={() => setSidebarMode("videos")}
               >
                 <Video className="w-5 h-5" /> Videos
               </button>
               <button
-                className={`flex-1 px-4 py-2 rounded-lg font-semibold flex items-center justify-center gap-2 transition ${
-                  sidebarMode === "interactions"
-                    ? "bg-purple-600 text-white shadow"
-                    : "bg-purple-900 text-purple-200 hover:bg-purple-800"
-                }`}
+                className={`flex-1 px-4 py-2 rounded-lg font-semibold flex items-center justify-center gap-2 transition ${sidebarMode === "interactions"
+                  ? "bg-purple-600 text-white shadow"
+                  : "bg-purple-900 text-purple-200 hover:bg-purple-800"
+                  }`}
                 onClick={() => setSidebarMode("interactions")}
               >
                 <Heart className="w-5 h-5" /> Social
@@ -694,7 +715,7 @@ useEffect(() => {
                   currentVideoIndex={currentVideoIndex}
                   setCurrentVideoIndex={setCurrentVideoIndex}
                   setCurrentVideo={setCurrentVideo}
-                  setIsShowOtherVideos={() => {}}
+                  setIsShowOtherVideos={() => { }}
                   setVideoData={setVideoData}
                 />
               )}
@@ -717,6 +738,7 @@ useEffect(() => {
                     totalViews={currentVideo?.totalViews}
                     createdAt={currentVideo?.createdAt?.toString()}
                     videoTags={currentVideo?.videoTag}
+                    currentMusic={currentVideo?.musicId && typeof currentVideo.musicId === 'object' ? currentVideo.musicId as IMusic : null}
                   />
                 </div>
               )}
@@ -777,10 +799,9 @@ useEffect(() => {
                             onClick={handlePostComment}
                             disabled={!newComment.trim()}
                             className={`absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full
-                              ${
-                                newComment.trim()
-                                  ? "bg-purple-500 hover:bg-purple-600"
-                                  : "bg-purple-900/60"
+                              ${newComment.trim()
+                                ? "bg-purple-500 hover:bg-purple-600"
+                                : "bg-purple-900/60"
                               }
                               text-white transition`}
                           >

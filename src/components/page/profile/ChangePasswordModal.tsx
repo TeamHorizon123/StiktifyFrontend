@@ -129,7 +129,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
             />
             <button
               onClick={handleSendCode}
-              className="w-full bg-blue-500 text-white p-3 mt-6 rounded-md hover:bg-blue-600"
+              className="w-full bg-purple-500 text-white p-3 mt-6 rounded-md hover:bg-purple-600"
             >
               Send Verification Code
             </button>

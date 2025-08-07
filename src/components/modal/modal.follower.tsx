@@ -51,33 +51,35 @@ const FollowerModal = ({
   };
 
   return (
-    <Modal
-      title="Followers"
-      visible={visible}
-      onCancel={onClose}
-      footer={null}
-      width={400}
-      className="rounded-2xl shadow-xl"
-    >
-      <div className="flex flex-col space-y-4">
-        {followers.map((follower, index) => (
-          <Row
-            key={index}
-            justify="space-between"
-            align="middle"
-            className="p-3 border-b cursor-pointer"
-            onClick={() => handleFollowerClick(follower._id)}
-          >
-            <Col>
-              <Row align="middle">
-                <Avatar src={follower.image || <UserOutlined />} />
-                <Text className="ml-3">{follower.userName}</Text>
-              </Row>
-            </Col>
-          </Row>
-        ))}
-      </div>
-    </Modal>
+    <div>
+      <Modal
+        title="Followers"
+        visible={visible}
+        onCancel={onClose}
+        footer={null}
+        width={400}
+        className="rounded-2xl shadow-xl"
+      >
+        <div className="flex flex-col space-y-4">
+          {followers.map((follower, index) => (
+            <Row
+              key={index}
+              justify="space-between"
+              align="middle"
+              className="p-3 border-b cursor-pointer"
+              onClick={() => handleFollowerClick(follower._id)}
+            >
+              <Col>
+                <Row align="middle">
+                  <Avatar src={follower.image || <UserOutlined />} />
+                  <Text className="ml-3">{follower.userName}</Text>
+                </Row>
+              </Col>
+            </Row>
+          ))}
+        </div>
+      </Modal>
+    </div>
   );
 };
 
