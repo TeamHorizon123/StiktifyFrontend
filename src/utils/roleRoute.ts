@@ -34,7 +34,6 @@ const roleRoutes: Record<string, (string | RegExp)[]> = {
     "/page/address",
     "/page/shop/check-out",
     "/page/shop/check-out/success",
-    "/page/shop/check-out/fail",
     "/page/store",
     /^\/page\/shop\/product\/[\w-]+$/,
     /^\/page\/shop\/rating\/[\w-]+$/,
