@@ -14,7 +14,7 @@ interface ICreateResponse {
 }
 
 interface EditProductProps {
-  product: Product;
+  product: Product | null;
   onClose: () => void;
   refreshProducts: () => void;
 }
@@ -100,8 +100,8 @@ const EditProduct = ({
 
   useEffect(() => {
     form.setFieldsValue({
-      Name: product.Name,
-      Description: product.Description,
+      Name: product?.Name,
+      Description: product?.Description,
     })
   }, [])
 
@@ -121,16 +121,16 @@ const EditProduct = ({
       if (thumbnail)
         img = await UploadFile(thumbnail);
       const payload = {
-        Id: product.Id,
+        Id: product?.Id,
         Name: formData.Name,
         Description: formData.Description,
         CategoryId: categoryChoose,
-        ImageUri: img ?? product.ImageUri,
-        ShopId: product.ShopId
+        ImageUri: img ?? product?.ImageUri,
+        ShopId: product?.ShopId
       }
 
       await sendRequest({
-        url: `${process.env.NEXT_PUBLIC_BACKEND_SHOP_URL}/odata/product/${product.Id}`,
+        url: `${process.env.NEXT_PUBLIC_BACKEND_SHOP_URL}/odata/product/${product?.Id}`,
         method: "PUT",
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -170,7 +170,7 @@ const EditProduct = ({
         <Select
           allowClear
           showSearch
-          defaultValue={product.CategoryId}
+          defaultValue={product?.CategoryId}
           placeholder="Select category of product"
           optionFilterProp="label"
           onChange={onChange}

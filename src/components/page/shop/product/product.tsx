@@ -10,7 +10,7 @@ interface IData {
 
 const Product: React.FC<IData> = ({ data }) => {
     return (
-        <div className="bg-[#1C1B33] rounded-md overflow-hidden">
+        <div className="bg-[#1C1B33] rounded-md overflow-hidden relative">
             <div className="h-56 bg-gray-500 relative overflow-hidden">
                 <div className="w-full h-20 absolute bg-gradient-to-b from-[rgba(0,0,0,0.8)] z-10"></div>
                 {/* <div className="absolute  right-1 top-1 z-10">
@@ -48,6 +48,13 @@ const Product: React.FC<IData> = ({ data }) => {
                     <p>Add to cart</p>
                 </button> */}
             </div>
+            {
+                data.IsHidden&&
+                <div className="absolute z-50 top-0 bottom-0 h-full w-full text-center flex items-center justify-center">
+                    <div className="absolute top-0 left-0 w-full h-full bg-black opacity-50 -z-10"></div>
+                    <span className="font-bold text-xl p-3 bg-black rounded-lg">Out Stock</span>
+                </div>
+            }
         </div>
     )
 }
