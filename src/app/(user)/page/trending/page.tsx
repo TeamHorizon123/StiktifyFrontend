@@ -670,8 +670,6 @@ const TrendingPage = () => {
                         onVideoWatched={handleVideoWatched}
                         onVideoDone={nextVideo}
                         videoRef={videoRef}
-                        onPlay={() => setIsPlaying(true)}
-                        onPause={() => setIsPlaying(false)}
                       />
                     </div>
                   </div>
