@@ -57,9 +57,9 @@ const TagMusic = (props: IProps) => {
                 <div className={`font-bold text-white text-sm line-clamp-2 ${animationText ? "hover:animate-pulse" : ""} ${className}`}>
                     {item.musicDescription || "Unknown Track"}
                 </div>
-                <div className="text-purple-300 text-xs mt-1">
+                {/* <div className="text-purple-300 text-xs mt-1">
                     {item.userId?.fullname || "Unknown Artist"}
-                </div>
+                </div> */}
             </div>
             {isOnPlayMusic && (
                 <div>

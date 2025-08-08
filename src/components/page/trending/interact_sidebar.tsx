@@ -378,7 +378,6 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
               <div className="text-gray-400 text-sm font-medium">
                 This video has no background music
               </div>
-
             </div>
           </div>
         )}
