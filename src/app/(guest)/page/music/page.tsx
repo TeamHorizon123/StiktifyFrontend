@@ -32,7 +32,7 @@ const MusicGuestPage = async ({ searchParams }: any) => {
         <ListMusic data={data ? data.result : []} />
       </div>
       {/* Sidebar Playlist */}
-      {!token && <div className="fixed top-10 right-0 h-[75%] rounded-md flex justify-center overflow-y-auto z-10">
+      {token && <div className="fixed top-10 right-0 h-[75%] rounded-md flex justify-center overflow-y-auto z-10">
         <SideBarPlaylist />
       </div>}
     </div>

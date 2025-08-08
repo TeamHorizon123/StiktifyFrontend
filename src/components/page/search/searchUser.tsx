@@ -48,8 +48,7 @@ const SearchUser = () => {
   };
 
   return (
-
-    <div className="min-h-screen text-white bg-gray-900">
+    <div className="min-h-screen text-white bg-gray-900 ml-[12rem]">
       {/* Search Bar */}
       <div className="w-full flex items-center justify-center py-4 bg-gray-900">
         <input
@@ -136,15 +135,16 @@ const SearchUser = () => {
                           Views: {video.totalViews}
                         </p>
                       </div>
-                    </>
-                  )}
-
+                    ))}
+                  </div>
+                </>
+              )}
 
               {users.length === 0 && videos.length === 0 && !loading && (
                 <p className="text-purple-400 text-center">No results found.</p>
               )}
-            </div>
-          </div>
+            </>
+          )}
         </div>
       </div>
     </div>

@@ -23,6 +23,7 @@ interface IProps {
   ref?: any;
   isEdit?: boolean;
   refreshList?: any
+  className: any
 }
 
 const CardMusic = (props: IProps) => {
