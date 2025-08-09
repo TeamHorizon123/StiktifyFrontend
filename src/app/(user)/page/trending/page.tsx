@@ -92,7 +92,7 @@ const TrendingPage = () => {
 
               for (const idx of segmentIndices) {
                 try {
-                  const buffer = await loadSegment(currentVideo.segments[idx]);
+                  const buffer:any = await loadSegment(currentVideo.segments[idx]);
                   sb.appendBuffer(buffer);
                   await new Promise((resolve) =>
                     sb.addEventListener("updateend", resolve, { once: true })
