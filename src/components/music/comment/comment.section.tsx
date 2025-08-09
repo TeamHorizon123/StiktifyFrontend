@@ -8,6 +8,7 @@ import { MdFavorite, MdFavoriteBorder } from "react-icons/md";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
 import Comment from "./comment";
 import { a } from "framer-motion/client";
+import { message } from "antd"; // Add this import
 
 interface Comment {
   _id: string;
@@ -147,7 +148,7 @@ const CommentSection = ({
 
   const handleSubmit = async () => {
     if (!user) {
-      alert("You need to log in to comment!");
+      message.warning("You need to log in to comment!");
       return;
     }
     if (!newComment.trim()) return;
@@ -173,9 +174,10 @@ const CommentSection = ({
         ]);
 
         setNewComment("");
-        onNewComment(); // Gọi hàm callback để tăng số lượng bình luận
+        onNewComment();
       }
     } catch (error) {
+      message.error("Error posting comment!");
       console.error("Error posting comment:", error);
     }
   };

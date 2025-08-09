@@ -270,24 +270,24 @@ const SideBar: React.FC<SideBarProps> = () => {
           <div className="mt-14 ext-sm max-[600px]:text-xs flex flex-col items-center justify-center space-y-2">
             <ul className="flex flex-wrap text-center items-center justify-center space-x-1 lg:text-[10px]">
               <li>
-                <Link href="/">About</Link>
+                <Link href="/page/about">About</Link>
               </li>
               <li>
-                <Link href="/">Copyright</Link>
+                <Link href="/page/copyright">Copyright</Link>
               </li>
               <li>
-                <Link href="/">Contact us</Link>
+                <Link href="/page/contact">Contact us</Link>
               </li>
             </ul>
             <ul className="flex flex-col flex-wrap text-center items-center justify-center space-x-1 lg:text-[10px]">
               <li>
-                <Link href="/">Terms</Link>
+                <Link href="/page/terms">Terms</Link>
               </li>
               <li>
-                <Link href="/">Privacy</Link>
+                <Link href="/page/privacy">Privacy</Link>
               </li>
               <li>
-                <Link href="/">Policy & Safety</Link>
+                <Link href="/page/policy-safety">Policy & Safety</Link>
               </li>
             </ul>
             <p className="text-xs text-center">@2025 Stiktify</p>

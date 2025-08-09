@@ -42,6 +42,11 @@ const roleRoutes: Record<string, (string | RegExp)[]> = {
     "/page/karaoke",
     "/page/profile/edit",
     "/page/musichistory",
+    "/page/about",
+    "/page/contact",
+    "/page/terms",
+    "/page/privacy",
+    "/page/policy-safety",
   ],
   GUEST: [
     "/page/trending",
@@ -62,6 +67,11 @@ const roleRoutes: Record<string, (string | RegExp)[]> = {
     /^\/page\/shareMusic\/[\w-]+$/,
     /^\/page\/detail_user\/[\w-]+$/,
     "/page/trending-new-ui",
+    "/page/about",
+    "/page/contact",
+    "/page/terms",
+    "/page/privacy",
+    "/page/policy-safety",
   ],
   ADMIN: [
     "/dashboard/user",
