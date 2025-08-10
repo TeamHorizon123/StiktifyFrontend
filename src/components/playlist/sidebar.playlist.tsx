@@ -102,9 +102,9 @@ const SideBarPlaylist = () => {
                           }}
                           cancelButtonProps={{
                             style: {
-                              color: "#6b7280",
+                              color: "#cccc",
                               borderColor: "#d1d5db",
-                              background: "white",
+                              background: "gray",
                             },
                           }}
                         >

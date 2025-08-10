@@ -111,6 +111,17 @@ const SideBar: React.FC<SideBarProps> = () => {
                 </p>
               </Link>
             </li>
+            <li className={getLinkClass("/page/rankings")}>
+              <Link
+                href="/page/rankings"
+                className="flex items-center space-x-2"
+              >
+                <FaRankingStar />
+                <p className="text-base sm:hidden max-[600px]:hidden lg:block">
+                  Rankings
+                </p>
+              </Link>
+            </li>
 
             {!isGuest ? (
               <>
@@ -122,18 +133,6 @@ const SideBar: React.FC<SideBarProps> = () => {
                     <RiUserReceivedFill />
                     <p className="text-base sm:hidden max-[600px]:hidden lg:block">
                       Following
-                    </p>
-                  </Link>
-                </li>
-
-                <li className={getLinkClass("/page/rankings")}>
-                  <Link
-                    href="/page/rankings"
-                    className="flex items-center space-x-2"
-                  >
-                    <FaRankingStar />
-                    <p className="text-base sm:hidden max-[600px]:hidden lg:block">
-                      Rankings
                     </p>
                   </Link>
                 </li>
