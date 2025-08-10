@@ -136,6 +136,7 @@ const DisplayMusicDetail = ({ item }: IProps) => {
     }
   };
 
+
   return (
     <div className="relative h-[40vh] w-full shadow-lg overflow-hidden flex items-center justify-center bg-gradient-to-r from-[#18192a] via-[#2d225a] to-[#3a2e5f]">
       {/* Back button */}

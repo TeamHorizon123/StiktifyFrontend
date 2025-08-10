@@ -25,9 +25,7 @@ const FollowingPage = () => {
   const { user, accessToken } = useContext(AuthContext) ?? {};
   const [isWatched, setIsWatched] = useState(false);
   const { showNotification } = useShowComment();
-  const searchParams = useSearchParams();
   const [isFetchId, setIsFetchId] = useState(true);
-  const id = searchParams.get("id");
   const [currentMusic, setCurrentMusic] = useState<IMusic | null>(null);
   const router = useRouter();
   const [isPlaying, setIsPlaying] = useState(true);
@@ -519,8 +517,6 @@ const FollowingPage = () => {
                         onVideoWatched={handleVideoWatched}
                         onVideoDone={nextVideo}
                         videoRef={videoRef}
-                        onPlay={() => setIsPlaying(true)}
-                        onPause={() => setIsPlaying(false)}
                       />
                     </div>
                   </div>
