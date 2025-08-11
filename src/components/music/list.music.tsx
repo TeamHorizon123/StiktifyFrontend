@@ -16,6 +16,7 @@ import { AuthContext } from "@/context/AuthContext";
 import RecommendMusicList from "./recommend.music";
 import HotMusicList from "./hot.music.list";
 import RecentlyPlayedList from "./recently.played";
+import Image from "next/image";
 
 interface IProps {
   data: IMusic[];
@@ -163,14 +164,7 @@ const ListMusic = (props: IProps) => {
       <div className="px-8 pt-4 pb-6">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold">Music</h1>
-          <div className="flex gap-4">
-            <div>
-
-            </div>
-          </div>
         </div>
-
-        {/* Featured Content */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {filteredData.slice(0, 3).map((item, index) => (
             <div
@@ -180,10 +174,14 @@ const ListMusic = (props: IProps) => {
               onClick={() => handlePlayer(item)}
             >
               <div className="aspect-square bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center">
-                <img
+                <Image
                   src={item.musicThumbnail}
                   alt={item.musicDescription}
+                  // width={500}
+                  // height={500}
+                  fill
                   className="w-full h-full object-cover"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
               </div>
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
@@ -191,7 +189,7 @@ const ListMusic = (props: IProps) => {
                   {item.musicDescription}
                 </h3>
                 <p className="text-gray-300 text-sm">
-                  {item.musicTag?.map((tag) => tag.fullname).join(", ") ||
+                  {item.musicTag?.map((tag) => tag.fullname) ||
                     "Unknown"}
                 </p>
               </div>
