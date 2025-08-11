@@ -15,6 +15,22 @@ interface ICreateResponse {
   data?: string | null;
 }
 
+interface IUserDetail {
+  _id: string;
+  image: string;
+  fullname: string;
+  email: string;
+  isActive: boolean;
+  bio: string;
+  address: string;
+  createdAt: string;
+  totalFollowers: number;
+  totalFollowings: number;
+  totalViews: number;
+  totalLikes: number;
+  isShop: boolean;
+}
+
 const StorePage = () => {
   const { accessToken, user } = useContext(AuthContext) ?? {};
   const [loading, setLoading] = useState(true);
@@ -22,7 +38,7 @@ const StorePage = () => {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [showChooseImg, setShowChooseImg] = useState<boolean>(false);
   const [thumbnail, setThumbnail] = useState<File | null>(null);
-  const [follower, setFollower] = useState(0);
+  const [userData, setUserData] = useState<IUserDetail | null>(null);
 
   const items: DescriptionsProps['items'] = [
     {
@@ -72,22 +88,26 @@ const StorePage = () => {
     }
   }
 
-  const getFollower = async () => {
-    const res = await sendRequest<IBackendRes<object[]>>({
-      url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/follow/followers/${user?._id}`,
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-
-    setFollower(res.data?.length ?? 0);
-  }
+  const fetchUserDetail = async () => {
+    if (!accessToken) return
+    try {
+      const res = await sendRequest<any>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/get-user/${user?._id}`,
+        method: "GET",
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      if (res.data) {
+        setUserData(res.data);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   useEffect(() => {
     setLoading(true);
     getShop();
-    getFollower();
+    fetchUserDetail();
     setLoading(false);
 
   }, [accessToken, user]);
@@ -181,7 +201,7 @@ const StorePage = () => {
           }
         >
           <Button type="default" onClick={() => {
-            if (follower >= 1000)
+            if (userData && userData?.totalFollowers >= 1000)
               setShowModal(true)
             else message.info("Your account is not eligible to register for store ownership.");
           }}>Register Now</Button>
