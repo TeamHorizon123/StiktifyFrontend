@@ -63,7 +63,7 @@ const ModalAddProduct = ({ id }: Id) => {
       }
     } else {
       query = {
-        $filter: `CategoryId eq '${categoryChoose}'`
+        $filter: `CategoryId eq '${categoryChoose}' or CategoryId eq null`
       }
     }
 

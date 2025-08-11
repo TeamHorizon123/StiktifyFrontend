@@ -28,27 +28,32 @@ const ActiveAccount = ({ params }: { params: { id: string } }) => {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await sendRequest<IBackendRes<any>>({
-      url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/check-code`,
-      method: "POST",
-      body: {
-        _id: id,
-        activeCode: code,
-      },
-    });
-    if (res?.data) {
-      notification.success({
-        message: "Verify Successful",
-        description: "Please log in to your account.",
+    try {
+      const res = await sendRequest<IBackendRes<any>>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/check-code`,
+        method: "POST",
+        body: {
+          _id: id,
+          activeCode: code,
+        },
       });
-      router.push(`/auth/login`);
-    } else {
-      notification.error({
-        message: "Verify Error",
-        description: res?.message,
-        duration: 3,
-      });
+      if (res?.data) {
+        notification.success({
+          message: "Verify Successful",
+          description: "Please log in to your account.",
+        });
+        router.push(`/auth/login`);
+      } else {
+        notification.error({
+          message: "Verify Error",
+          description: res?.message,
+          duration: 3,
+        });
+      }
+    } catch {
+      console.error("Undefine error");
     }
+
   };
 
   return (
@@ -530,14 +535,14 @@ const ActiveAccount = ({ params }: { params: { id: string } }) => {
       </div>
 
       {/* Background Image with overlay */}
-      <div className="absolute right-[-5vw] top-0 bottom-0 w-[65vw]">
+      <div className="absolute right-0 top-0 bottom-0">
         <div className="relative h-full">
           <Image
             src={manListeningBg}
             alt="Man listening"
             className="h-full w-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/40 via-purple-600/30 to-purple-800/50"></div>
+          <div className="absolute inset-0 bg-gradient-to-l from-purple-900/30 to-transparent"></div>
         </div>
       </div>
     </div>
