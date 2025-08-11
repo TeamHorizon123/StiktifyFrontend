@@ -333,7 +333,7 @@ const Comment: React.FC<CommentProps> = ({
       {user && isReplyModalOpen && (
         <div className="flex items-center gap-3 ml-12 mt-2">
           <img
-            src={user.userImage}
+            src={user.userImage || "https://firebasestorage.googleapis.com/v0/b/stiktify-bachend.firebasestorage.app/o/avatars%2Fdefault_avatar.png?alt=media&token=93109c9b-d284-41ea-95e7-4786e3c69328"}
             alt="User Avatar"
             className="w-8 h-8 rounded-full object-cover"
           />
@@ -527,6 +527,7 @@ const Comment: React.FC<CommentProps> = ({
       {isEditModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
+            <h2 className="text-xl font-semibold text-white mb-4">Edit your comment</h2>
             <div className="flex gap-3 mb-4">
               <div className="flex-1">
                 <textarea
