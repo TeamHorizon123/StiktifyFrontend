@@ -2,14 +2,13 @@
 
 import { cookies } from "next/headers";
 
-const cookieStore = cookies();
-const token = cookieStore.get("token")?.value;
-
 export const fetchMyVideos = async (
   userId: string,
   current: number,
   pageSize: number
 ) => {
+  const cookieStore = cookies();
+  const token = cookieStore.get("token")?.value;
   if (!token) return null;
   try {
     const res = await fetch(

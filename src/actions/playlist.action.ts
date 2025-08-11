@@ -20,7 +20,7 @@ export const handleGetPlaylistAction = async (id: string) => {
             })
         const result: IBackendRes<any> = await res.json();
         return result
-    } catch (error) {
+    } catch {
         return null
     }
 }
@@ -43,7 +43,7 @@ export const handleGetDetailsPlaylistAction = async (id: string) => {
             })
         const result: IBackendRes<any> = await res.json();
         return result
-    } catch (error) {
+    } catch {
         return null
     }
 }
@@ -66,7 +66,7 @@ export const handleAddMusicInPlaylistAction = async (playlistId: string, musicId
         const result: IBackendRes<any> = await res.json();
         revalidateTag("list-music-playlist")
         return result
-    } catch (error) {
+    } catch {
         return null
     }
 }
@@ -89,7 +89,7 @@ export const handleAddPlaylistAction = async (userId: string, name: string, desc
         const result: IBackendRes<any> = await res.json();
         revalidateTag("list-playlist")
         return result
-    } catch (error) {
+    } catch {
         return null
     }
 }
@@ -111,7 +111,7 @@ export const handleGetMusicInPlaylistAction = async (playlistId: string) => {
             })
         const result: IBackendRes<any> = await res.json();
         return result
-    } catch (error) {
+    } catch {
         return null
     }
 }
@@ -134,7 +134,7 @@ export const handleRemoveMusicInPlaylistAction = async (musicId: string) => {
 
         const result: IBackendRes<any> = await res.json();
         return result
-    } catch (error) {
+    } catch {
         return null
     }
 }
@@ -154,7 +154,7 @@ export const handleFilterSearchPlaylist = async (current: string, pageSize: stri
         });
         const result: IBackendRes<any> = await res.json();
         return result;
-    } catch (error) {
+    } catch {
         return null;
     }
 };
@@ -175,7 +175,7 @@ export const handleDeletePlaylist = async (id: string) => {
         const result: IBackendRes<any> = await res.json();
         revalidateTag("list-playlist")
         return result;
-    } catch (error) {
+    } catch {
         return null;
     }
 };

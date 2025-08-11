@@ -66,18 +66,18 @@ const ListMusic = (props: IProps) => {
         return;
       }
       try {
-        const response = await handleFilterSearchMusic("1", "30",search, filterReq);
+        const response = await handleFilterSearchMusic("1", "30", search, filterReq);
         if (!response || !response.data || !response.data.result) {
           setFilteredData([]);
           return;
         }
-          setFilteredData(response.data.result);
+        setFilteredData(response.data.result);
       } catch (error) {
         setFilteredData([]);
       }
     };
     fetchData();
-  }, [search,filterReq]);
+  }, [search, filterReq]);
 
   const handlePlayer = (track: IMusic) => {
     if (trackCurrent?._id !== track._id) {
@@ -133,7 +133,7 @@ const ListMusic = (props: IProps) => {
   return (
     <div className="main-layout min-h-screen text-white pr-[4%]">
       {/* Header Section */}
-       <div className="w-full flex items-center justify-center py-4">
+      <div className="w-full flex items-center justify-center py-4">
         <input
           type="text"
           onKeyDown={(e) => {
@@ -156,7 +156,7 @@ const ListMusic = (props: IProps) => {
           </svg>
         </button>
         <div className="ml-8">
-      
+
         </div>
       </div>
 
@@ -165,7 +165,7 @@ const ListMusic = (props: IProps) => {
           <h1 className="text-4xl font-bold">Music</h1>
           <div className="flex gap-4">
             <div>
-             
+
             </div>
           </div>
         </div>

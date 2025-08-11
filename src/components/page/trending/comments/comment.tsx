@@ -14,7 +14,7 @@ interface CommentProps {
     username: string;
     userImage?: string;
     image?: string;
-    parentId: string;
+    parentId: string | null;
     CommentDescription: string;
     totalOfChildComments: number;
     totalReactions: number;
@@ -266,7 +266,7 @@ const Comment: React.FC<CommentProps> = ({
     const userId = comment.user?._id;
     router.push(`/page/detail_user/${userId}`);
   };
-  const isOwner = (comment.user?._id || comment.userId) === user?._id;
+  const isOwner = (comment.user?._id) === user?._id;
   return (
     <div key={comment._id} className="mb-4">
       <div className="comment flex gap-3 p-3 rounded-lg transition-all">
