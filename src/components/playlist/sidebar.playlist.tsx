@@ -104,7 +104,7 @@ const SideBarPlaylist = () => {
                             style: {
                               color: "#6b7280",
                               borderColor: "#d1d5db",
-                              background: "white",
+                              background: "gray",
                             },
                           }}
                         >

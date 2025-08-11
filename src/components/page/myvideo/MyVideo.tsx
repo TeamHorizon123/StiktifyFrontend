@@ -8,6 +8,7 @@ import VideoCustomize from "@/components/video/video.customize";
 import { AuthContext } from "@/context/AuthContext";
 import { sendRequest } from "@/utils/api";
 import { Eye, MessageCircle, Heart, Trash2 } from "lucide-react";
+import { Modal } from "antd";
 
 // Định nghĩa interface cho video
 interface IShortVideo {
@@ -98,12 +99,42 @@ const MyVideo = ({ userId }: MyVideoProps) => {
     }
   };
 
-  // Hàm xử lý khi nhấn nút Delete
+  const showDeleteConfirm = (onConfirm: () => void) => {
+    Modal.confirm({
+      title: (
+        <span className="text-white">
+          Delete Video
+        </span>
+      ),
+      content: (
+        <span className="text-white">
+          Are you sure you want to delete this video?
+        </span>
+      ),
+      okText: "Delete",
+      cancelText: "Cancel",
+      centered: true,
+      okButtonProps: {
+        className: "bg-purple-500 hover:bg-purple-400 text-white border-none",
+      },
+      cancelButtonProps: {
+        className: "bg-gray-500 hover:bg-gray-400 text-white border-none",
+      },
+      styles: {
+        body: { backgroundColor: "#111827", color: "white" },
+        header: { backgroundColor: "#111827", color: "white" },
+        footer: { backgroundColor: "#111827" },
+      },
+      onOk() {
+        onConfirm();
+      },
+    });
+  };
+
   const handleDelete = async (videoId: string) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this video?"
-    );
-    if (confirmed && user?._id) {
+    if (!user?._id) return;
+
+    showDeleteConfirm(async () => {
       try {
         await deleteVideoAPI(videoId, user._id);
         setVideos((prevVideos) =>
@@ -115,7 +146,7 @@ const MyVideo = ({ userId }: MyVideoProps) => {
       } catch (error) {
         console.error("Error in handleDelete:", error);
       }
-    }
+    });
   };
 
   // Lọc danh sách video hiển thị (ẩn video đã xóa)
@@ -136,7 +167,7 @@ const MyVideo = ({ userId }: MyVideoProps) => {
                 <VideoCustomize
                   videoThumbnail={video.videoThumbnail}
                   videoId={video._id}
-                  // Có thể truyền thêm prop className nếu cần
+                // Có thể truyền thêm prop className nếu cần
                 />
                 {/* Overlay thông tin */}
                 <span className="absolute bottom-2 right-3 text-xs text-white bg-black/40 px-2 py-0.5 rounded">
@@ -167,7 +198,7 @@ const MyVideo = ({ userId }: MyVideoProps) => {
                 {user?._id === currentUserId && (
                   <button
                     onClick={() => handleDelete(video._id)}
-                    className="absolute top-3 right-3  hover:bg-red-600 text-white p-2 rounded-full shadow transition"
+                    className="absolute top-3 right-3  hover:bg-red-600 text-gray hover:text-white  p-2 rounded-full shadow transition"
                     title="Delete"
                   >
                     <Trash2 size={18} />
@@ -180,6 +211,69 @@ const MyVideo = ({ userId }: MyVideoProps) => {
       ) : (
         <p className="text-gray-300 text-center">No videos found.</p>
       )}
+      <style jsx global>{`
+  .ant-modal-content {
+    background-color: #111827 !important;
+    color: white !important;
+  }
+  .ant-modal-title {
+    color: white !important;
+  }
+  .ant-modal-close-icon {
+    color: white !important;
+  }
+  .ant-btn {
+    border-color: #4b5563 !important;
+    color: white !important;
+  }
+
+  .ant-btn-primary {
+    background-color: #8b5cf6 !important; /* purple-500 */
+    border-color: #8b5cf6 !important;
+  }
+
+  .ant-btn-primary:hover {
+    background-color: #a78bfa !important; /* purple-400 */
+    border-color: #a78bfa !important;
+  }
+    /* Label for Form.Item */
+  .ant-form-item-label > label {
+    color: white !important;
+  }
+
+  /* Input, Textarea, Select */
+  .ant-input,
+  .ant-input-affix-wrapper,
+  .ant-input-textarea,
+  .ant-select-selector {
+    background-color: #1f2937 !important;
+    color: white !important;
+    border-color: #374151 !important;
+  }
+
+  /* Placeholder text */
+  .ant-input::placeholder,
+  .ant-select-selection-placeholder {
+    color: #9ca3af !important; /* gray-400 */
+  }
+
+  /* Button styles */
+  .ant-btn {
+    border-color: #4b5563 !important;
+    color: white !important;
+  }
+
+  .ant-btn-primary {
+    background-color: #8b5cf6 !important; /* purple-500 */
+    border-color: #8b5cf6 !important;
+  }
+
+  .ant-btn-primary:hover {
+    background-color: #a78bfa !important; /* purple-400 */
+    border-color: #a78bfa !important;
+  }
+
+`}</style>
     </div>
   );
 };
