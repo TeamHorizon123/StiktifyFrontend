@@ -27,7 +27,12 @@ interface ICreateResponse {
   data?: string | null;
 }
 
-const ModalRegisterShop = () => {
+interface FunctionReCall {
+  onClose: () => void,
+  onReload: () => void
+}
+
+const ModalRegisterShop = ({ onClose, onReload }: FunctionReCall) => {
   const { accessToken, user } = useContext(AuthContext) ?? {};
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
@@ -117,7 +122,7 @@ const ModalRegisterShop = () => {
       }
       // console.log("Payload:", payload);
 
-      const res = await sendRequest<ICreateResponse>({
+      const res = await sendRequest<any>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_SHOP_URL}/odata/shop`,
         method: "POST",
         headers: {
@@ -125,7 +130,11 @@ const ModalRegisterShop = () => {
         },
         body: payload
       })
-      setCreateStatus(res.statusCode);
+      if (res.id) {
+        message.success("Register shop success!");
+        onClose();
+        onReload();
+      }
     } catch {
       // Not
     } finally {
