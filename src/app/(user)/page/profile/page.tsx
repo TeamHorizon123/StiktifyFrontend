@@ -16,6 +16,7 @@ import { sendRequest } from "@/utils/api";
 import { CheckCircleTwoTone } from "@ant-design/icons";
 import TickedUser from "@/components/ticked-user/TickedUser";
 import { formatNumber } from "@/utils/utils";
+import avatar from "@/assets/no-avatar.png"
 
 const TABS = [
   { key: "video", label: "Video", icon: <Video size={18} /> },

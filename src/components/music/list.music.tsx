@@ -189,8 +189,9 @@ const ListMusic = (props: IProps) => {
                   {item.musicDescription}
                 </h3>
                 <p className="text-gray-300 text-sm">
-                  {item.musicTag?.map((tag) => tag.fullname) ||
-                    "Unknown"}
+                  {/* {item.musicTag?.map((tag) => tag.fullname) ||
+                    "Unknown"} */}
+                  {item?.userId?.fullname || "Unknown Artist"}
                 </p>
               </div>
             </div>
