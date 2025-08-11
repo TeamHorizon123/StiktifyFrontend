@@ -3,11 +3,9 @@
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 
-const cookieStore = cookies()
-const token = cookieStore.get("token")?.value
-
-
 export const handleBanUserAction = async (id: string, isBan: boolean) => {
+    const cookieStore = cookies();
+    const token = cookieStore.get("token")?.value;
     if (!token) return null;
     try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/ban-user`, {
@@ -26,12 +24,14 @@ export const handleBanUserAction = async (id: string, isBan: boolean) => {
         revalidateTag("list-user")
         const result: IBackendRes<any> = await res.json();
         return result
-    } catch (error) {
+    } catch {
         return null
     }
 }
 
 export const handleUnBanUserAction = async (id: string) => {
+    const cookieStore = cookies();
+    const token = cookieStore.get("token")?.value;
     if (!token) return null;
     try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/unbanned-user/${id}`, {
@@ -46,12 +46,14 @@ export const handleUnBanUserAction = async (id: string) => {
         revalidateTag("list-user")
         const result: IBackendRes<any> = await res.json();
         return result
-    } catch (error) {
+    } catch {
         return null
     }
 }
 
 export const handleCreateUserAction = async (data: ICreateUserByManager) => {
+    const cookieStore = cookies();
+    const token = cookieStore.get("token")?.value;
     if (!token) return null;
     try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/create-user`, {
@@ -67,12 +69,14 @@ export const handleCreateUserAction = async (data: ICreateUserByManager) => {
         revalidateTag("list-user")
         const result: IBackendRes<any> = await res.json();
         return result
-    } catch (error) {
+    } catch {
         return null
     }
 }
 
 export const handleUpdateUserAction = async (data: IUpdateUserByManager) => {
+    const cookieStore = cookies();
+    const token = cookieStore.get("token")?.value;
     if (!token) return null;
     try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/update-user`, {
@@ -88,12 +92,14 @@ export const handleUpdateUserAction = async (data: IUpdateUserByManager) => {
         revalidateTag("list-user")
         const result: IBackendRes<any> = await res.json();
         return result
-    } catch (error) {
+    } catch {
         return null
     }
 }
 
 export const handleGetAllUser = async (current: number, pageSize: number, search: string, filterRes: string) => {
+    const cookieStore = cookies();
+    const token = cookieStore.get("token")?.value;
     if (!token) return null;
     try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/list-user?current=${current}&pageSize=${pageSize}&search=${search}&filterReq=${filterRes}`, {
@@ -102,37 +108,39 @@ export const handleGetAllUser = async (current: number, pageSize: number, search
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${token}`
             },
-            next: { tags: ["list-user"] }   
+            next: { tags: ["list-user"] }
         })
         const result: IBackendRes<any> = await res.json();
         return result
-    } catch (error) {
+    } catch {
         return null
     }
 }
 
 
 export const handleUploadImage = async (formData: FormData) => {
+    const cookieStore = cookies();
+    const token = cookieStore.get("token")?.value;
     if (!token) return null;
     try {
-      const cookieStore = cookies();
-      const token = cookieStore.get("token")?.value;
-      if (!formData) {
-        throw new Error("FormData is required.");
-      }
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/upload/upload-image`, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
-        body: formData, 
-      });
-      const result: IBackendRes<any> = await res.json();
-      return result;
+        const cookieStore = cookies();
+        const token = cookieStore.get("token")?.value;
+        if (!formData) {
+            throw new Error("FormData is required.");
+        }
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/upload/upload-image`, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+            },
+            body: formData,
+        });
+        const result: IBackendRes<any> = await res.json();
+        return result;
     } catch (error) {
-      console.error("Error uploading image:", error);
-      return null;
+        console.error("Error uploading image:", error);
+        return null;
     }
-  };
-  
+};
+
 

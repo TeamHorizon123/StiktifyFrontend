@@ -3,11 +3,9 @@
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 
-const cookieStore = cookies();
-const token = cookieStore.get("token")?.value;
-
-
 export const handleFlagShortVideoAction = async (id: string, flag: boolean) => {
+  const cookieStore = cookies();
+  const token = cookieStore.get("token")?.value;
   try {
     if (!token) return null;
     const res = await fetch(
@@ -29,12 +27,14 @@ export const handleFlagShortVideoAction = async (id: string, flag: boolean) => {
     revalidateTag("list-report");
     const result: IBackendRes<any> = await res.json();
     return result;
-  } catch (error) {
+  } catch {
     return null;
   }
 };
 
 export const handleBlockShortVideoAction = async (id: string, isBlock: boolean) => {
+  const cookieStore = cookies();
+  const token = cookieStore.get("token")?.value;
   try {
     if (!token) return null;
     const res = await fetch(
@@ -52,12 +52,12 @@ export const handleBlockShortVideoAction = async (id: string, isBlock: boolean) 
         }),
       }
     );
-    
+
     revalidateTag("list-short-video");
     revalidateTag("list-report");
     const result: IBackendRes<any> = await res.json();
     return result;
-  } catch (error) {
+  } catch {
     return null;
   }
 };
@@ -68,6 +68,8 @@ export const handleGetAllShortVideo = async (
   current: number,
   pageSize: number
 ) => {
+  const cookieStore = cookies();
+  const token = cookieStore.get("token")?.value;
   try {
     if (!token) return null;
     const res = await fetch(
@@ -88,7 +90,7 @@ export const handleGetAllShortVideo = async (
     );
     const result = await res.json();
     return result;
-  } catch (error) {
+  } catch {
     return null;
   }
 };
@@ -98,6 +100,8 @@ export const handleFilterByCategory = async (
   current: number,
   pageSize: number
 ) => {
+  const cookieStore = cookies();
+  const token = cookieStore.get("token")?.value;
   if (!token) return null;
   try {
     const res = await fetch(

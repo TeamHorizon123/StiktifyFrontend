@@ -124,7 +124,9 @@ const LikedVideo = ({ userId }: LikedVideoProps) => {
 
                     <div className="flex flex-wrap gap-1">
                       {Array.isArray(video.videoTag) ? (
-                        video.videoTag.slice(0, 2).map((tag, index) => (
+                        video.videoTag
+                        // .slice(0, 2)
+                        .map((tag, index) => (
                           <span
                             key={index}
                             className="bg-purple-600/20 text-purple-300 px-2 py-1 rounded-full text-xs font-medium"

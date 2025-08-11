@@ -3,12 +3,9 @@
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 
-const cookieStore = cookies();
-const token = cookieStore.get("token")?.value;
-
-
-
 export const handleDeleteReportVideoAction = async (id: string) => {
+  const cookieStore = cookies();
+  const token = cookieStore.get("token")?.value;
   if (!token) return null;
   try {
     const res = await fetch(
@@ -24,14 +21,16 @@ export const handleDeleteReportVideoAction = async (id: string) => {
     );
 
     revalidateTag("list-report-video");
-    const result: IBackendRes<any> = await res.json();
+    const result: IBackendRes<object> = await res.json();
     return result;
-  } catch (error) {
+  } catch {
     return null;
   }
 };
 
 export const handleDeleteReportMusicAction = async (id: string) => {
+  const cookieStore = cookies();
+  const token = cookieStore.get("token")?.value;
   if (!token) return null;
   try {
     const res = await fetch(
@@ -47,14 +46,16 @@ export const handleDeleteReportMusicAction = async (id: string) => {
     );
 
     revalidateTag("list-report-music");
-    const result: IBackendRes<any> = await res.json();
+    const result: IBackendRes<object> = await res.json();
     return result;
-  } catch (error) {
+  } catch {
     return null;
   }
 };
 
 export const handleFlagMusicAction = async (id: string, flag: boolean) => {
+  const cookieStore = cookies();
+  const token = cookieStore.get("token")?.value;
   if (!token) return null;
   try {
     const res = await fetch(
@@ -74,14 +75,16 @@ export const handleFlagMusicAction = async (id: string, flag: boolean) => {
     );
     revalidateTag("list-report-music");
     revalidateTag("list-music");
-    const result: IBackendRes<any> = await res.json();
+    const result: IBackendRes<object> = await res.json();
     return result;
-  } catch (error) {
+  } catch {
     return null;
   }
 };
 
 export const handleBlockMusicAction = async (id: string, isBlock: boolean) => {
+  const cookieStore = cookies();
+  const token = cookieStore.get("token")?.value;
   if (!token) return null;
   try {
     const res = await fetch(
@@ -101,9 +104,9 @@ export const handleBlockMusicAction = async (id: string, isBlock: boolean) => {
     );
     revalidateTag("list-report-music");
     revalidateTag("list-music");
-    const result: IBackendRes<any> = await res.json();
+    const result: IBackendRes<object> = await res.json();
     return result;
-  } catch (error) {
+  } catch {
     return null;
   }
 };
@@ -111,11 +114,12 @@ export const handleBlockMusicAction = async (id: string, isBlock: boolean) => {
 export const handleGetAllReportMusicAction = async (
   current: number, pageSize: number, search: string, filterRes: string
 ) => {
+  const cookieStore = cookies();
+  const token = cookieStore.get("token")?.value;
   try {
     if (!token) return null;
     const res = await fetch(
-      `${
-        process.env.NEXT_PUBLIC_BACKEND_URL
+      `${process.env.NEXT_PUBLIC_BACKEND_URL
       }/api/v1/report/list-report-music?current=${current}&pageSize=${pageSize}&search=${search}&filterReq=${filterRes}`,
       {
         method: "GET",
@@ -132,16 +136,17 @@ export const handleGetAllReportMusicAction = async (
     console.error("Error searching music report:", error);
     return null;
   }
-};  
+};
 
 export const handleListVideoReportAction = async (
- current: number, pageSize: number, search: string, filterRes: string
+  current: number, pageSize: number, search: string, filterRes: string
 ) => {
+  const cookieStore = cookies();
+  const token = cookieStore.get("token")?.value;
   if (!token) return null;
   try {
     const res = await fetch(
-      `${
-        process.env.NEXT_PUBLIC_BACKEND_URL
+      `${process.env.NEXT_PUBLIC_BACKEND_URL
       }/api/v1/report/list-report-video?current=${current}&pageSize=${pageSize}&search=${search}&filterReq=${filterRes}`,
       {
         method: "GET",

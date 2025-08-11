@@ -1,8 +1,5 @@
 "use server"
 
-import { revalidateTag } from "next/cache";
-import { cookies } from "next/headers";
-
 export const handleGetAllCategoryAction = async () => {
     try {
         const res = await fetch(`
@@ -16,7 +13,7 @@ export const handleGetAllCategoryAction = async () => {
             })
         const result: IBackendRes<any> = await res.json();
         return result
-    } catch (error) {
+    } catch {
         return null
     }
 }
