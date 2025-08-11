@@ -65,7 +65,7 @@ const FollowerModal = ({
         header: { background: "#111827" },
       }}
     >
-      <div className="flex flex-col]">
+      <div className="flex flex-col">
         {followers.length === 0 ? (
           <div className="text-center text-purple-300 py-8">
             No followers found.
