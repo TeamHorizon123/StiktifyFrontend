@@ -749,7 +749,7 @@ const ForgotPassword = () => {
             alt="Man listening"
             className="h-full w-full object-cover"
           />
-          <div className="absolute inset-0 "></div>
+          <div className="absolute inset-0 bg-gradient-to-l from-purple-900/30 to-transparent"></div>
         </div>
       </div>
     </div>

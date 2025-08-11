@@ -174,7 +174,17 @@ const UserDetail = () => {
     if (!user || !accessToken) return;
     try {
       await handleFollow(user._id, id as string);
-      setFollow((prev) => !prev); // Đảo trạng thái follow
+      setFollow((prev) => !prev);
+      setUserData((prev) =>
+        prev
+          ? {
+            ...prev,
+            totalFollowers: isFollow
+              ? prev.totalFollowers - 1
+              : prev.totalFollowers + 1,
+          }
+          : prev
+      );
     } catch (error) {
       notification.error({ message: "Follow action failed" });
     }

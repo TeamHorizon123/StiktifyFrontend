@@ -1,10 +1,9 @@
 import React, { useEffect, useState, useContext } from "react";
-import { Modal, Avatar, Row, Col, Typography, message } from "antd";
+import { Modal, Avatar, message } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 import { handleGetFollowerUser } from "@/actions/follow.action";
 import { AuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-const { Text } = Typography;
 
 interface Follower {
   _id: string;
@@ -12,6 +11,7 @@ interface Follower {
   image?: string;
   email: string;
 }
+
 const FollowerModal = ({
   visible,
   onClose,
@@ -51,35 +51,44 @@ const FollowerModal = ({
   };
 
   return (
-    <div>
-      <Modal
-        title="Followers"
-        visible={visible}
-        onCancel={onClose}
-        footer={null}
-        width={400}
-        className="rounded-2xl shadow-xl"
-      >
-        <div className="flex flex-col space-y-4">
-          {followers.map((follower, index) => (
-            <Row
-              key={index}
-              justify="space-between"
-              align="middle"
-              className="p-3 border-b cursor-pointer"
+    <Modal
+      title={
+        <span className="text-white text-lg font-semibold">Followers</span>
+      }
+      open={visible}
+      onCancel={onClose}
+      footer={null}
+      width={400}
+      className="rounded-2xl shadow-xl custom-follow-modal"
+      styles={{
+        content: { background: "#18182c" },
+        header: { background: "#111827" },
+      }}
+    >
+      <div className="flex flex-col">
+        {followers.length === 0 ? (
+          <div className="text-center text-purple-300 py-8">
+            No followers found.
+          </div>
+        ) : (
+          followers.map((follower) => (
+            <div
+              key={follower._id}
+              className="flex items-center gap-3 px-5 py-4 hover:bg-[#23243a] transition cursor-pointer"
               onClick={() => handleFollowerClick(follower._id)}
             >
-              <Col>
-                <Row align="middle">
-                  <Avatar src={follower.image || <UserOutlined />} />
-                  <Text className="ml-3">{follower.userName}</Text>
-                </Row>
-              </Col>
-            </Row>
-          ))}
-        </div>
-      </Modal>
-    </div>
+              <Avatar
+                src={follower.image}
+                icon={<UserOutlined />}
+                size={40}
+                className="border border-purple-700"
+              />
+              <span className="text-white font-medium">{follower.userName}</span>
+            </div>
+          ))
+        )}
+      </div>
+    </Modal>
   );
 };
 
