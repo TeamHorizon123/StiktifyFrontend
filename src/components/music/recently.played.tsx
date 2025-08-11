@@ -119,7 +119,7 @@ const RecentlyPlayedList = (props: IProps) => {
               {item.musicDescription}
             </div>
             <div className="text-gray-400 text-sm truncate">
-              {item.userId.fullname || "Unknown Artist"}
+              {item.userId?.fullname || "Unknown Artist"}
             </div>
           </div>
 

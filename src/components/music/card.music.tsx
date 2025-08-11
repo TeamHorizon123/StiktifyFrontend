@@ -180,6 +180,7 @@ const CardMusic = (props: IProps) => {
             alt="thumbnail"
             className="object-cover"
             fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             src={item ? item.musicThumbnail : "/default-music.jpg"}
           />
 
