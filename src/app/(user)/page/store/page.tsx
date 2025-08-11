@@ -212,7 +212,7 @@ const StorePage = () => {
           onCancel={() => setShowModal(false)}
           destroyOnClose={true}
           open={showModal}>
-          <ModalRegisterShop />
+          <ModalRegisterShop onClose={() => setShowModal(false)} onReload={() => getShop()} />
         </Modal>
       </div>
     )
