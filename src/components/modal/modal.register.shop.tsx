@@ -180,8 +180,8 @@ const ModalRegisterShop = () => {
               <Button icon={<UploadOutlined />}>Upload image(Max: 1)</Button>
             </Upload>
           </Form.Item>
-          <Form.Item label="Email" name={"Email"} rules={[{ required: true }, { type: 'email' }]}>
-            <Input maxLength={100} />
+          <Form.Item label="Email" name={"Email"} >
+            <Input readOnly />
           </Form.Item>
           <Form.Item
             name="Phone"
