@@ -1,11 +1,9 @@
 import React, { useEffect, useState, useContext } from "react";
-import { Modal, Avatar, Row, Col, Typography, message } from "antd";
+import { Modal, Avatar, message } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 import { handleGetFollowingUser } from "@/actions/follow.action";
 import { AuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-
-const { Text } = Typography;
 
 interface Following {
   _id: string;
@@ -54,30 +52,37 @@ const FollowingModal = ({
 
   return (
     <Modal
-      title="Following"
-      visible={visible}
+      title={<span className="text-white text-lg font-semibold">Following</span>}
+      open={visible}
       onCancel={onClose}
       footer={null}
       width={400}
-      className="rounded-2xl shadow-xl"
+      className="rounded-2xl shadow-xl custom-follow-modal"
+      styles={{
+        content: { background: "#18182c" },
+        header: { background: "#111827" },
+      }}
     >
-      <div className="flex flex-col space-y-4">
-        {following.map((followed, index) => (
-          <Row
-            key={index}
-            justify="space-between"
-            align="middle"
-            className="p-3 border-b cursor-pointer"
-            onClick={() => handleUserClick(followed._id)}
-          >
-            <Col>
-              <Row align="middle">
-                <Avatar src={followed.image || <UserOutlined />} />
-                <Text className="ml-3">{followed.userName}</Text>
-              </Row>
-            </Col>
-          </Row>
-        ))}
+      <div className="flex flex-col">
+        {following.length === 0 ? (
+          <div className="text-center text-purple-300 py-8">No following users found.</div>
+        ) : (
+          following.map((followed) => (
+            <div
+              key={followed._id}
+              className="flex items-center gap-3 px-5 py-4 hover:bg-[#23243a] transition cursor-pointer"
+              onClick={() => handleUserClick(followed._id)}
+            >
+              <Avatar
+                src={followed.image}
+                icon={<UserOutlined />}
+                size={40}
+                className="border border-purple-700"
+              />
+              <span className="text-white font-medium">{followed.userName}</span>
+            </div>
+          ))
+        )}
       </div>
     </Modal>
   );

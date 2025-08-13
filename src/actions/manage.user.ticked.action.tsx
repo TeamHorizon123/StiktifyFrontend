@@ -3,13 +3,12 @@
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 
-const cookieStore = cookies();
-const token = cookieStore.get("token")?.value;
-
 export const handleGetAllUserTickedAction = async (
   current: number,
   pageSize: number
 ) => {
+  const cookieStore = cookies();
+  const token = cookieStore.get("token")?.value;
   try {
     if (!token) return null;
     const res = await fetch(
@@ -25,13 +24,15 @@ export const handleGetAllUserTickedAction = async (
     );
     const result = await res.json();
     return result;
-  } catch (error) {
+  } catch {
     return null;
   }
 };
 
 // Action để đồng ý yêu cầu
 export const handleAcceptUserTickedAction = async (id: string) => {
+  const cookieStore = cookies();
+  const token = cookieStore.get("token")?.value;
   try {
     if (!token) return null;
     const res = await fetch(
@@ -49,7 +50,7 @@ export const handleAcceptUserTickedAction = async (id: string) => {
 
     revalidateTag("list-ticked");
     return { success: true, message: "Request accepted successfully!" };
-  } catch (error) {
+  } catch {
     return { success: false, message: "Failed to accept the request" };
   }
 };
@@ -59,6 +60,8 @@ export const handleDenyUserTickedAction = async (
   id: string,
   reason: string
 ) => {
+  const cookieStore = cookies();
+  const token = cookieStore.get("token")?.value;
   try {
     if (!token) return null;
     const res = await fetch(
@@ -77,17 +80,19 @@ export const handleDenyUserTickedAction = async (
 
     revalidateTag("list-ticked");
     return { success: true, message: "Request denied successfully!" };
-  } catch (error) {
+  } catch {
     return { success: false, message: "Failed to deny the request" };
   }
 };
 
 export const handleFilterAndSearchUserRequest = async (
-  current: number, 
-  pageSize: number, 
-  search: string, 
-  filterReq: string 
+  current: number,
+  pageSize: number,
+  search: string,
+  filterReq: string
 ) => {
+  const cookieStore = cookies();
+  const token = cookieStore.get("token")?.value;
   try {
     if (!token) return null;
     const res = await fetch(

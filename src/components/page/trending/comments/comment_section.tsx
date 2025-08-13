@@ -7,6 +7,7 @@ import { ThumbsUp, ChevronDown, ChevronUp, User } from "lucide-react";
 import { Button } from "antd";
 import Comment from "./comment";
 import TickedUser from "@/components/ticked-user/TickedUser";
+import { log } from "console";
 
 interface CommentSectionProps {
   videoId: string | undefined;
@@ -43,57 +44,57 @@ const CommentItem: React.FC<{
   isExpanded,
   onToggleReplies,
 }) => {
-  return (
-    <div className={depth === 0 ? "space-y-3" : `space-y-3 ml-${depth * 4}`}>
-      <div className="flex gap-3">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1 truncate">
-            <span className="text-white font-medium text-sm truncate">
-              {comment.username}
-            </span>
-            {comment.createdAt && (
-              <span className="text-gray-400 text-xs">
-                {new Date(comment.createdAt).toLocaleDateString()}
+    return (
+      <div className={depth === 0 ? "space-y-3" : `space-y-3 ml-${depth * 4}`}>
+        <div className="flex gap-3">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1 truncate">
+              <span className="text-white font-medium text-sm truncate">
+                {comment.username}
               </span>
-            )}
-          </div>
-          <p className="text-gray-300 text-sm break-words mb-2">
-            {comment.CommentDescription}
-          </p>
+              {comment.createdAt && (
+                <span className="text-gray-400 text-xs">
+                  {new Date(comment.createdAt).toLocaleDateString()}
+                </span>
+              )}
+            </div>
+            <p className="text-gray-300 text-sm break-words mb-2">
+              {comment.CommentDescription}
+            </p>
 
-          <div className="flex items-center gap-4 text-xs select-none">
-            <Button
-              size="small"
-              className="text-gray-400 hover:text-white p-0 h-auto flex items-center gap-1"
-            >
-              <ThumbsUp className="h-3 w-3" />
-              {comment.totalReactions}
-            </Button>
-
-            {canExpand && (
+            <div className="flex items-center gap-4 text-xs select-none">
               <Button
                 size="small"
                 className="text-gray-400 hover:text-white p-0 h-auto flex items-center gap-1"
-                onClick={() => onToggleReplies?.(comment._id)}
               >
-                {isExpanded ? (
-                  <>
-                    Hide replies <ChevronUp className="h-3 w-3 ml-1" />
-                  </>
-                ) : (
-                  <>
-                    {childCount} replies{" "}
-                    <ChevronDown className="h-3 w-3 ml-1" />
-                  </>
-                )}
+                <ThumbsUp className="h-3 w-3" />
+                {comment.totalReactions}
               </Button>
-            )}
+
+              {canExpand && (
+                <Button
+                  size="small"
+                  className="text-gray-400 hover:text-white p-0 h-auto flex items-center gap-1"
+                  onClick={() => onToggleReplies?.(comment._id)}
+                >
+                  {isExpanded ? (
+                    <>
+                      Hide replies <ChevronUp className="h-3 w-3 ml-1" />
+                    </>
+                  ) : (
+                    <>
+                      {childCount} replies{" "}
+                      <ChevronDown className="h-3 w-3 ml-1" />
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  );
-};
+    );
+  };
 const CommentSection: React.FC<CommentSectionProps> = ({
   videoId,
   user,
@@ -156,6 +157,8 @@ const CommentSection: React.FC<CommentSectionProps> = ({
             : {},
         });
         if (res.statusCode === 200) {
+          console.log("Child comments fetched:", res.data);
+
           setChildComments((prev) => new Map(prev).set(parentId, res.data));
         }
       } catch (err) {
@@ -183,13 +186,13 @@ const CommentSection: React.FC<CommentSectionProps> = ({
         key={comment._id}
         comment={comment}
         user={user}
-        userAvatar={comment.image || ""}
+        userImage={comment.image || ""}
         toggleChildComments={toggleReplies}
         expandedComments={expandedComments}
         childComments={childComments}
         videoId={videoId}
         setChildComments={setChildComments}
-        onCommentAdded={onCommentAdded ?? (() => {})}
+        onCommentAdded={onCommentAdded ?? (() => { })}
         onDeleteComment={handleDeleteComment}
       />
     );

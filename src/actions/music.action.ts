@@ -6,23 +6,19 @@ import { cookies } from "next/headers";
 
 export const handleGetAllMusic = async (current: string, pageSize: string) => {
   try {
-    const cookieStore = cookies();
-    const token = cookieStore.get("token")?.value;
-    if (!token) return null;
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/list-music?current=${current}&pageSize=${pageSize}`,
       {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         next: { tags: ["list-music"] },
       }
     );
     const result: IBackendRes<any> = await res.json();
     return result;
-  } catch (error) {
+  } catch {
     return null;
   }
 };
@@ -38,7 +34,7 @@ export const handleDisPlayMusicAction = async (id: string) => {
     );
     const result: IBackendRes<any> = await res.json();
     return result;
-  } catch (error) {
+  } catch {
     return null;
   }
 };
@@ -60,7 +56,7 @@ export const handleUpdateListenerAction = async (id: string) => {
       revalidateTag("display-music");
     }
     return result;
-  } catch (error) {
+  } catch  {
     return null;
   }
 };
@@ -73,7 +69,6 @@ export const handleFilterSearchMusic = async (
   try {
     const cookieStore = cookies();
     const token = cookieStore.get("token")?.value;
-    if (!token) return null;
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/filter-search?current=${current}&pageSize=${pageSize}&search=${search}&filterReq=${filterRes}`,
       {
@@ -87,7 +82,7 @@ export const handleFilterSearchMusic = async (
     );
     const result: IBackendRes<any> = await res.json();
     return result;
-  } catch (error) {
+  } catch  {
     return null;
   }
 };
@@ -110,7 +105,7 @@ export const createFavoriteMusic = async (musicId: string) => {
     );
     const result: IBackendRes<any> = await res.json();
     return result;
-  } catch (error) {
+  } catch  {
     return null;
   }
 };
@@ -137,7 +132,7 @@ export const handleGetAllFavoriteMusic = async (
     );
     const result: IBackendRes<any> = await res.json();
     return result;
-  } catch (error) {
+  } catch  {
     return null;
   }
 };
@@ -183,7 +178,7 @@ export const handleLikeMusicAction = async (id: string) => {
     });
     revalidateTag("display-music");
     return res
-  } catch (error) {
+  } catch  {
     return null
   }
 }
@@ -201,7 +196,7 @@ export const handleCreateCommentAction = async (musicId: string, newComment: str
     });
     revalidateTag("display-music");
     return res
-  } catch (error) {
+  } catch  {
     return null
   }
 }
@@ -228,7 +223,7 @@ export const handleCreateMusicAction = async (data: any) => {
       revalidateTag("list-music");
     }
     return result;
-  } catch (error) {
+  } catch  {
     return null;
   }
 }
@@ -247,7 +242,7 @@ export const handleFilterAndSearchMusicAction = async (current: number, pageSize
     })
     const result: IBackendRes<any> = await res.json();
     return result
-  } catch (error) {
+  } catch  {
     return null
   }
 }
@@ -267,7 +262,7 @@ export const handleGetMusic = async (current: string, pageSize: string) => {
     })
     const result: IBackendRes<any> = await res.json();
     return result
-  } catch (error) {
+  } catch {
     return null
   }
 }
@@ -290,7 +285,7 @@ export const handleGetRecommendMusic = async (userId: string) => {
     );
     const result: IBackendRes<any> = await res.json();
     return result;
-  } catch (error) {
+  } catch  {
     return null;
   }
 };
@@ -313,7 +308,7 @@ export const handleListenNeo4j = async (musicId: string, userId: string) => {
     );
     const result: IBackendRes<any> = await res.json();
     return result;
-  } catch (error) {
+  } catch {
     return null;
   }
 };
@@ -335,7 +330,7 @@ export const handleGetAllListeningHistory = async (userId: string) => {
     );
 
     return await res.json();
-  } catch (error) {
+  } catch {
     return null;
   }
 };
@@ -357,7 +352,7 @@ export const handleClearAllListeningHistory = async (userId: string) => {
     );
     revalidateTag("all-listening-history")
     return await response.json();
-  } catch (error) {
+  } catch {
     return null;
   }
 };
@@ -416,23 +411,20 @@ export const getTrackRelatedAction = async (musicId: string[] | [], musicTag: { 
 
 export const handleGetDataHotMusic = async () => {
   try {
-    const cookieStore = cookies();
-    const token = cookieStore.get("token")?.value;
-    if (!token) return null;
+    // const cookieStore = cookies();
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/list-hot-music`,
       {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         next: { tags: ["list-hot-music"] },
       }
     );
     const result: IBackendRes<any> = await res.json();
     return result;
-  } catch (error) {
+  } catch {
     return null;
   }
 };
@@ -456,7 +448,7 @@ export const handleDeleteMusic = async (id: string) => {
     revalidateTag("get-my-music");
     const result: IBackendRes<any> = await res.json();
     return result;
-  } catch (error) {
+  } catch {
     return null;
   }
 };

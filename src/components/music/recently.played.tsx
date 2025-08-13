@@ -69,18 +69,6 @@ const RecentlyPlayedList = (props: IProps) => {
     return setIsPlaying(!isPlaying);
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffTime = Math.abs(now.getTime() - date.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 1) return "Today";
-    if (diffDays === 2) return "Yesterday";
-    if (diffDays <= 7) return `${diffDays} days ago`;
-    return date.toLocaleDateString();
-  };
-
   return (
     <div className="space-y-2">
       {data.slice(0, 5).map((item, index) => (
@@ -123,17 +111,15 @@ const RecentlyPlayedList = (props: IProps) => {
           {/* Track Info */}
           <div className="flex-1 min-w-0">
             <div
-              className={`font-medium truncate ${
-                trackCurrent?._id === item._id
-                  ? "text-purple-500"
-                  : "text-white"
-              }`}
+              className={`font-medium truncate ${trackCurrent?._id === item._id
+                ? "text-purple-500"
+                : "text-white"
+                }`}
             >
               {item.musicDescription}
             </div>
             <div className="text-gray-400 text-sm truncate">
-              {item.musicTag?.map((tag) => tag.fullname).join(", ") ||
-                "Unknown Artist"}
+              {item.userId?.fullname || "Unknown Artist"}
             </div>
           </div>
 

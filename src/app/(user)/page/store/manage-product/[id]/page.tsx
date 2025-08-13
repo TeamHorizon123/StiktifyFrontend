@@ -145,7 +145,8 @@ const PageProductStoreInfo = () => {
                   onConfirm={() => handleUpdate(true)}
                   okText="Yes"
                   okButtonProps={{
-                    className: 'bg-red-500 hover:!bg-red-700 focus:bg-red-700 text-white'
+                    className: '!bg-red-600 !text-white hover:!bg-red-700', 
+                    danger: true
                   }}
                   cancelText="No"
                 >
@@ -154,7 +155,6 @@ const PageProductStoreInfo = () => {
                     <span>Disable product</span>
                   </button>
                 </Popconfirm>
-
             ]}
             items={items}
           />

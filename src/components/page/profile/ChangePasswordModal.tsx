@@ -112,7 +112,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
           {step === 1 ? "Verify Email" : "Change Password"}
         </h2>
         {success && (
-          <p className="text-green-500 text-sm text-center mb-4">{success}</p>
+          <p className="text-purple-500 text-sm text-center mb-4">{success}</p>
         )}
         {error && (
           <p className="text-red-500 text-sm text-center mb-4">{error}</p>
@@ -129,7 +129,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
             />
             <button
               onClick={handleSendCode}
-              className="w-full bg-blue-500 text-white p-3 mt-6 rounded-md hover:bg-blue-600"
+              className="w-full bg-purple-500 text-white p-3 mt-6 rounded-md hover:bg-purple-600"
             >
               Send Verification Code
             </button>
@@ -168,7 +168,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
 
             <button
               onClick={handleChangePassword}
-              className="w-full bg-green-500 text-white p-3 mt-6 rounded-md hover:bg-green-600"
+              className="w-full bg-purple-500 text-white p-3 mt-6 rounded-md hover:bg-purple-600"
             >
               Change Password
             </button>

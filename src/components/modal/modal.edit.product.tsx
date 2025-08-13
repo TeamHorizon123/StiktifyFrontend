@@ -29,7 +29,7 @@ const EditProduct = ({
   const [thumbnail, setThumbnail] = useState<File | null>(null);
   const [categories, setCategories] = useState<ICategory[]>([]);
   const [options, setOption] = useState<object[]>([]);
-  const [categoryChoose, setCategoryChoose] = useState<string | null>(product.CategoryId);
+  const [categoryChoose, setCategoryChoose] = useState<string | null>(product?.CategoryId ?? "");
 
   const handleFileChange = (
     e: UploadChangeParam<UploadFile>,

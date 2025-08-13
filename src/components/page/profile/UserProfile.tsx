@@ -293,7 +293,6 @@ const UserProfile: React.FC<UserProfileProps> = ({
           Change Image
         </div> */}
       </div>
-
       <Modal
         title={
           <span className="text-white text-lg font-semibold">
@@ -303,17 +302,30 @@ const UserProfile: React.FC<UserProfileProps> = ({
         open={isImageModalOpen}
         onCancel={handleCloseImageModal}
         footer={null}
-        className="dark-modal"
-        style={{ top: 20 }}
-        bodyStyle={{
-          backgroundColor: "#1f2937",
-          borderRadius: "8px",
+        className="upload-image-modal"
+        centered
+        maskStyle={{ backgroundColor: "rgba(0, 0, 0, 0.7)" }}
+        styles={{
+          mask: { backgroundColor: "rgba(0, 0, 0, 0.7)" },
+          content: {
+            backgroundColor: "#1f2937",
+            border: "1px solid #374151",
+          },
+          header: {
+            backgroundColor: "#1f2937",
+            borderBottom: "1px solid #374151",
+            color: "white",
+          },
+          body: {
+            backgroundColor: "#1f2937",
+            padding: "20px",
+          },
         }}
       >
         <div className="space-y-4">
           {/* Conditional rendering - ẩn upload area khi có preview */}
           {!previewImage && (
-            <div className="border-2 border-dashed border-gray-600 rounded-lg p-6 text-center hover:border-purple-500 transition-colors">
+            <div className="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center hover:border-purple-500 transition-colors bg-gray-800">
               <input
                 type="file"
                 onChange={handleFileChange}
@@ -325,9 +337,13 @@ const UserProfile: React.FC<UserProfileProps> = ({
                 htmlFor="modal-file-upload"
                 className="cursor-pointer block"
               >
-                <UploadOutlined className="text-4xl text-gray-400 mb-2" />
-                <p className="text-gray-300">Click to select an image</p>
-                <p className="text-gray-500 text-sm">
+                <div className="w-16 h-16 mx-auto mb-4 bg-purple-600 rounded-full flex items-center justify-center">
+                  <UploadOutlined className="text-2xl text-white" />
+                </div>
+                <p className="text-white text-lg font-medium mb-2">
+                  Click to select an image
+                </p>
+                <p className="text-gray-400 text-sm">
                   PNG, JPG, GIF, WEBP up to 10MB
                 </p>
               </label>
@@ -336,19 +352,19 @@ const UserProfile: React.FC<UserProfileProps> = ({
 
           {/* Preview section với option để change image */}
           {previewImage && (
-            <div className="space-y-4">
+            <div className="space-y-6 bg-gray-800 rounded-lg p-6">
               <div className="text-center">
-                <p className="text-gray-300 mb-3 font-medium">Preview:</p>
+                <p className="text-white text-lg font-medium mb-4">Preview:</p>
                 <div className="relative inline-block">
                   <img
                     src={previewImage}
                     alt="Preview"
-                    className="w-32 h-32 rounded-full object-cover border-2 border-gray-600 mx-auto"
+                    className="w-32 h-32 rounded-full object-cover border-4 border-purple-500 mx-auto shadow-lg"
                   />
                 </div>
               </div>
 
-              {/* Option to change image - Fixed centering */}
+              {/* Option to change image */}
               <div className="text-center">
                 <input
                   type="file"
@@ -359,7 +375,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
                 />
                 <label
                   htmlFor="change-image-upload"
-                  className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg cursor-pointer transition-colors"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg cursor-pointer transition-all duration-200 font-medium"
                 >
                   <CameraFilled />
                   Change Image
@@ -368,14 +384,16 @@ const UserProfile: React.FC<UserProfileProps> = ({
             </div>
           )}
 
-          <div className="flex gap-3">
+          {/* Action Buttons */}
+          <div className="flex gap-3 pt-4 border-t border-gray-600">
             <Button
               onClick={handleCloseImageModal}
-              className="flex-1"
+              className="flex-1 h-12"
               style={{
                 backgroundColor: "#4b5563",
                 borderColor: "#4b5563",
                 color: "white",
+                fontWeight: "500",
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = "#374151";
@@ -391,25 +409,27 @@ const UserProfile: React.FC<UserProfileProps> = ({
             <Button
               onClick={handleUpImage}
               disabled={!file}
-              className="flex-1"
+              className="flex-1 h-12"
               style={{
-                backgroundColor: file ? "#7c3aed" : "#4b5563",
-                borderColor: file ? "#7c3aed" : "#4b5563",
+                backgroundColor: file ? "#8b5cf6" : "#4b5563",
+                borderColor: file ? "#8b5cf6" : "#4b5563",
                 color: "white",
+                fontWeight: "500",
               }}
               onMouseEnter={(e) => {
-                if (file) {
-                  e.currentTarget.style.backgroundColor = "#6d28d9";
-                  e.currentTarget.style.borderColor = "#6d28d9";
-                }
-              }}
-              onMouseLeave={(e) => {
                 if (file) {
                   e.currentTarget.style.backgroundColor = "#7c3aed";
                   e.currentTarget.style.borderColor = "#7c3aed";
                 }
               }}
+              onMouseLeave={(e) => {
+                if (file) {
+                  e.currentTarget.style.backgroundColor = "#8b5cf6";
+                  e.currentTarget.style.borderColor = "#8b5cf6";
+                }
+              }}
             >
+              <UploadOutlined className="mr-2" />
               Upload Image
             </Button>
           </div>
@@ -566,7 +586,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
           >
             Change Password
           </Button>
-          <Button
+          {/* <Button
             icon={<LogoutOutlined />}
             onClick={handleLogout}
             style={{
@@ -586,7 +606,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
             }}
           >
             Logout
-          </Button>
+          </Button> */}
         </div>
         <div className="flex gap-3">
           <Button

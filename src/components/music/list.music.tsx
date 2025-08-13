@@ -16,6 +16,7 @@ import { AuthContext } from "@/context/AuthContext";
 import RecommendMusicList from "./recommend.music";
 import HotMusicList from "./hot.music.list";
 import RecentlyPlayedList from "./recently.played";
+import Image from "next/image";
 
 interface IProps {
   data: IMusic[];
@@ -66,18 +67,18 @@ const ListMusic = (props: IProps) => {
         return;
       }
       try {
-        const response = await handleFilterSearchMusic("1", "30",search, filterReq);
+        const response = await handleFilterSearchMusic("1", "30", search, filterReq);
         if (!response || !response.data || !response.data.result) {
           setFilteredData([]);
           return;
         }
-          setFilteredData(response.data.result);
+        setFilteredData(response.data.result);
       } catch (error) {
         setFilteredData([]);
       }
     };
     fetchData();
-  }, [search,filterReq]);
+  }, [search, filterReq]);
 
   const handlePlayer = (track: IMusic) => {
     if (trackCurrent?._id !== track._id) {
@@ -115,6 +116,8 @@ const ListMusic = (props: IProps) => {
       if (user) {
         const res = await handleGetRecommendMusic(user._id);
         const resHotMusic = await handleGetDataHotMusic();
+        console.log("Hot Music:", resHotMusic);
+
 
         setDataHotMusic(resHotMusic?.data);
         setDataRecommend(res?.data);
@@ -131,7 +134,7 @@ const ListMusic = (props: IProps) => {
   return (
     <div className="main-layout min-h-screen text-white pr-[4%]">
       {/* Header Section */}
-       <div className="w-full flex items-center justify-center py-4">
+      <div className="w-full flex items-center justify-center py-4">
         <input
           type="text"
           onKeyDown={(e) => {
@@ -154,35 +157,31 @@ const ListMusic = (props: IProps) => {
           </svg>
         </button>
         <div className="ml-8">
-      
+
         </div>
       </div>
 
       <div className="px-8 pt-4 pb-6">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold">Music</h1>
-          <div className="flex gap-4">
-            <div>
-             
-            </div>
-          </div>
         </div>
-
-        {/* Featured Content */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {filteredData.slice(0, 3).map((item, index) => (
             <div
               key={item._id}
-              className={`relative rounded-xl overflow-hidden cursor-pointer transform hover:scale-105 transition-all duration-300 ${
-                index === 0 ? "col-span-1 md:col-span-1" : "col-span-1"
-              }`}
+              className={`relative rounded-xl overflow-hidden cursor-pointer transform hover:scale-105 transition-all duration-300 ${index === 0 ? "col-span-1 md:col-span-1" : "col-span-1"
+                }`}
               onClick={() => handlePlayer(item)}
             >
               <div className="aspect-square bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center">
-                <img
+                <Image
                   src={item.musicThumbnail}
                   alt={item.musicDescription}
+                  // width={500}
+                  // height={500}
+                  fill
                   className="w-full h-full object-cover"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
               </div>
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
@@ -190,8 +189,9 @@ const ListMusic = (props: IProps) => {
                   {item.musicDescription}
                 </h3>
                 <p className="text-gray-300 text-sm">
-                  {item.musicTag?.map((tag) => tag.fullname).join(", ") ||
-                    "Unknown"}
+                  {/* {item.musicTag?.map((tag) => tag.fullname) ||
+                    "Unknown"} */}
+                  {item?.userId?.fullname || "Unknown Artist"}
                 </p>
               </div>
             </div>

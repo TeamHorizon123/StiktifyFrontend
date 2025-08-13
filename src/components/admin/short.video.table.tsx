@@ -58,9 +58,9 @@ const ManageShortVideoTable = (props: IProps) => {
             meta.current,
             meta.pageSize
           );
-            if(res?.data?.meta?.current>=1 && res?.data?.meta?.total<=meta.pageSize){
-               res=await handleGetAllShortVideo(search, filterReq, 1, meta.pageSize);
-            }
+          if (res?.data?.meta?.current >= 1 && res?.data?.meta?.total <= meta.pageSize) {
+            res = await handleGetAllShortVideo(search, filterReq, 1, meta.pageSize);
+          }
           if (res?.data?.result && Array.isArray(res.data.result)) {
             const sortedVideos = [...res.data.result].sort((a, b) => {
               const aMatch = a.videoDescription
@@ -89,9 +89,9 @@ const ManageShortVideoTable = (props: IProps) => {
             meta.current,
             meta.pageSize
           );
-           if(res?.data?.meta?.current>=1 && res?.data?.meta?.total<=meta.pageSize){
-               res=await handleGetAllShortVideo(search, filterReq, 1, meta.pageSize);
-            }
+          if (res?.data?.meta?.current >= 1 && res?.data?.meta?.total <= meta.pageSize) {
+            res = await handleGetAllShortVideo(search, filterReq, 1, meta.pageSize);
+          }
           if (res?.statusCode === 200) {
             setDataTable(res.data.result);
             setMetaTable(res.data.meta);
@@ -124,7 +124,7 @@ const ManageShortVideoTable = (props: IProps) => {
         />
       ),
     },
-     {
+    {
       title: "Description",
       dataIndex: "videoDescription",
       key: "videoDescription",
@@ -142,28 +142,31 @@ const ManageShortVideoTable = (props: IProps) => {
       render: (value) => <div>{formatNumber(value ?? 0)}</div>,
     },
     {
-        title: "Blocked",
-        key: "isBlock",
-        render: (_, record) => (
+      title: "Blocked",
+      key: "isBlock",
+      render: (_, record) => (
         <Popconfirm
-          title={`Sure to ${record?.isBlock?"UnBlock":"Block"} video?`}
+          title={`Sure to ${record?.isBlock ? "UnBlock" : "Block"} video?`}
           onConfirm={() => handleBlockVideo(record)}
           okText="Yes"
           cancelText="No"
+          okButtonProps={{
+            className: '!bg-blue !text-white'
+          }}
         >
-            {record?.isBlock ? (
-              <LockTwoTone style={{ fontSize: "24px" }} twoToneColor="#d63031" />
-            ) : (
-              <UnlockTwoTone style={{ fontSize: "24px" }} twoToneColor="#00b894" />
-            )}
-          </Popconfirm>
-        ),
-      },
+          {record?.isBlock ? (
+            <LockTwoTone style={{ fontSize: "24px" }} twoToneColor="#d63031" />
+          ) : (
+            <UnlockTwoTone style={{ fontSize: "24px" }} twoToneColor="#00b894" />
+          )}
+        </Popconfirm>
+      ),
+    },
     {
       title: "Created At",
       dataIndex: "createdAt",
       key: "createdAt",
-      render: (value) => <div>{value?formatDateTimeVn(value+""):""}</div>,
+      render: (value) => <div>{value ? formatDateTimeVn(value + "") : ""}</div>,
     },
     {
       title: "Action",
@@ -171,10 +174,13 @@ const ManageShortVideoTable = (props: IProps) => {
       key: "flag",
       render: (value, record) => (
         <Popconfirm
-          title={`Sure to ${ value?"UnFlag":"Flag"} video?`}
+          title={`Sure to ${value ? "UnFlag" : "Flag"} video?`}
           onConfirm={() => handleFlagVideo(record)}
           okText="Yes"
           cancelText="No"
+          okButtonProps={{
+            className: '!bg-blue !text-white'
+          }}
         >
           <FlagTwoTone
             style={{ fontSize: "20px" }}

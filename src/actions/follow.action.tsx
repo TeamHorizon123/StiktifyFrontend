@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 
 const cookieStore = cookies();
@@ -22,7 +21,7 @@ export const handleGetFollowing = async (current: number, userId: string) => {
     );
     const result: IBackendRes<any> = await res.json();
     return result;
-  } catch (error) {
+  } catch {
     return null;
   }
 };
@@ -42,7 +41,7 @@ export const handleGetFollowingUser = async (userId: string) => {
     );
     const result: IBackendRes<any> = await res.json();
     return result;
-  } catch (error) {
+  } catch {
     return null;
   }
 };
@@ -63,7 +62,7 @@ export const handleGetFollowerUser = async (userId: string) => {
     );
     const result: IBackendRes<any> = await res.json();
     return result;
-  } catch (error) {
+  } catch {
     return null;
   }
 };

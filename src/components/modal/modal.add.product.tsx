@@ -14,7 +14,7 @@ const ModalAddProduct = ({ id }: Id) => {
   const [categoryOption, setCategoryOption] = useState<object[]>([]);
   const [categories, setCategories] = useState<ICategory[]>([]);
   const [categoryChoose, setCategoryChoose] = useState<string | null>(null);
-  const [cateSize, setCateSize] = useState<CategorySize[]>([]);
+  const [cateSize, setCateSize] = useState<ISize[]>([]);
   const [cateSizes, setCateSizes] = useState<object[]>([]);
   const [thumbnail, setThumbnail] = useState<File | null>(null);
   const [optionImage, setOptionImage] = useState<File[]>([]);
@@ -63,12 +63,12 @@ const ModalAddProduct = ({ id }: Id) => {
       }
     } else {
       query = {
-        $filter: `CategoryId eq '${categoryChoose}'`
+        $filter: `CategoryId eq '${categoryChoose}' or CategoryId eq null`
       }
     }
 
     const getCategorySize = async () => {
-      const res = await sendRequest<IListOdata<CategorySize>>({
+      const res = await sendRequest<IListOdata<ISize>>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_SHOP_URL}/odata/product-size`,
         method: "GET",
         headers: {
@@ -106,7 +106,7 @@ const ModalAddProduct = ({ id }: Id) => {
     if (file) setFile(file);
   };
 
-  const handleOptionFileChange = (e, index) => {
+  const handleOptionFileChange = (e: UploadChangeParam<UploadFile>, index: number) => {
     const file = e.file.originFileObj;
     if (!file) return;
     const files = [...optionImage];
@@ -163,7 +163,7 @@ const ModalAddProduct = ({ id }: Id) => {
       const thumbnailUri = thumbnail ? await UploadFile(thumbnail) : null;
 
       const options = await Promise.all(
-        (formData.Options || []).map(async (opt, index) => {
+        (formData.Options || []).map(async (opt: IProductOption, index: number) => {
           const optionImageFile = optionImage[index]; // lấy file đã lưu trước đó
           const imageUrl = optionImageFile ? await UploadFile(optionImageFile) : null;
 

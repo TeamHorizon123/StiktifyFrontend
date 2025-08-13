@@ -14,7 +14,7 @@ interface CommentProps {
     username: string;
     userImage?: string;
     image?: string;
-    parentId: string;
+    parentId: string | null;
     CommentDescription: string;
     totalOfChildComments: number;
     totalReactions: number;
@@ -266,7 +266,7 @@ const Comment: React.FC<CommentProps> = ({
     const userId = comment.user?._id;
     router.push(`/page/detail_user/${userId}`);
   };
-  const isOwner = (comment.user?._id || comment.userId) === user?._id;
+  const isOwner = (comment.user?._id) === user?._id;
   return (
     <div key={comment._id} className="mb-4">
       <div className="comment flex gap-3 p-3 rounded-lg transition-all">
@@ -333,7 +333,7 @@ const Comment: React.FC<CommentProps> = ({
       {user && isReplyModalOpen && (
         <div className="flex items-center gap-3 ml-12 mt-2">
           <img
-            src={user.userImage}
+            src={user.userImage || "https://firebasestorage.googleapis.com/v0/b/stiktify-bachend.firebasestorage.app/o/avatars%2Fdefault_avatar.png?alt=media&token=93109c9b-d284-41ea-95e7-4786e3c69328"}
             alt="User Avatar"
             className="w-8 h-8 rounded-full object-cover"
           />
@@ -355,11 +355,10 @@ const Comment: React.FC<CommentProps> = ({
               onClick={handleReplySubmit}
               disabled={!replyText.trim() || replyLoading}
               className={`absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full
-              ${
-                replyText.trim()
+              ${replyText.trim()
                   ? "bg-purple-500 hover:bg-purple-600"
                   : "bg-purple-900/60"
-              }
+                }
               text-white transition`}
             >
               <FiMessageCircle className="h-4 w-4" />
@@ -396,7 +395,9 @@ const Comment: React.FC<CommentProps> = ({
           <div className="ml-12 mt-2">
             {replies.map((child, idx) => {
               const isChildOwner =
-                (child.user?._id || child.userId) === user?._id;
+                (child.userId?._id) === user?._id;
+              console.log("Child Comment:", child);
+
               return (
                 <div
                   key={child._id}
@@ -526,6 +527,7 @@ const Comment: React.FC<CommentProps> = ({
       {isEditModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
+            <h2 className="text-xl font-semibold text-white mb-4">Edit your comment</h2>
             <div className="flex gap-3 mb-4">
               <div className="flex-1">
                 <textarea

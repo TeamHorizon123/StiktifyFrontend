@@ -117,7 +117,7 @@ const CheckoutPage = () => {
                     })
                 }
 
-                if (chooseMethod?.Name === "E-wallet") {
+                if (chooseMethod?.Name === "VNPay") {
                     const res = await sendRequest<IListOdata<IOrder>>({
                         url: `${process.env.NEXT_PUBLIC_BACKEND_SHOP_URL}/odata/order`,
                         method: "GET",
@@ -148,7 +148,7 @@ const CheckoutPage = () => {
             });
 
             await Promise.all(promises);
-            if (chooseMethod?.Name != 'E-wallet')
+            if (chooseMethod?.Name != 'VNPay')
                 setSuccess(true);
             setSelectedItems([]);
             // console.log("Order success: ", success);
@@ -301,7 +301,7 @@ const CheckoutPage = () => {
                             <button onClick={async () => await handlePlaceOrder()} className='py-2.5 px-4 bg-[#1C1B33] rounded-full hover:scale-110'>Place order</button>
                         }
                         {
-                            chooseMethod?.Name === "E-wallet" &&
+                            chooseMethod?.Name === "VNPay" &&
                             <button onClick={async () => await handlePlaceOrder()} className='py-2.5 px-4 bg-[#1C1B33] rounded-full hover:scale-110'>Place order with VNPay</button>
                         }
                     </div>

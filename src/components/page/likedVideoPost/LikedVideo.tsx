@@ -4,8 +4,7 @@ import { useEffect, useState, useContext } from "react";
 import { useRouter } from "next/navigation";
 import { AuthContext } from "@/context/AuthContext";
 import { sendRequest } from "@/utils/api";
-import { FaLock, FaUnlock } from "react-icons/fa"; // Biểu tượng ổ khóa
-import { Skeleton } from "antd";
+import { formatNumber } from "@/utils/utils";
 
 interface LikedVideoReaction {
   videoId: string;
@@ -14,6 +13,7 @@ interface LikedVideoReaction {
 interface ShortVideo {
   _id: string;
   videoURL: string;
+  videoThumbnail: string;
   videoDescription: string;
   videoTag: string;
   totalViews: number;
@@ -27,17 +27,9 @@ interface LikedVideoProps {
 const LikedVideo = ({ userId }: LikedVideoProps) => {
   const { user, accessToken } = useContext(AuthContext) ?? {};
   const targetId = userId || user?._id;
-  const isOwner = user && user._id && user._id === targetId;
   const [likedVideos, setLikedVideos] = useState<ShortVideo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [areVideosHidden, setAreVideosHidden] = useState<boolean>(() => {
-    // Lưu trạng thái vào localStorage theo user
-    if (typeof window !== "undefined") {
-      return localStorage.getItem(`likedVideoHidden_${targetId}`) === "true";
-    }
-    return false;
-  });
 
   const router = useRouter();
 
@@ -48,8 +40,6 @@ const LikedVideo = ({ userId }: LikedVideoProps) => {
   }, [targetId, accessToken]);
 
   const fetchLikedVideos = async () => {
-    setLoading(true);
-    setError("");
     try {
       const res = await sendRequest<{ data: LikedVideoReaction[] }>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/video-reactions/user/${targetId}`,
@@ -60,132 +50,108 @@ const LikedVideo = ({ userId }: LikedVideoProps) => {
       });
 
       const reactions = res.data || [];
-      if (!Array.isArray(reactions) || reactions.length === 0) {
-        setLikedVideos([]);
-        setLoading(false);
-        return;
-      }
-
-      const videos: ShortVideo[] = (
-        await Promise.all(
-          reactions.map(async (reaction) => {
-            try {
-              const videoRes = await sendRequest<{ data: ShortVideo }>({
-                url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/${reaction.videoId}`,
-                method: "GET",
-                headers: {
-                  Authorization: `Bearer ${accessToken}`,
-                },
-              });
-              return videoRes.data;
-            } catch {
-              return null;
-            }
-          })
-        )
-      ).filter(Boolean) as ShortVideo[];
+      console.log("Res:>>>>>>>>>: ", res.data);
+      const videos: ShortVideo[] = await Promise.all(
+        reactions.map(async (reaction) => {
+          const videoRes = await sendRequest<{ data: ShortVideo }>({
+            url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/short-videos/${reaction.videoId}`,
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
+          return videoRes.data;
+        })
+      );
 
       setLikedVideos(videos);
     } catch (err) {
-      setError("Failed to fetch liked videos. Please try again.");
-      setLikedVideos([]);
-      console.error("Error fetching liked videos:", err);
+      setError("Failed to fetch liked videos");
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  const toggleAllVideos = () => {
-    setAreVideosHidden((prev) => {
-      localStorage.setItem(`likedVideoHidden_${targetId}`, (!prev).toString());
-      return !prev;
-    });
-  };
-
   return (
-    <div className="p-6 shadow-md rounded-lg mb-40 mt-[-22px]">
-      <div className="flex justify-between items-center mb-4 mx-20">
-        {isOwner && (
-          <button
-            onClick={toggleAllVideos}
-            className="text-gray-600 hover:text-gray-800"
-            title={areVideosHidden ? "Show all videos" : "Hide all videos"}
-          >
-            {areVideosHidden ? (
-              <div className="flex items-center gap-2">
-                <FaLock className="text-purple-500" size={20} />
-                <span className="text-purple-500"> Private videos</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <FaUnlock className="text-purple-500" size={20} />
-                <span className="text-purple-500"> Public videos</span>
-              </div>
-            )}
-          </button>
-        )}
-      </div>
+    <div className="p-6 mb-40 mt-[-22px]">
       {loading ? (
-        /* 4 skeleton cards giả */
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div
               key={i}
-              active
-              avatar={{ shape: "square", size: 160 }}
-              paragraph={{ rows: 2 }}
-            />
+              className="bg-[#23243a] rounded-xl overflow-hidden animate-pulse"
+            >
+              <div className="aspect-[16/10] bg-gray-600"></div>
+              <div className="p-3">
+                <div className="h-4 bg-gray-600 rounded mb-2"></div>
+                <div className="h-3 bg-gray-600 rounded w-2/3"></div>
+              </div>
+            </div>
           ))}
         </div>
-      ) : areVideosHidden && !isOwner ? (
-        <p className="text-gray-500 text-center w-full">
-          This is user privacy.
-        </p>
       ) : error ? (
-        <p className="text-red-600 text-center w-full">{error}</p>
+        <p className="text-red-400 text-center w-full text-lg">{error}</p>
       ) : likedVideos.length > 0 ? (
-        <div className="flex flex-wrap justify-start gap-5 my-3 mx-20">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 my-3 mx-2">
           {likedVideos.map((video) => (
-            <div
-              key={video._id}
-              className="p-2 border rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer w-full sm:w-1/2 md:w-1/4"
-              onClick={() => router.push(`/page/trending?id=${video._id}`)}
-            >
-              <video controls className="w-full h-40 object-cover rounded">
-                <source src={video.videoURL} type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
-              <div className="mt-2">
-                <p className="text-gray-800 font-medium text-sm line-clamp-2">
-                  {video.videoDescription}
-                </p>
-                <p className="text-gray-600 text-xs">
-                  Views: {video.totalViews} - Reactions: {video.totalReaction}
-                </p>
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {Array.isArray(video.videoTag) ? (
-                    video.videoTag.map((tag, index) => (
-                      <span
-                        key={index}
-                        className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-xs"
-                      >
-                        #{tag}
+            <div key={video._id} className="flex justify-center items-stretch">
+              <div className="w-full max-w-[280px]">
+                <div
+                  className="bg-[#23243a] rounded-xl overflow-hidden hover:bg-[#2a2b4a] transition-all duration-300 cursor-pointer group shadow-lg hover:shadow-xl"
+                  onClick={() => router.push(`/page/trending?id=${video._id}`)}
+                >
+                  <div className="relative aspect-[16/10] bg-black overflow-hidden">
+                    <img
+                      src={video.videoThumbnail}
+                      alt="Video Thumbnail"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+                    {/* Stats overlay - chỉ hiển thị views */}
+                    <div className="absolute bottom-2 left-2 right-2 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <span className="bg-black/50 px-2 py-1 rounded">
+                        View:  {formatNumber(video.totalViews)}
                       </span>
-                    ))
-                  ) : (
-                    <span className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-xs">
-                      #{video.videoTag}
-                    </span>
-                  )}
+                    </div>
+                  </div>
+
+                  <div className="p-3">
+                    <p className="text-white font-medium text-sm line-clamp-2 mb-2 leading-tight">
+                      {video.videoDescription}
+                    </p>
+
+                    <div className="flex flex-wrap gap-1">
+                      {Array.isArray(video.videoTag) ? (
+                        video.videoTag
+                        // .slice(0, 2)
+                        .map((tag, index) => (
+                          <span
+                            key={index}
+                            className="bg-purple-600/20 text-purple-300 px-2 py-1 rounded-full text-xs font-medium"
+                          >
+                            #{tag}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="bg-purple-600/20 text-purple-300 px-2 py-1 rounded-full text-xs font-medium">
+                          #{video.videoTag}
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <p className="text-gray-500 text-center w-full">
-          No liked videos found.
-        </p>
+        <div className="text-center py-16">
+          <p className="text-gray-400 text-lg font-medium">
+            No liked videos found
+          </p>
+        </div>
       )}
     </div>
   );

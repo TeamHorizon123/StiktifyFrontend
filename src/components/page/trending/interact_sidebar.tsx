@@ -28,6 +28,7 @@ interface InteractSideBarProps {
   totalViews?: number;
   createdAt?: string;
   videoTags?: string[];
+  currentMusic?: IMusic | null;
 }
 
 const InteractSideBar: React.FC<InteractSideBarProps> = ({
@@ -45,16 +46,17 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
   totalViews,
   createdAt,
   videoTags,
+  currentMusic,
 }) => {
   const router = useRouter();
-  const { user, listFollow } = useContext(AuthContext) ?? {};
+  const { user, listFollow, accessToken } = useContext(AuthContext) ?? {};
   const [dataFollow, setDataFollow] = useState<string[]>([]);
   const [flag, setFlag] = useState(false);
   const isFollowing = dataFollow?.includes(userId);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [currentVideo, setCurrentVideo] = useState<IVideo | null>(null);
-  const [currentMusic, setCurrentMusic] = useState<IMusic | null>(null);
+  const [currentMusicState, setCurrentMusic] = useState<IMusic | null>(null);
 
   const handleReport = () => {
     if (!user || !user._id) {
@@ -68,7 +70,15 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
   };
 
   const handleProfileClick = () => {
-    router.push(`/page/detail_user/${userId}`);
+
+    if (accessToken) {
+      router.push(`/page/detail_user/${userId}`);
+    } else {
+      notification.error({
+        message: "Please login to view user details",
+        description: "Please try again later",
+      });
+    }
   };
 
   const handleShareClick = async () => {
@@ -95,7 +105,7 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
   //   }
   //   onCommentClick?.();
   // };
-
+  // Debug log chi tiết
   useEffect(() => {
     if (!user || !user._id) return;
     (async () => {
@@ -130,18 +140,28 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
       notification.error({ message: "An error occurred" });
     }
   };
+  // useEffect(() => {
+  //   if (currentVideo) {
+  //     setCurrentMusic(currentVideo?.musicId || null);
+  //   }
+  // }, [currentVideo]);
+
   useEffect(() => {
     if (currentVideo) {
-      setCurrentMusic(currentVideo?.musicId || null);
+      const data = currentVideo?.musicId;
+      console.log("Check data>>>>>", currentVideo);
+
+      setCurrentMusic(data);
     }
   }, [currentVideo]);
-  const handleNavigate = (id: string) => {
+  const handleNavigateToMusic = (id: string) => {
     router.push(`music/${id}`);
   };
 
   return (
-    <div className="w-full px-0 pt-0">
-      <div className="rounded-xl bg-white/10 p-4 flex items-center gap-4 mb-4">
+    <div className="w-full h-[100%] px-0 pt-0">
+      {/* User Info Section */}
+      <div className="rounded-xl bg-white/10 p-4 flex items-center gap-4 mb-4 border-b border-gray-600/30 pb-6">
         <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-purple-400">
           {avatarUrl ? (
             <img
@@ -160,7 +180,7 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
             className="text-white font-bold text-lg truncate cursor-pointer hover:text-purple-300 transition-colors"
             onClick={handleProfileClick}
           >
-            {creatorId || "Unknown"} {userId === user?._id && "(You)"}
+            {creatorId || "Unknown"} {userId === user?._id && "(You)"} <TickedUser userId={userId} />
           </div>
           <div
             className="text-purple-200 text-sm truncate cursor-pointer hover:text-purple-100 transition-colors"
@@ -170,23 +190,21 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
           </div>
         </div>
         {userId !== user?._id && (
-        <button
-          onClick={handleFollower}
-          className={`rounded-full w-8 h-8 p-0 flex items-center justify-center transition-all duration-200 ${
-            isFollowing
+          <button
+            onClick={handleFollower}
+            className={`rounded-full w-8 h-8 p-0 flex items-center justify-center transition-all duration-200 ${isFollowing
               ? "bg-gray-500 hover:bg-gray-600 hover:scale-105"
               : "bg-red-500 hover:bg-red-600 hover:scale-105"
-          } text-white shadow-lg hover:shadow-xl`}
-        >
-          {isFollowing ? <CheckOutlined /> : <PlusOutlined />}
-        </button>
+              } text-white shadow-lg hover:shadow-xl`}
+          >
+            {isFollowing ? <CheckOutlined /> : <PlusOutlined />}
+          </button>
         )}
-      
       </div>
 
       {/* Video Description Section */}
       {videoDescription && (
-        <div className="mb-4 rounded-xl bg-white/10 backdrop-blur-sm text-white p-4 shadow-lg">
+        <div className="mb-4 p-2 text-white border-b border-gray-600/30 pb-6">
           <div className="font-bold mb-3 line-clamp-3">{videoDescription}</div>
           {(totalViews || createdAt) && (
             <div className="flex items-center gap-4 text-gray-300 mb-2 text-sm">
@@ -248,7 +266,8 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
         </div>
       )}
 
-      <div className="flex flex-col gap-2">
+      {/* Action Buttons Section */}
+      <div className="flex flex-col gap-2 border-b border-gray-600/30 pb-6 mb-4">
         <div className="flex items-center gap-3 bg-transparent text-white hover:bg-purple-800/60 px-3 py-3 text-base rounded-lg transition-all duration-200 hover:shadow-lg border-2 border-transparent hover:border-purple-500/50">
           {onReactionAdded && onReactionRemove ? (
             <ReactSection
@@ -308,16 +327,65 @@ const InteractSideBar: React.FC<InteractSideBarProps> = ({
         )}
       </div>
 
-      {isModalOpen && (
-        <ReportModal onClose={handleCloseModal} videoId={videoId} />
-      )}
-      <div>
-        {currentMusic && (
-          <div className="fixed bottom-4 left-4 w-80 h-20 bg-black/80 backdrop-blur-md rounded-xl flex px-3 border border-white/10 z-10">
-            <TagMusic onClick={handleNavigate} item={currentMusic} />
+      {/* Music Tag Section */}
+      <div className="rounded-xl backdrop-blur-sm p-4 shadow-lg">
+        <div className="flex items-center gap-2 mb-3">
+          <svg
+            className="w-5 h-5 text-purple-400"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fillRule="evenodd"
+              d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.369 4.369 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"
+              clipRule="evenodd"
+            />
+          </svg>
+          <span className="text-purple-300 font-semibold text-sm">
+            {currentMusic && currentMusic._id ? "Music Sound" : "No Music Sound"}
+          </span>
+        </div>
+
+        {currentMusic && currentMusic._id ? (
+          <div
+            className="cursor-pointer hover:bg-white/5 rounded-lg py-2 transition-all duration-200"
+            onClick={() => handleNavigateToMusic(currentMusic._id)}
+          >
+            <TagMusic
+              onClick={handleNavigateToMusic}
+              item={currentMusic}
+              animationText={true}
+              className="text-white hover:text-purple-300 transition-colors"
+            />
+          </div>
+        ) : (
+          <div className="flex items-center gap-3 p-2 rounded-lg bg-gray-800/50">
+            <div className="w-12 h-12 rounded-lg bg-gray-700/50 flex items-center justify-center">
+              <svg
+                className="w-6 h-6 text-gray-400"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM5 4a1 1 0 000 2v6a1 1 0 001 1h8a1 1 0 001-1V6a1 1 0 000-2H5z"
+                  clipRule="evenodd"
+                />
+                <path d="M6 8l4-3v6l-4-3z" />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <div className="text-gray-400 text-sm font-medium">
+                This video has no background music
+              </div>
+            </div>
           </div>
         )}
       </div>
+
+      {isModalOpen && (
+        <ReportModal onClose={handleCloseModal} videoId={videoId} />
+      )}
     </div>
   );
 };

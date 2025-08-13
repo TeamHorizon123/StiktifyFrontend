@@ -2,16 +2,16 @@
 
 import { cookies } from "next/headers";
 
-const cookieStore = cookies();
-const token = cookieStore.get("token")?.value;
+
 
 export const handleSearchUserAndVideo = async (
   searchText: string,
   current: number = 1,
   pageSize: number = 10
 ) => {
+  const cookieStore = cookies();
+  const token = cookieStore.get("token")?.value;
   try {
-    if (!token) return { users: [], videos: [] };
     const apiUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/search-user-video?searchText=${searchText}&current=${current}&pageSize=${pageSize}`;
     const res = await fetch(apiUrl, {
       method: "GET",
@@ -25,7 +25,7 @@ export const handleSearchUserAndVideo = async (
     }
     const result: IBackendRes<any> = await res.json();
     return result.data;
-  } catch (error) {
+  } catch {
     return { users: [], videos: [] };
   }
 };

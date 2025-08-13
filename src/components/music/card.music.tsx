@@ -23,6 +23,7 @@ interface IProps {
   ref?: any;
   isEdit?: boolean;
   refreshList?: any
+  className?: any
 }
 
 const CardMusic = (props: IProps) => {
@@ -51,6 +52,7 @@ const CardMusic = (props: IProps) => {
   const handleNavigate = (id: string) => {
     router.push(`/page/music/${id}`);
   };
+
 
   useEffect(() => {
     if (trackCurrent?._id === item._id) {
@@ -178,6 +180,7 @@ const CardMusic = (props: IProps) => {
             alt="thumbnail"
             className="object-cover"
             fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             src={item ? item.musicThumbnail : "/default-music.jpg"}
           />
 
@@ -228,11 +231,20 @@ const CardMusic = (props: IProps) => {
 
                   if (e.key === "delete") {
                     Modal.confirm({
-                      title: "Are you sure you want to delete this music?",
-                      content: "This action cannot be undone.",
+                      style: {
+                        color: '!white'
+                      },
+                      title: <span className="!text-white">Are you sure you want to delete this music?</span>,
+                      content: <span className="!text-white">This action cannot be undone.</span>,
                       okText: "Yes",
                       cancelText: "No",
                       okType: "danger",
+                      okButtonProps: {
+                        className: '!bg-red-600 !text-white hover:!bg-red-700',
+                      },
+                      cancelButtonProps: {
+                        className: '!bg-transparent !text-white hover:!bg-gray-50'
+                      },
                       onOk: async () => {
                         const res = await handleDeleteMusic(item._id);
                         if (res?.statusCode === 200) {
@@ -269,8 +281,7 @@ const CardMusic = (props: IProps) => {
           </div>
 
           <p className="text-gray-400 text-sm truncate">
-            {item.musicTag?.map((tag) => tag.fullname).join(", ") ||
-              "Unknown Artist"}
+            {item?.userId?.fullname || "Unknown Artist"}
           </p>
           <div className="flex items-center justify-between text-xs text-gray-500">
             <span>{item.totalListener?.toLocaleString() || 0} plays</span>
