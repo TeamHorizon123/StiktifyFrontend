@@ -3,10 +3,10 @@
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 
-const cookieStore = cookies();
-const token = cookieStore.get("token")?.value;
-
 export const handleFollow = async (followerId: string, followingId: string) => {
+  const cookieStore = cookies();
+  const token = cookieStore.get("token")?.value;
+  if (!token) return null;
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/follow/create-follow`,
@@ -25,12 +25,15 @@ export const handleFollow = async (followerId: string, followingId: string) => {
     revalidateTag("follow");
     const result: IBackendRes<any> = await res.json();
     return result;
-  } catch (error) {
+  } catch {
     return null;
   }
 };
 
 export const checkFollowAction = async (followerId: string, followingId: string) => {
+  const cookieStore = cookies();
+  const token = cookieStore.get("token")?.value;
+  if (!token) return null;
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/follow/check-follow`,
@@ -49,12 +52,15 @@ export const checkFollowAction = async (followerId: string, followingId: string)
     revalidateTag("follow");
     const result: IBackendRes<any> = await res.json();
     return result;
-  } catch (error) {
+  } catch {
     return null;
   }
 };
 
 export const getAllFollowing = async (followerId: string) => {
+  const cookieStore = cookies();
+  const token = cookieStore.get("token")?.value;
+  if (!token) return null;
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/follow/list-following/${followerId}`,
@@ -69,7 +75,7 @@ export const getAllFollowing = async (followerId: string) => {
     );
     const result: IBackendRes<string[]> = await res.json();
     return result;
-  } catch (error) {
+  } catch {
     return null;
   }
 };

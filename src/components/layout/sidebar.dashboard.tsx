@@ -87,7 +87,7 @@ const DashboardSideBar = () => {
         },
         {
           key: "sub2",
-          label: "Statistic",
+          label: "Statistics",
           icon: <BarChartOutlined />,
           children: [
             {

@@ -4,31 +4,29 @@
   box-sizing: border-box;
 }
 
-:root {
-  --mint-green: #80EE98;
-  --seafoam: #46DFB1;
-  --tropical-teal: #09D1C7;
-  --ocean-deep: #15919B;
-  --aqua-twilight: #0C6478;
-  --midnight-blue: #213A58;
+body {
+  margin: 0;
+  padding: 0;
 }
-
-/* ::before,
-::after {
-  box-sizing: border-box;
-  border-width: 0;
-  border-style: none !important;
-  border-color: none !important;
-} */
-
-
+.main-layout {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #393b6a 10%, #222442 80%, #18182c 100%);
+}
+:root {
+  --mint-green: #80ee98;
+  --seafoam: #46dfb1;
+  --tropical-teal: #09d1c7;
+  --ocean-deep: #15919b;
+  --aqua-twilight: #0c6478;
+  --midnight-blue: #213a58;
+}
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 ::-webkit-scrollbar {
-  width: 7px;
+  width: 0;
   height: 10px;
 }
 
@@ -59,6 +57,32 @@
   display: inline-block;
   animation: marquee 5s linear infinite;
 }
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hidden {
+  scrollbar-width: none;
+}
 
+/* Css cua playlist */
+.playlist-dropdown .ant-dropdown-menu {
+  background-color: #1f2937 !important;
+  border: 1px solid #374151 !important;
+  border-radius: 8px !important;
+  padding: 4px !important;
+}
 
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+.playlist-dropdown .ant-dropdown-menu-item {
+  color: #d1d5db !important;
+  border-radius: 6px !important;
+  margin: 2px 0 !important;
+}
+
+.playlist-dropdown .ant-dropdown-menu-item:hover {
+  background-color: #374151 !important;
+}
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");

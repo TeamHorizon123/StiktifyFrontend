@@ -1,45 +1,34 @@
 import { Tooltip } from "antd";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
-import ModalWatchVideo from "../modal/modal.video";
 interface IProps {
-    videoUrl: string,
-    videoThumbnail: string
+  videoId: string;
+  videoThumbnail: string;
 }
 
 const VideoCustomize = (props: IProps) => {
-    const { videoThumbnail, videoUrl } = props
-    const [watchVideo, setWatchVideo] = useState(false)
+  const { videoThumbnail, videoId } = props;
+  const router = useRouter();
 
-    return (
-        <>
-            <ModalWatchVideo videoThumbnail={videoThumbnail} videoUrl={videoUrl} isModalOpen={watchVideo} setIsModalOpen={setWatchVideo} />
-            <Tooltip overlayInnerStyle={{ background: "white", color: "#1e272e" }} title="Watch Video" >
-                <div
-                    onClick={() => setWatchVideo(true)}
-                    style={{
-                        width: "150px",
-                        aspectRatio: "16/9",
-                        borderRadius: "3px",
-                        boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
-                        textAlign: "center",
-                        overflow: "hidden",
-                        cursor: "pointer"
-                    }}
-                >
-
-                    <img
-                        src={videoThumbnail}
-                        alt="Video Thumbnail"
-                        style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover"
-                        }} />
-
-                </div >
-            </Tooltip>
-        </>
-    )
-}
+  return (
+    <Tooltip overlayInnerStyle={{ background: "white", color: "#1e272e" }}>
+      <div
+        onClick={() => router.push(`/page/trending?id=${videoId}`)}
+        className="absolute inset-0 w-full h-full cursor-pointer"
+        style={{
+          borderRadius: "12px",
+          overflow: "hidden",
+        }}
+      >
+        <img
+          src={videoThumbnail}
+          alt="Video Thumbnail"
+          className="w-full h-full object-cover"
+          style={{ display: "block" }}
+        />
+      </div>
+    </Tooltip>
+  );
+};
 
 export default VideoCustomize;

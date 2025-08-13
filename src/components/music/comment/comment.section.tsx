@@ -7,6 +7,8 @@ import { handleCreateCommentAction } from "@/actions/music.action";
 import { MdFavorite, MdFavoriteBorder } from "react-icons/md";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
 import Comment from "./comment";
+import { a } from "framer-motion/client";
+import { message } from "antd"; // Add this import
 
 interface Comment {
   _id: string;
@@ -39,6 +41,7 @@ const CommentSection = ({
   }>({});
 
   const toggleLike = async (id: string) => {
+    if (!accessToken) return;
     try {
       const res = await sendRequest<any>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/comment-reactions/like-music-comment`,
@@ -101,6 +104,7 @@ const CommentSection = ({
   };
 
   useEffect(() => {
+    if (!accessToken) return;
     const fetchComments = async () => {
       try {
         const res = await sendRequest<any>({
@@ -144,7 +148,7 @@ const CommentSection = ({
 
   const handleSubmit = async () => {
     if (!user) {
-      alert("Bạn cần đăng nhập để bình luận!");
+      message.warning("You need to log in to comment!");
       return;
     }
     if (!newComment.trim()) return;
@@ -170,19 +174,20 @@ const CommentSection = ({
         ]);
 
         setNewComment("");
-        onNewComment(); // Gọi hàm callback để tăng số lượng bình luận
+        onNewComment();
       }
     } catch (error) {
+      message.error("Error posting comment!");
       console.error("Error posting comment:", error);
     }
   };
 
   return (
-    <div className="relative h-[46vh] border rounded p-4">
-      <h3 className="text-lg font-semibold mb-2">Bình luận</h3>
+    <div className="relative h-[46vh] p-4">
+      <h3 className="text-xl font-bold mb-4 text-white">Comments</h3>
 
-      {/* Danh sách bình luận có thể cuộn */}
-      <div className="overflow-y-auto max-h-[30vh] space-y-3 pr-2">
+      {/* Scrollable comment list */}
+      <div className="overflow-y-auto max-h-[28vh] space-y-3 pr-2 custom-scrollbar">
         {comments.length > 0 ? (
           comments.map((comment) => (
             <Comment
@@ -196,24 +201,24 @@ const CommentSection = ({
             />
           ))
         ) : (
-          <p className="text-gray-500 text-center">Chưa có bình luận nào.</p>
+          <p className="text-gray-400 text-center">No comments yet.</p>
         )}
       </div>
 
-      {/* Ô nhập bình luận - cố định dưới cùng */}
-      <div className="absolute w-[98%] bottom-0 left-0 right-0 bg-white border-t mx-2 p-2 flex justify-between items-center mr-8">
+      {/* Comment input box - fixed at the bottom */}
+      <div className="absolute w-[98%] bottom-0 left-0 right-0 bg-[#23234a] border-t border-[#35356b] mx-2 p-2 flex justify-between items-center rounded-b-2xl">
         <textarea
-          className="w-5/6 p-2 border rounded h-10 resize-none"
-          placeholder="Viết bình luận..."
+          className="w-5/6 p-2 bg-[#23234a] text-white border border-[#35356b] rounded-lg h-10 resize-none focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-400"
+          placeholder="Write a comment..."
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
           onKeyDown={handleKeyDown}
         />
         <button
           onClick={handleSubmit}
-          className="bg-blue-500 h-10 text-white px-4 py-1 rounded w-16"
+          className="bg-gradient-to-r from-[#7c3aed] to-[#a78bfa] h-10 text-white px-6 py-1 rounded-lg font-semibold shadow hover:from-[#a78bfa] hover:to-[#7c3aed] transition-all"
         >
-          Gửi
+          Submit
         </button>
       </div>
     </div>

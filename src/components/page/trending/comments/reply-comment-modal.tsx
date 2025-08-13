@@ -8,7 +8,7 @@ interface ReplyCommentFormProps {
   parentId: string;
   userId: string;
   videoId: string | undefined;
-  userAvatar: string;
+  userImage: string;
   onReplySuccess: (newReply: any) => void; // Hàm gọi lại sau khi gửi thành công
   onCancel: any; // Đóng form khi hủy
 }
@@ -17,7 +17,7 @@ const ReplyCommentForm: React.FC<ReplyCommentFormProps> = ({
   parentId,
   userId,
   videoId,
-  userAvatar,
+  userImage,
   onReplySuccess,
   onCancel,
 }) => {
@@ -33,6 +33,7 @@ const ReplyCommentForm: React.FC<ReplyCommentFormProps> = ({
   };
 
   const handleReply = async () => {
+    if (!accessToken) return;
     if (!replyText.trim()) return console.log("no text");
     setLoading(true);
     try {
@@ -49,10 +50,13 @@ const ReplyCommentForm: React.FC<ReplyCommentFormProps> = ({
         onReplySuccess({
           _id: res.data._id,
           username: user?.name || "Unknown",
-          avatar: userAvatar,
+          userImage: userImage, // Thêm userImage
           parentId: parentId,
           CommentDescription: replyText,
           totalOfChildComments: 0,
+          totalReactions: 0,
+          createdAt: new Date().toISOString(),
+          user: { _id: user?._id }, // Đảm bảo có user._id
         });
         // onCancel();
       }
@@ -67,7 +71,7 @@ const ReplyCommentForm: React.FC<ReplyCommentFormProps> = ({
     <div className="mt-2 p-3 bg-gray-100 rounded-lg shadow-md">
       <div className="flex items-start gap-3">
         <img
-          src={userAvatar}
+          src={user.userImage}
           alt="User Avatar"
           className="w-8 h-8 rounded-full object-cover"
         />

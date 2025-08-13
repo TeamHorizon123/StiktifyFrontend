@@ -12,7 +12,7 @@ import { useContext, useEffect, useState } from 'react';
 import { MinusCircleOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
 import { AuthContext } from '@/context/AuthContext';
 import { handleCreateMusicAction } from '@/actions/music.action';
-import { handleFilterAndSearchAction } from '@/actions/manage.user.action';
+import { handleGetAllUser } from '@/actions/manage.user.action';
 import { lyricMusicAction, separateMusicAction } from '@/actions/ai.action';
 import { useGlobalContext } from '@/library/global.context';
 
@@ -39,34 +39,10 @@ const AddMusicModal = (props: IProps) => {
     const [lyrics, setLyrics] = useState<any[]>([])
     const [isLoading, setIsLoading] = useState(false)
     const [dataCreate, setDataCreate] = useState<any>(null)
+    const [isKaraoke, setIsKaraoke] = useState(false);
 
-    const handleSearch = async (value: string) => {
-        if (value.length > 0) {
-            const res = await handleFilterAndSearchAction(1, 10, value, "USERS");
-            if (res?.statusCode === 200) {
-                const data: IUser[] = res.data.result;
-                if (data && data.length > 0) {
-                    const formattedData = data.map(item => ({
-                        value: JSON.stringify({ _id: item._id, fullname: item.fullname }),
-                        label: (
-                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                <img src={item.image} alt={item.fullname} style={{ width: 24, height: 24, borderRadius: "50%" }} />
-                                <span>{item.fullname}</span>
-                            </div>
-                        ),
-                        text: item.fullname.toLowerCase(),
-                    }));
-                    setDataSearch(formattedData);
-                } else {
-                    setDataSearch([]);
-                }
-            } else {
-                setDataSearch([]);
-            }
-        } else {
-            setDataSearch([]);
-        }
-    };
+
+
 
 
     const handleCloseCreateModal = () => {
@@ -83,7 +59,7 @@ const AddMusicModal = (props: IProps) => {
         setInformationUpload({ image: urlUploadImage, name: values.musicDescription })
 
         const newListCate = listCateChoose.map(category => category._id);
-        const selectedValues = values.musicTag.map((tag: string) => JSON.parse(tag));
+        const selectedValues = values.musicTag;
 
         const data = {
             musicUrl: urlUploadMp3,
@@ -91,12 +67,19 @@ const AddMusicModal = (props: IProps) => {
             musicDescription: values.musicDescription,
             musicThumbnail: urlUploadImage,
             musicTag: selectedValues,
-            categoryId: newListCate
+            categoryId: newListCate,
+            isKaraoke: isKaraoke
         }
         setDataCreate(data)
         setIsLoading(true);
         form.resetFields()
         setIsCreateModalOpen(false);
+
+        if (!isKaraoke) {
+            // Nếu không chọn Karaoke, chỉ upload nhạc, không gọi AI
+            setProgressUploadMusic(100);
+            return;
+        }
         try {
             setProgressUploadMusic(15);
 
@@ -247,8 +230,6 @@ const AddMusicModal = (props: IProps) => {
         <div>
 
             <Modal
-                style={{ top: 50 }}
-                title="Add new music"
                 open={isCreateModalOpen}
                 onOk={() => form.submit()}
                 onCancel={() => handleCloseCreateModal()}
@@ -262,6 +243,39 @@ const AddMusicModal = (props: IProps) => {
                         OK
                     </Button>,
                 ]}
+                title={<div style={{ color: "white", fontWeight: 600, backgroundColor: "#111827" }}>Upload New Music</div>}
+                style={{
+                    backgroundColor: "#111827", // modal border
+                    borderRadius: 12,
+                    borderColor: "#111827",
+                    top: 50
+                }}
+                bodyStyle={{
+                    backgroundColor: "#111827",
+                    color: "white",
+                }}
+                okButtonProps={{
+                    style: {
+                        backgroundColor: "#8B5CF6", // purple-500
+                        borderColor: "#8B5CF6",
+                        color: "white",
+                    },
+                    onMouseEnter: (e) => {
+                        e.currentTarget.style.backgroundColor = "#A78BFA"; // purple-400
+                        e.currentTarget.style.borderColor = "#A78BFA";
+                    },
+                    onMouseLeave: (e) => {
+                        e.currentTarget.style.backgroundColor = "#8B5CF6";
+                        e.currentTarget.style.borderColor = "#8B5CF6";
+                    },
+                }}
+                cancelButtonProps={{
+                    style: {
+                        backgroundColor: "transparent",
+                        borderColor: "#4B5563", // gray-600
+                        color: "white",
+                    },
+                }}
             >
                 <Form
                     name="basic"
@@ -327,16 +341,16 @@ const AddMusicModal = (props: IProps) => {
 
                         </Form.Item>
                     </div>
-                    <div className='mb-2 flex gap-1'><span className='text-red-500 text-1xl'>*</span>Category</div>
+                    <div className='mb-2 flex gap-1 text-white'><span className='text-red-500 text-1xl'>*</span>Category</div>
                     <div className='flex gap-2 flex-wrap mb-2'>
                         {listCate && listCate.length > 0 && listCate.map((item) => (
                             <div
                                 key={item._id}
                                 onClick={() => handleAddCateChoose(item)}
-                                className={`border ${checkChoose(item._id) ? "border-green-500" : "border-gray-300"} p-2 rounded-md cursor-pointer `}>{item.categoryName}</div>
+                                className={`border ${checkChoose(item._id) ? "border-green-500" : "border-gray-300"} p-2 rounded-md cursor-pointer text-white`}>{item.categoryName}</div>
                         ))}
                     </div>
-                    <div className='mb-2 flex gap-1'><span className='text-red-500 text-1xl'>*</span>Tag</div>
+                    <div className='mb-2 flex gap-1 text-white'><span className='text-red-500 text-1xl'>*</span>Tag</div>
                     <Form.List name="musicTag" initialValue={[""]}>
                         {(fields, { add, remove }) => (
                             <div className='mt-3 flex gap-3'>
@@ -361,28 +375,17 @@ const AddMusicModal = (props: IProps) => {
                                                 {/* </Form.Item> */}
                                                 <Form.Item
                                                     style={{ minWidth: "150px" }}
-
                                                     hasFeedback
                                                     {...field}
                                                     validateTrigger={['onChange', 'onBlur']}
-                                                    rules={[{ required: true, message: 'Please choose your music tag!' }]}
+                                                    rules={[{ required: true, message: 'Please enter your music tag!' }]}
                                                 >
-                                                    <Select
+                                                    <Input
                                                         style={{ minWidth: "50px" }}
-                                                        showSearch
-                                                        placeholder="Search tag"
-                                                        onSearch={handleSearch}
-                                                        filterOption={(input, option) => option && "text" in option ? option.text.includes(input.toLowerCase()) : false}
-                                                        options={dataSearch}
+                                                        placeholder="Enter tag"
                                                     />
-
-
-                                                    {/* <Option value="demo">Demo</Option>
-                                                        <Option value="example">Example</Option>
-                                                        <Option value="test">Test</Option>
-                                                    </Select> */}
-
                                                 </Form.Item>
+
                                                 {fields.length > 1 && <MinusCircleOutlined
                                                     style={{
                                                         position: "absolute",
@@ -399,14 +402,156 @@ const AddMusicModal = (props: IProps) => {
                         )}
                     </Form.List>
                     <Form.Item
-                        label="Description"
+                        label="Title"
                         name="musicDescription"
-                        rules={[{ required: true, message: 'Please input your product description!' }]}
+                        rules={[{ required: true, message: 'Please input your product title!' }]}
                     >
-                        <Input.TextArea />
+                        <Input />
                     </Form.Item>
+                    {/* Karaoke Checkbox sau cùng */}
+                    <div className="flex items-center mt-4">
+                        <input
+                            type="checkbox"
+                            id="karaoke"
+                            checked={isKaraoke}
+                            onChange={e => setIsKaraoke(e.target.checked)}
+                            className="mr-2"
+                        />
+                        <label htmlFor="karaoke" className="text-white select-none cursor-pointer">Generate Karaoke (AI)</label>
+                    </div>
                 </Form>
             </Modal>
+            <style jsx global>{`
+  .ant-modal-content {
+    background-color: #111827 !important;
+    color: white !important;
+  }
+  .ant-modal-title {
+    color: white !important;
+  }
+  .ant-modal-close-icon {
+    color: white !important;
+  }
+     .ant-form-item-label > label {
+    color: white !important;
+  }
+
+  .ant-input,
+  .ant-input-affix-wrapper,
+  .ant-input-textarea,
+  .ant-select-selector {
+    background-color: #1f2937 !important; /* Darker background */
+    color: white !important;
+    border-color: #374151 !important; /* Border dark-gray */
+  }
+
+  .ant-input::placeholder {
+    color: #9ca3af !important; /* Tailwind gray-400 */
+  }
+
+  .ant-upload {
+    background-color: transparent !important;
+    color: white !important;
+  }
+
+  .ant-form-item-explain-error {
+    color: #f87171 !important; /* Tailwind red-400 */
+  }
+
+  .ant-btn {
+    border-color: #4b5563 !important;
+    color: white !important;
+  }
+
+  .ant-btn-primary {
+    background-color: #8b5cf6 !important; /* purple-500 */
+    border-color: #8b5cf6 !important;
+  }
+
+  .ant-btn-primary:hover {
+    background-color: #a78bfa !important; /* purple-400 */
+    border-color: #a78bfa !important;
+  }
+    /* Label for Form.Item */
+  .ant-form-item-label > label {
+    color: white !important;
+  }
+
+  /* Input, Textarea, Select */
+  .ant-input,
+  .ant-input-affix-wrapper,
+  .ant-input-textarea,
+  .ant-select-selector {
+    background-color: #1f2937 !important;
+    color: white !important;
+    border-color: #374151 !important;
+  }
+
+  /* Placeholder text */
+  .ant-input::placeholder,
+  .ant-select-selection-placeholder {
+    color: #9ca3af !important; /* gray-400 */
+  }
+
+  /* Upload area */
+  .ant-upload {
+    color: white !important;
+  }
+
+  /* Extra text like "Must be .jpg" */
+  .ant-form-item-extra {
+    color: white !important;
+  }
+.ant-form-item-extra:hover {
+  color: #d1d5db !important; /* Tailwind: gray-300 */
+}
+  .ant-upload-list-item-name {
+    color: white !important;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+    vertical-align: middle;
+  }
+    .ant-upload-list-item .anticon-paper-clip svg {
+  fill: white !important;
+  color: white !important;
+}
+  /* Error messages */
+  .ant-form-item-explain-error {
+    color: #f87171 !important; /* red-400 */
+  }
+
+  /* Button styles */
+  .ant-btn {
+    border-color: #4b5563 !important;
+    color: white !important;
+  }
+
+  .ant-btn-primary {
+    background-color: #8b5cf6 !important; /* purple-500 */
+    border-color: #8b5cf6 !important;
+  }
+
+  .ant-btn-primary:hover {
+    background-color: #a78bfa !important; /* purple-400 */
+    border-color: #a78bfa !important;
+  }
+
+  /* Dashes (dashed button like "Add Tag") */
+  .ant-btn-dashed {
+    border-color: #6b7280 !important;
+    color: white !important;
+  }
+
+  /* Tag in Category List */
+  .ant-tag {
+    background-color: #374151 !important;
+    color: white !important;
+    border-color: transparent !important;
+  }
+`}</style>
         </div >
     )
 }

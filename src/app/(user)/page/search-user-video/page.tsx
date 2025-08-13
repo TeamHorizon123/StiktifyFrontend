@@ -1,11 +1,16 @@
 "use client";
 
 import SearchUser from "@/components/page/search/searchUser";
+import { Suspense } from "react";
 const SearchUserPage = () => {
   return (
-    <div className="w-full h-screen flex justify-center items-center">
-      <SearchUser />
-    </div>
+    <Suspense>
+      <div className="min-h-screen bg-gray-900">
+        <div className="w-[80vw] ml-40">
+          <SearchUser />
+        </div>
+      </div>
+    </Suspense>
   );
 };
 

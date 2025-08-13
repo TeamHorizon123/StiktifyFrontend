@@ -6,22 +6,19 @@ import { cookies } from "next/headers";
 
 export const handleGetAllMusic = async (current: string, pageSize: string) => {
   try {
-    const cookieStore = cookies();
-    const token = cookieStore.get("token")?.value;
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/list-music?current=${current}&pageSize=${pageSize}`,
       {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         next: { tags: ["list-music"] },
       }
     );
     const result: IBackendRes<any> = await res.json();
     return result;
-  } catch (error) {
+  } catch {
     return null;
   }
 };
@@ -37,7 +34,7 @@ export const handleDisPlayMusicAction = async (id: string) => {
     );
     const result: IBackendRes<any> = await res.json();
     return result;
-  } catch (error) {
+  } catch {
     return null;
   }
 };
@@ -59,19 +56,21 @@ export const handleUpdateListenerAction = async (id: string) => {
       revalidateTag("display-music");
     }
     return result;
-  } catch (error) {
+  } catch  {
     return null;
   }
 };
 export const handleFilterSearchMusic = async (
   current: string,
-  pageSize: string
+  pageSize: string,
+  search: string,
+  filterRes: string
 ) => {
   try {
     const cookieStore = cookies();
     const token = cookieStore.get("token")?.value;
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/filter-search?current=${current}&pageSize=${pageSize}`,
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/filter-search?current=${current}&pageSize=${pageSize}&search=${search}&filterReq=${filterRes}`,
       {
         method: "GET",
         headers: {
@@ -83,7 +82,7 @@ export const handleFilterSearchMusic = async (
     );
     const result: IBackendRes<any> = await res.json();
     return result;
-  } catch (error) {
+  } catch  {
     return null;
   }
 };
@@ -92,6 +91,7 @@ export const createFavoriteMusic = async (musicId: string) => {
   try {
     const cookieStore = cookies();
     const token = cookieStore.get("token")?.value;
+    if (!token) return null;
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/music-favorite/create-favorite`,
       {
@@ -105,7 +105,7 @@ export const createFavoriteMusic = async (musicId: string) => {
     );
     const result: IBackendRes<any> = await res.json();
     return result;
-  } catch (error) {
+  } catch  {
     return null;
   }
 };
@@ -118,6 +118,7 @@ export const handleGetAllFavoriteMusic = async (
   try {
     const cookieStore = cookies();
     const token = cookieStore.get("token")?.value;
+    if (!token) return null;
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/music-favorite/list-favorite-music/${userId}?current=${current}&pageSize=${pageSize}`,
       {
@@ -131,7 +132,7 @@ export const handleGetAllFavoriteMusic = async (
     );
     const result: IBackendRes<any> = await res.json();
     return result;
-  } catch (error) {
+  } catch  {
     return null;
   }
 };
@@ -144,6 +145,7 @@ export const handleGetMyMusic = async (
   try {
     const cookieStore = cookies();
     const token = cookieStore.get("token")?.value;
+    if (!token) return null;
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/my-musics/${userId}?current=${current}&pageSize=${pageSize}`,
       {
@@ -152,6 +154,8 @@ export const handleGetMyMusic = async (
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
+        next: { tags: ["get-my-music"] },
+
       }
     );
     const result: IBackendRes<any> = await res.json();
@@ -166,6 +170,7 @@ export const handleLikeMusicAction = async (id: string) => {
   try {
     const cookieStore = cookies();
     const token = cookieStore.get("token")?.value;
+    if (!token) return null;
     const res = await sendRequest<any>({
       url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/music-favorite/favorite/${id}`,
       method: "POST",
@@ -173,7 +178,7 @@ export const handleLikeMusicAction = async (id: string) => {
     });
     revalidateTag("display-music");
     return res
-  } catch (error) {
+  } catch  {
     return null
   }
 }
@@ -182,6 +187,7 @@ export const handleCreateCommentAction = async (musicId: string, newComment: str
   try {
     const cookieStore = cookies();
     const token = cookieStore.get("token")?.value;
+    if (!token) return null;
     const res = await sendRequest<any>({
       url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/comments/create-music-comment`,
       method: "POST",
@@ -190,7 +196,7 @@ export const handleCreateCommentAction = async (musicId: string, newComment: str
     });
     revalidateTag("display-music");
     return res
-  } catch (error) {
+  } catch  {
     return null
   }
 }
@@ -199,6 +205,7 @@ export const handleCreateMusicAction = async (data: any) => {
   try {
     const cookieStore = cookies();
     const token = cookieStore.get("token")?.value;
+    if (!token) return null;
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/upload-music`,
       {
@@ -216,7 +223,7 @@ export const handleCreateMusicAction = async (data: any) => {
       revalidateTag("list-music");
     }
     return result;
-  } catch (error) {
+  } catch  {
     return null;
   }
 }
@@ -225,16 +232,17 @@ export const handleFilterAndSearchMusicAction = async (current: number, pageSize
   try {
     const cookieStore = cookies();
     const token = cookieStore.get("token")?.value;
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/music-categories/filter-search?search=${search}&filterReq=${filterRes}&current=${current}&pageSize=${pageSize}`, {
+    if (!token) return null;
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/list-music-admin?search=${search}&filterReq=${filterRes}&current=${current}&pageSize=${pageSize}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`
-      },
+      }, next: { tags: ["list-music"] },
     })
     const result: IBackendRes<any> = await res.json();
     return result
-  } catch (error) {
+  } catch  {
     return null
   }
 }
@@ -243,6 +251,7 @@ export const handleGetMusic = async (current: string, pageSize: string) => {
   try {
     const cookieStore = cookies();
     const token = cookieStore.get("token")?.value;
+    if (!token) return null;
     const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/list-music-admin?current=${current}&pageSize=${pageSize}`, {
       method: "GET",
       headers: {
@@ -253,7 +262,7 @@ export const handleGetMusic = async (current: string, pageSize: string) => {
     })
     const result: IBackendRes<any> = await res.json();
     return result
-  } catch (error) {
+  } catch {
     return null
   }
 }
@@ -262,6 +271,7 @@ export const handleGetRecommendMusic = async (userId: string) => {
   try {
     const cookieStore = cookies();
     const token = cookieStore.get("token")?.value;
+    if (!token) return null;
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/recommend-music/${userId}`,
       {
@@ -275,7 +285,7 @@ export const handleGetRecommendMusic = async (userId: string) => {
     );
     const result: IBackendRes<any> = await res.json();
     return result;
-  } catch (error) {
+  } catch  {
     return null;
   }
 };
@@ -284,6 +294,7 @@ export const handleListenNeo4j = async (musicId: string, userId: string) => {
   try {
     const cookieStore = cookies();
     const token = cookieStore.get("token")?.value;
+    if (!token) return null;
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/listen-music-in-user`,
       {
@@ -297,7 +308,7 @@ export const handleListenNeo4j = async (musicId: string, userId: string) => {
     );
     const result: IBackendRes<any> = await res.json();
     return result;
-  } catch (error) {
+  } catch {
     return null;
   }
 };
@@ -305,6 +316,7 @@ export const handleGetAllListeningHistory = async (userId: string) => {
   try {
     const cookieStore = cookies();
     const token = cookieStore.get("token")?.value;
+    if (!token) return null;
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/listeninghistory/all-listening-history/${userId}`,
       {
@@ -318,7 +330,7 @@ export const handleGetAllListeningHistory = async (userId: string) => {
     );
 
     return await res.json();
-  } catch (error) {
+  } catch {
     return null;
   }
 };
@@ -327,6 +339,7 @@ export const handleClearAllListeningHistory = async (userId: string) => {
   try {
     const cookieStore = cookies();
     const token = cookieStore.get("token")?.value;
+    if (!token) return null;
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/listeninghistory/clear-all/${userId}`,
       {
@@ -339,7 +352,7 @@ export const handleClearAllListeningHistory = async (userId: string) => {
     );
     revalidateTag("all-listening-history")
     return await response.json();
-  } catch (error) {
+  } catch {
     return null;
   }
 };
@@ -348,6 +361,7 @@ export const handleSearchHistory = async (search: string, startDate?: string) =>
   try {
     const cookieStore = cookies();
     const token = cookieStore.get("token")?.value;
+    if (!token) return null;
     let url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/listeninghistory/search-history?search=${search}`;
     if (startDate) {
       url += `&startDate=${startDate}`;
@@ -374,7 +388,7 @@ export const getTrackRelatedAction = async (musicId: string[] | [], musicTag: { 
   try {
     const cookieStore = cookies();
     const token = cookieStore.get("token")?.value;
-
+    if (!token) return null;
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/track-related`,
       {
@@ -397,22 +411,75 @@ export const getTrackRelatedAction = async (musicId: string[] | [], musicTag: { 
 
 export const handleGetDataHotMusic = async () => {
   try {
-    const cookieStore = cookies();
-    const token = cookieStore.get("token")?.value;
+    // const cookieStore = cookies();
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/list-hot-music`,
       {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         next: { tags: ["list-hot-music"] },
       }
     );
     const result: IBackendRes<any> = await res.json();
     return result;
+  } catch {
+    return null;
+  }
+};
+
+export const handleDeleteMusic = async (id: string) => {
+  try {
+    const cookieStore = cookies();
+    const token = cookieStore.get("token")?.value;
+    if (!token) return null;
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/${id}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        next: { tags: ["delete-music"] },
+      }
+    );
+    revalidateTag("get-my-music");
+    const result: IBackendRes<any> = await res.json();
+    return result;
+  } catch {
+    return null;
+  }
+};
+
+export const handleUpdateMusic = async (payload: {
+  musicId: string;
+  musicDescription?: string;
+  musicTag?: any[];
+  musicThumbnail?: string;
+}) => {
+  try {
+    const cookieStore = cookies();
+    const token = cookieStore.get("token")?.value;
+    if (!token) return null;
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/musics/update-music`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    const result: IBackendRes<any> = await res.json();
+    return result;
   } catch (error) {
+    console.error("Error updating music:", error);
     return null;
   }
 };

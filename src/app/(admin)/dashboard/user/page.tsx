@@ -6,7 +6,7 @@ const ManageUserPage = async ({ searchParams }: any) => {
   const result = current ? current : 1;
   const LIMIT = pageSize ? pageSize : 5;
 
-  const res = await handleGetAllUser(result, LIMIT);
+  const res = await handleGetAllUser(result, LIMIT, searchParams?.search || "", searchParams?.filterReq || "");
 
   const data = res?.data;
 

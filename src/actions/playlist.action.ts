@@ -7,6 +7,7 @@ export const handleGetPlaylistAction = async (id: string) => {
     try {
         const cookieStore = cookies()
         const token = cookieStore.get("token")?.value
+        if (!token) return null;
         const res = await fetch(`
             ${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/playlists/list-playlist/${id}`,
             {
@@ -19,7 +20,7 @@ export const handleGetPlaylistAction = async (id: string) => {
             })
         const result: IBackendRes<any> = await res.json();
         return result
-    } catch (error) {
+    } catch {
         return null
     }
 }
@@ -29,6 +30,7 @@ export const handleGetDetailsPlaylistAction = async (id: string) => {
     try {
         const cookieStore = cookies()
         const token = cookieStore.get("token")?.value
+        if (!token) return null;
         const res = await fetch(`
             ${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/playlists/detail-playlist/${id}`,
             {
@@ -41,7 +43,7 @@ export const handleGetDetailsPlaylistAction = async (id: string) => {
             })
         const result: IBackendRes<any> = await res.json();
         return result
-    } catch (error) {
+    } catch {
         return null
     }
 }
@@ -50,6 +52,7 @@ export const handleAddMusicInPlaylistAction = async (playlistId: string, musicId
     try {
         const cookieStore = cookies()
         const token = cookieStore.get("token")?.value
+        if (!token) return null;
         const res = await fetch(`
             ${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/store-playlist/create-store-playlist`,
             {
@@ -63,7 +66,7 @@ export const handleAddMusicInPlaylistAction = async (playlistId: string, musicId
         const result: IBackendRes<any> = await res.json();
         revalidateTag("list-music-playlist")
         return result
-    } catch (error) {
+    } catch {
         return null
     }
 }
@@ -72,6 +75,7 @@ export const handleAddPlaylistAction = async (userId: string, name: string, desc
     try {
         const cookieStore = cookies()
         const token = cookieStore.get("token")?.value
+        if (!token) return null;
         const res = await fetch(`
             ${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/playlists/add-playlist`,
             {
@@ -85,7 +89,7 @@ export const handleAddPlaylistAction = async (userId: string, name: string, desc
         const result: IBackendRes<any> = await res.json();
         revalidateTag("list-playlist")
         return result
-    } catch (error) {
+    } catch {
         return null
     }
 }
@@ -94,6 +98,7 @@ export const handleGetMusicInPlaylistAction = async (playlistId: string) => {
     try {
         const cookieStore = cookies()
         const token = cookieStore.get("token")?.value
+        if (!token) return null;
         const res = await fetch(`
             ${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/store-playlist/list-music-playlist/${playlistId}`,
             {
@@ -106,7 +111,7 @@ export const handleGetMusicInPlaylistAction = async (playlistId: string) => {
             })
         const result: IBackendRes<any> = await res.json();
         return result
-    } catch (error) {
+    } catch {
         return null
     }
 }
@@ -115,6 +120,7 @@ export const handleRemoveMusicInPlaylistAction = async (musicId: string) => {
     try {
         const cookieStore = cookies()
         const token = cookieStore.get("token")?.value
+        if (!token) return null;
         const res = await fetch(`
             ${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/store-playlist/delete-music-playlist/${musicId}`,
             {
@@ -128,7 +134,7 @@ export const handleRemoveMusicInPlaylistAction = async (musicId: string) => {
 
         const result: IBackendRes<any> = await res.json();
         return result
-    } catch (error) {
+    } catch {
         return null
     }
 }
@@ -137,6 +143,7 @@ export const handleFilterSearchPlaylist = async (current: string, pageSize: stri
     try {
         const cookieStore = cookies()
         const token = cookieStore.get("token")?.value
+        if (!token) return null;
         const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/store-playlist/filter-search?current=${current}&pageSize=${pageSize}`, {
             method: "GET",
             headers: {
@@ -147,7 +154,7 @@ export const handleFilterSearchPlaylist = async (current: string, pageSize: stri
         });
         const result: IBackendRes<any> = await res.json();
         return result;
-    } catch (error) {
+    } catch {
         return null;
     }
 };
@@ -157,6 +164,7 @@ export const handleDeletePlaylist = async (id: string) => {
     try {
         const cookieStore = cookies()
         const token = cookieStore.get("token")?.value
+        if (!token) return null;
         const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/playlists/delete-playlist/${id}`, {
             method: "DELETE",
             headers: {
@@ -167,7 +175,7 @@ export const handleDeletePlaylist = async (id: string) => {
         const result: IBackendRes<any> = await res.json();
         revalidateTag("list-playlist")
         return result;
-    } catch (error) {
+    } catch {
         return null;
     }
 };

@@ -1,7 +1,7 @@
 "use client";
 import { ColumnsType } from "antd/es/table";
 import { useEffect, useState } from "react";
-import { formatNumber } from "@/utils/utils";
+import { formatDateTimeVn, formatNumber } from "@/utils/utils";
 import {
   FilterOutlined,
   FlagTwoTone,
@@ -11,9 +11,9 @@ import {
 } from "@ant-design/icons";
 import { notification, Popconfirm } from "antd";
 import {
+  handleBlockShortVideoAction,
   handleFlagShortVideoAction,
-  handleSearchShortVideos,
-  handleFilterByCategory,
+  handleGetAllShortVideo,
 } from "@/actions/manage.short.video.action";
 import InputCustomize from "../input/input.customize";
 import DropdownCustomizeFilterVideo from "../dropdown/dropdownFilterVide";
@@ -43,16 +43,24 @@ const ManageShortVideoTable = (props: IProps) => {
     notification.success({ message: res?.message });
   };
 
+  const handleBlockVideo = async (record: IShortVideo) => {
+    const res = await handleBlockShortVideoAction(record._id, !record.isBlock);
+    notification.success({ message: res?.message });
+  };
+
   useEffect(() => {
     (async () => {
       if (search.length > 0 || filterReq.length > 0) {
         if (search.length > 0) {
-          const res = await handleSearchShortVideos(
+          let res = await handleGetAllShortVideo(
             search,
+            filterReq,
             meta.current,
             meta.pageSize
           );
-
+          if (res?.data?.meta?.current >= 1 && res?.data?.meta?.total <= meta.pageSize) {
+            res = await handleGetAllShortVideo(search, filterReq, 1, meta.pageSize);
+          }
           if (res?.data?.result && Array.isArray(res.data.result)) {
             const sortedVideos = [...res.data.result].sort((a, b) => {
               const aMatch = a.videoDescription
@@ -75,12 +83,15 @@ const ManageShortVideoTable = (props: IProps) => {
             setMetaTable(meta);
           }
         } else if (filterReq.length > 0) {
-          const res = await handleFilterByCategory(
+          let res = await handleGetAllShortVideo(
+            search,
             filterReq,
             meta.current,
             meta.pageSize
           );
-
+          if (res?.data?.meta?.current >= 1 && res?.data?.meta?.total <= meta.pageSize) {
+            res = await handleGetAllShortVideo(search, filterReq, 1, meta.pageSize);
+          }
           if (res?.statusCode === 200) {
             setDataTable(res.data.result);
             setMetaTable(res.data.meta);
@@ -95,7 +106,7 @@ const ManageShortVideoTable = (props: IProps) => {
 
   const columns: ColumnsType<IShortVideo> = [
     {
-      title: "Username",
+      title: "Creator",
       dataIndex: "userId",
       key: "userId",
       render: (value) => {
@@ -109,19 +120,19 @@ const ManageShortVideoTable = (props: IProps) => {
       render: (value: IShortVideo, record) => (
         <VideoCustomize
           videoThumbnail={record.videoThumbnail}
-          videoUrl={record.videoUrl}
+          videoId={record._id}
         />
       ),
+    },
+    {
+      title: "Description",
+      dataIndex: "videoDescription",
+      key: "videoDescription",
     },
     {
       title: "Views",
       dataIndex: "totalViews",
       key: "totalViews",
-      render: (value) => <div>{formatNumber(value ?? 0)}</div>,
-    },
-    {
-      title: "Reactions",
-      dataIndex: "totalReaction",
       render: (value) => <div>{formatNumber(value ?? 0)}</div>,
     },
     {
@@ -131,15 +142,31 @@ const ManageShortVideoTable = (props: IProps) => {
       render: (value) => <div>{formatNumber(value ?? 0)}</div>,
     },
     {
-      title: "Favorite",
-      dataIndex: "totalFavorite",
-      key: "totalFavorite",
-      render: (value) => <div>{formatNumber(value ?? 0)}</div>,
+      title: "Blocked",
+      key: "isBlock",
+      render: (_, record) => (
+        <Popconfirm
+          title={`Sure to ${record?.isBlock ? "UnBlock" : "Block"} video?`}
+          onConfirm={() => handleBlockVideo(record)}
+          okText="Yes"
+          cancelText="No"
+          okButtonProps={{
+            className: '!bg-blue !text-white'
+          }}
+        >
+          {record?.isBlock ? (
+            <LockTwoTone style={{ fontSize: "24px" }} twoToneColor="#d63031" />
+          ) : (
+            <UnlockTwoTone style={{ fontSize: "24px" }} twoToneColor="#00b894" />
+          )}
+        </Popconfirm>
+      ),
     },
     {
-      title: "Description",
-      dataIndex: "videoDescription",
-      key: "videoDescription",
+      title: "Created At",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (value) => <div>{value ? formatDateTimeVn(value + "") : ""}</div>,
     },
     {
       title: "Action",
@@ -147,10 +174,13 @@ const ManageShortVideoTable = (props: IProps) => {
       key: "flag",
       render: (value, record) => (
         <Popconfirm
-          title="Sure to flag video?"
+          title={`Sure to ${value ? "UnFlag" : "Flag"} video?`}
           onConfirm={() => handleFlagVideo(record)}
           okText="Yes"
           cancelText="No"
+          okButtonProps={{
+            className: '!bg-blue !text-white'
+          }}
         >
           <FlagTwoTone
             style={{ fontSize: "20px" }}

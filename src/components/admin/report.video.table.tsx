@@ -5,14 +5,13 @@ import { useEffect, useState } from "react";
 import { formatNumber } from "@/utils/utils";
 import {
   DeleteTwoTone,
+  FilterOutlined,
   FlagTwoTone,
   SearchOutlined,
   UnorderedListOutlined,
 } from "@ant-design/icons";
 import {
   Button,
-  DatePicker,
-  DatePickerProps,
   notification,
   Popconfirm,
   Tooltip,
@@ -22,11 +21,12 @@ import VideoCustomize from "../video/video.customize";
 import ModalListReport from "../modal/modal.list.report";
 import {
   handleDeleteReportVideoAction,
-  handleSearchVideoReportAction,
+  handleListVideoReportAction,
 } from "@/actions/manage.report.action";
 import InputCustomize from "../input/input.customize";
 import dayjs from "dayjs";
 import TableCustomize from "../ticked-user/table/table.dashboard";
+import DropdownCustomize from "../dropdown/dropdown.customize";
 
 interface IProps {
   dataSource: IReport[];
@@ -44,7 +44,8 @@ const ManageReportTable = (props: IProps) => {
   const [search, setSearch] = useState("");
   const [dataTable, setDataTable] = useState<IReport[] | []>(dataSource);
   const [metaTable, setMetaTable] = useState(meta);
-  const [startDate, setStartDate] = useState<string | undefined>(undefined);
+  const [filterReq, setFilterReq] = useState("")
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleFlagVideo = async (record: IShortVideo) => {
     const res = await handleFlagShortVideoAction(record._id, !record.flag);
@@ -64,82 +65,94 @@ const ManageReportTable = (props: IProps) => {
     }
   };
 
-  const onChange: DatePickerProps["onChange"] = (date, dateString) => {
-    if (Array.isArray(dateString)) {
-      setStartDate(dateString[0]);
+  const dataFilter = [
+    {
+      value: "report_asc",
+      title: "Reports ↑ (fewest first)",
+    },
+    {
+      value: "report_desc",
+      title: "Reports ↓ (most first)",
+    },
+    {
+      value: "flagged",
+      title: "Flagged",
+    },
+    {
+      value: "not_flagged",
+      title: "Not Flagged",
+    },
+    {
+      value: "blocked",
+      title: "Blocked",
+    },
+    {
+      value: "not_blocked",
+      title: "Not Blocked",
+    },
+  ];
+
+  const handleGetReporttData = async () => {
+    setIsLoading(true);
+    if ((search.length > 0 || filterReq.length > 0)) {
+      let res = await handleListVideoReportAction(meta.current, meta.pageSize, search, filterReq);
+      if (res?.statusCode === 200) {
+        if (res.data?.meta?.current >= 1 && res.data?.meta?.total <= meta.pageSize) {
+          res = await handleListVideoReportAction(1, meta.pageSize, search, filterReq);
+        }
+        console.log("res", res);
+        const mappedData = res?.data?.result
+          ?.map((item: any) => {
+
+            return {
+              _id: item._id,
+              dataVideo: {
+                _id: item.dataVideo._id,
+                videoUrl: item.dataVideo.videoUrl,
+                videoDescription: item.dataVideo.videoDescription,
+                videoThumbnail: item.dataVideo.videoThumbnail,
+                totalViews: item.dataVideo.totalViews || 0,
+                flag: item.dataVideo.flag || false,
+                userId: {
+                  _id: item.dataVideo.userId._id,
+                  userName: item.dataVideo.userId.userName,
+                },
+              },
+              total: item.total || 1,
+              dataReport: item.dataReport || [
+                {
+                  userName: item.userId.userName,
+                  reason: item.reasons,
+                },
+              ],
+            };
+          })
+          .filter((item: any) => item !== null);
+
+        setDataTable(mappedData || []);
+        setMetaTable({
+          current: res?.data?.meta?.current || 1,
+          pageSize: res?.data?.meta?.pageSize || 10,
+          total: res?.data?.meta?.total || 0,
+        });
+      } else {
+        notification.error({ message: "Failed to fetch video reports." });
+      }
     } else {
-      setStartDate(dateString); 
+      setDataTable(dataSource);
+      setMetaTable(meta);
     }
-  };
+    setIsLoading(false);
+  }
 
   useEffect(() => {
-    (async () => {
-      if (search.length > 0 || startDate) {
-        const res = await handleSearchVideoReportAction(search, startDate);
-        if (res?.statusCode === 200) {
-          if (res.data?.result?.length === 0) {
-            notification.info({
-              message: startDate
-                ? `No reports found for ${startDate}.`
-                : "No reports found for the search term.",
-            });
-          }
-          const mappedData = res.data?.result
-            ?.map((item: any) => {
-              const reportDate = item.reportDate
-                ? dayjs(item.reportDate)
-                : null;
-              const isDateMatch = startDate
-                ? reportDate &&
-                  reportDate.isSame(dayjs(startDate, "YYYY-MM-DD"), "day")
-                : true;
-              if (isDateMatch) {
-                return {
-                  _id: item._id,
-                  dataVideo: {
-                    _id: item.videoId._id,
-                    videoUrl: item.videoId.videoUrl,
-                    videoDescription: item.videoId.videoDescription,
-                    videoThumbnail: item.videoId.videoThumbnail,
-                    totalViews: item.videoId.totalViews || 0,
-                    flag: item.videoId.flag || false,
-                    userId: {
-                      _id: item.videoId.userId._id,
-                      userName: item.videoId.userId.userName,
-                    },
-                  },
-                  total: item.total || 1,
-                  dataReport: item.dataReport || [
-                    {
-                      userName: item.userId.userName,
-                      reason: item.reasons,
-                    },
-                  ],
-                };
-              }
-              return null;
-            })
-            .filter((item: any) => item !== null);
+    handleGetReporttData();
+  }, [search, dataSource, filterReq, metaTable.current]);
 
-          setDataTable(mappedData || []);
-          setMetaTable({
-            current: res.data?.meta?.current || 1,
-            pageSize: res.data?.meta?.pageSize || 10,
-            total: res.data?.meta?.total || 0,
-          });
-        } else {
-          notification.error({ message: "Failed to fetch video reports." });
-        }
-      } else {
-        setDataTable(dataSource);
-        setMetaTable(meta);
-      }
-    })();
-  }, [search, startDate, dataSource]);
 
   const columns: ColumnsType<IReport> = [
     {
-      title: "Username",
+      title: "Creator",
       dataIndex: "dataVideo",
       key: "userName",
       render: (value, record) => <div>{record.dataVideo.userId.userName}</div>,
@@ -151,9 +164,15 @@ const ManageReportTable = (props: IProps) => {
       render: (value: IShortVideo) => (
         <VideoCustomize
           videoThumbnail={value.videoThumbnail}
-          videoUrl={value.videoUrl}
+          videoId={value._id}
         />
       ),
+    },
+    {
+      title: 'Description',
+      dataIndex: 'dataVideo',
+      key: 'videoDescription',
+      render: (value, record) => <div>{record.dataVideo.videoDescription}</div>,
     },
     {
       title: "Views",
@@ -200,6 +219,9 @@ const ManageReportTable = (props: IProps) => {
             onConfirm={() => handleFlagVideo(value)}
             okText="Yes"
             cancelText="No"
+            okButtonProps={{
+              className: '!bg-blue !text-white'
+            }}
           >
             <FlagTwoTone
               style={{ fontSize: "20px" }}
@@ -211,6 +233,9 @@ const ManageReportTable = (props: IProps) => {
             onConfirm={() => handleDeleteReportVideo(value._id)}
             okText="Yes"
             cancelText="No"
+            okButtonProps={{
+              className: '!bg-blue !text-white'
+            }}
           >
             <DeleteTwoTone
               style={{ fontSize: "20px" }}
@@ -247,16 +272,16 @@ const ManageReportTable = (props: IProps) => {
         <div
           style={{ width: "130px", marginLeft: "310px", marginTop: "-32px" }}
         >
-          <DatePicker
-            onChange={onChange}
-            value={startDate ? dayjs(startDate, "YYYY-MM-DD") : null}
-          />
+          <DropdownCustomize data={dataFilter} title="Filter" selected={filterReq} setSelect={setFilterReq} icon={<FilterOutlined />} />
         </div>
       </div>
       <TableCustomize
         columns={columns}
-        dataSource={dataTable}
+        dataSource={dataTable.map((item, index) => ({ ...item, _id: `report-${index}` }))}
         meta={metaTable}
+        filterReq={filterReq}
+        searchData={search}
+        isLoadingProp={isLoading}
       />
       <ModalListReport
         data={dataReport}

@@ -1,23 +1,18 @@
 "use client";
 
 import { useEffect, useState, useContext } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
 import CardMusic from "@/components/music/card.music";
 import { handleGetAllFavoriteMusic } from "@/actions/music.action";
-import { FaLock, FaUnlock } from "react-icons/fa";
 import { AuthContext } from "@/context/AuthContext";
 
-const ListFavoriteMusic = () => {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+interface ListFavoriteMusicProps {
+  userId?: string;
+}
+
+const ListFavoriteMusic = ({ userId }: ListFavoriteMusicProps) => {
   const { user } = useContext(AuthContext) ?? {};
-
-  const userIdFromURL = pathname.split("/").pop();
-  const queryUserId = searchParams.get("userId");
-  const currentUserId = userIdFromURL || queryUserId || user?._id;
-
+  const currentUserId = userId || user?._id;
   const [favoriteMusic, setFavoriteMusic] = useState<any[]>([]);
-  const [areItemsHidden, setAreItemsHidden] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const currentPage = "1";
@@ -47,45 +42,40 @@ const ListFavoriteMusic = () => {
     fetchFavoriteMusic();
   }, [currentUserId]);
 
-  const toggleAllItems = () => {
-    setAreItemsHidden((prev) => !prev);
-  };
-
   return (
-    <div className="p-6 bg-white shadow-md rounded-lg mb-40 mt-[-22px]">
-      <div className="flex justify-between items-center mb-4 mx-20">
-        <h2 className="text-xl font-bold">List of Favorite Music</h2>
-        <button
-          onClick={toggleAllItems}
-          className="text-gray-600 hover:text-gray-800"
-          title={areItemsHidden ? "Show all music" : "Hide all music"}
-        >
-          {areItemsHidden ? <FaUnlock size={20} /> : <FaLock size={20} />}
-        </button>
-      </div>
-
+    <div className="p-6 mb-40 mt-[-22px]">
       {loading ? (
-        <p className="text-gray-500 text-center">Loading...</p>
-      ) : !areItemsHidden ? (
-        favoriteMusic.length > 0 ? (
-          <div className="flex flex-wrap justify-start gap-5 my-3 mx-20">
-            {favoriteMusic
-              .filter((item) => item && item._id) // Lọc bỏ phần tử null hoặc không có _id
-              .map((item) => (
-                <CardMusic
-                  key={item._id}
-                  handlePlayer={() => {}}
-                  isPlaying={false}
-                  item={item}
-                />
-              ))}
-          </div>
-        ) : (
-          <p className="text-gray-500 text-center w-full">
-            No favorite music found.
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[...Array(4)].map((_, idx) => (
+            <div key={idx} />
+          ))}
+        </div>
+      ) : favoriteMusic.length > 0 ? (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 my-3 mx-2">
+          {favoriteMusic
+            .filter((item) => item && item._id)
+            .map((item) => (
+              <div
+                key={item._id}
+                className="flex justify-center items-stretch"
+              >
+                <div className="w-[160px] sm:w-[170px] md:w-[180px] lg:w-[190px]">
+                  <CardMusic
+                    handlePlayer={() => { }}
+                    isPlaying={false}
+                    item={item}
+                  />
+                </div>
+              </div>
+            ))}
+        </div>
+      ) : (
+        <div className="text-center py-16">
+          <p className="text-gray-400 text-lg font-medium">
+            No liked music found
           </p>
-        )
-      ) : null}
+        </div>
+      )}
     </div>
   );
 };

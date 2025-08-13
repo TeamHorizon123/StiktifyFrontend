@@ -1,10 +1,9 @@
 import React, { useEffect, useState, useContext } from "react";
-import { Modal, Avatar, Row, Col, Typography, Spin, message } from "antd";
+import { Modal, Avatar, message } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 import { handleGetFollowerUser } from "@/actions/follow.action";
 import { AuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-const { Text } = Typography;
 
 interface Follower {
   _id: string;
@@ -16,43 +15,36 @@ interface Follower {
 const FollowerModal = ({
   visible,
   onClose,
+  userId,
+  isOwner = true,
 }: {
   visible: boolean;
   onClose: () => void;
+  userId?: string;
+  isOwner?: boolean;
 }) => {
   const { user, accessToken } = useContext(AuthContext)!;
   const [followers, setFollowers] = useState<Follower[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
   const router = useRouter();
 
   useEffect(() => {
-    console.log("User from AuthContext:", user);
-    if (visible && user) {
+    if (visible && (isOwner ? user : userId)) {
       const fetchFollowersData = async () => {
         try {
-          const response = await handleGetFollowerUser(user._id);
-          console.log("API response:", response);
+          const targetUserId = isOwner ? user._id : userId;
+          const response = await handleGetFollowerUser(targetUserId!);
           if (response && response.data) {
-            setFollowers(response.data); // Set danh sách followers
+            setFollowers(response.data);
           } else {
             message.error("Failed to fetch followers.");
           }
-        } catch (error) {
+        } catch {
           message.error("Error fetching followers data.");
         }
-        setLoading(false);
       };
       fetchFollowersData();
     }
-  }, [visible, user, accessToken]);
-
-  if (loading) {
-    return <Spin size="large" />;
-  }
-
-  if (!followers.length) {
-    return <div>No followers found</div>;
-  }
+  }, [visible, user, userId, isOwner, accessToken]);
 
   const handleFollowerClick = (followerId: string) => {
     router.push(`/page/detail_user/${followerId}`);
@@ -60,30 +52,41 @@ const FollowerModal = ({
 
   return (
     <Modal
-      title="Followers"
-      visible={visible}
+      title={
+        <span className="text-white text-lg font-semibold">Followers</span>
+      }
+      open={visible}
       onCancel={onClose}
       footer={null}
       width={400}
-      className="rounded-2xl shadow-xl"
+      className="rounded-2xl shadow-xl custom-follow-modal"
+      styles={{
+        content: { background: "#18182c" },
+        header: { background: "#111827" },
+      }}
     >
-      <div className="flex flex-col space-y-4">
-        {followers.map((follower, index) => (
-          <Row
-            key={index}
-            justify="space-between"
-            align="middle"
-            className="p-3 border-b cursor-pointer"
-            onClick={() => handleFollowerClick(follower._id)}
-          >
-            <Col>
-              <Row align="middle">
-                <Avatar src={follower.image || <UserOutlined />} />
-                <Text className="ml-3">{follower.userName}</Text>
-              </Row>
-            </Col>
-          </Row>
-        ))}
+      <div className="flex flex-col">
+        {followers.length === 0 ? (
+          <div className="text-center text-purple-300 py-8">
+            No followers found.
+          </div>
+        ) : (
+          followers.map((follower) => (
+            <div
+              key={follower._id}
+              className="flex items-center gap-3 px-5 py-4 hover:bg-[#23243a] transition cursor-pointer"
+              onClick={() => handleFollowerClick(follower._id)}
+            >
+              <Avatar
+                src={follower.image}
+                icon={<UserOutlined />}
+                size={40}
+                className="border border-purple-700"
+              />
+              <span className="text-white font-medium">{follower.userName}</span>
+            </div>
+          ))
+        )}
       </div>
     </Modal>
   );

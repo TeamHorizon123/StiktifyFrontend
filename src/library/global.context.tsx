@@ -34,6 +34,8 @@ interface IGlobalContext {
     setTrackKaraoke: (v: any) => void,
     refreshHistoryMusic: boolean,
     setRefreshHistoryMusic: (v: boolean) => void;
+    isKaraoke: boolean,
+    setIsKaraoke: (v: boolean) => void
 }
 
 export const GlobalContext = createContext<IGlobalContext | null>(null);
@@ -55,6 +57,7 @@ export const GlobalContextProvider = ({ children }: { children: React.ReactNode 
     const [informationUpload, setInformationUpload] = useState<{ image: string, name: string } | null>(null);
     const [trackKaraoke, setTrackKaraoke] = useState<IMusic | null>(null);
     const [refreshHistoryMusic, setRefreshHistoryMusic] = useState<boolean>(false);
+    const [isKaraoke, setIsKaraoke] = useState<boolean>(false);
 
     useEffect(() => {
         if (typeof window !== "undefined") {
@@ -87,7 +90,8 @@ export const GlobalContextProvider = ({ children }: { children: React.ReactNode 
             progressUploadMusic, setProgressUploadMusic,
             informationUpload, setInformationUpload,
             trackKaraoke, setTrackKaraoke,
-            refreshHistoryMusic, setRefreshHistoryMusic
+            refreshHistoryMusic, setRefreshHistoryMusic,
+            isKaraoke, setIsKaraoke
         }}>
             {children}
         </GlobalContext.Provider>

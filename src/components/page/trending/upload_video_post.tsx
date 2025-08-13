@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { notification, Select } from "antd";
 import { AuthContext } from "@/context/AuthContext";
 import { sendRequestFile, sendRequest } from "@/utils/api";
+import styles from "./upload.module.css";
+import { BgColorsOutlined } from "@ant-design/icons";
 
 const { Option } = Select;
 
@@ -30,12 +32,15 @@ const UploadVideoPost: React.FC = () => {
   const [videoDescription, setVideoDescription] = useState("");
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoThumbnail, setVideoThumbnail] = useState<File | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [allCategories, setAllCategories] = useState<ICategory[]>([]);
   const [selectedMusic, setSelectedMusic] = useState<string>("");
   const [allMusic, setAllMusic] = useState<IMusic[]>([]);
   const [loading, setLoading] = useState(false);
   const [hashtagsInput, setHashtagsInput] = useState("");
+
+  const [videoFileName, setVideoFileName] = useState("No file chosen");
+  const [thumbnailFileName, setThumbnailFileName] = useState("No file chosen");
 
   // useEffect giữ nguyên
   useEffect(() => {
@@ -96,21 +101,80 @@ const UploadVideoPost: React.FC = () => {
     fetchMusic();
   }, [accessToken]);
 
-  const handleFileChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    setFile: React.Dispatch<React.SetStateAction<File | null>>
-  ) => {
-    const file = e.target.files?.[0];
-    if (file) setFile(file);
+  // const handleFileChange = (
+  //   e: React.ChangeEvent<HTMLInputElement>,
+  //   setFile: React.Dispatch<React.SetStateAction<File | null>>
+  // ) => {
+  //   const file = e.target.files?.[0];
+  //   if (file) setFile(file);
+  // };
+
+  const resolveCategoryIds = async (
+    selectedCategories: string[],
+    allCategories: ICategory[],
+    accessToken: string
+  ): Promise<string[]> => {
+    const existingCategoryIds: string[] = [];
+    const newCategoryNames: string[] = [];
+
+    selectedCategories.forEach((cat) => {
+      // Nếu cat trùng _id có sẵn
+      const found = allCategories.find((c) => c._id === cat);
+      if (found) {
+        existingCategoryIds.push(found._id);
+      } else {
+        // Nếu cat là tên trùng tên cũ
+        const existedByName = allCategories.find(
+          (c) => c.categoryName.toLowerCase() === cat.toLowerCase()
+        );
+        if (existedByName) {
+          existingCategoryIds.push(existedByName._id);
+        } else {
+          newCategoryNames.push(cat);
+        }
+      }
+    });
+
+    // Gọi API tạo mới
+    const newCategoryIds: string[] = [];
+    for (const name of newCategoryNames) {
+      try {
+        const createRes = await sendRequest<any>({
+          url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/categories`,
+          method: "POST",
+          headers: { Authorization: `Bearer ${accessToken}` },
+          body: { categoryName: name },
+        });
+        if (createRes?.statusCode === 201) {
+          newCategoryIds.push(createRes.data._id);
+        }
+      } catch (err) {
+        console.error("Failed to create category:", name, err);
+      }
+    }
+
+    return [...existingCategoryIds, ...newCategoryIds];
   };
 
   const handleUpload = async () => {
-    if (!accessToken || !user || !user._id || !videoFile || !selectedCategory) {
+    if (
+      !accessToken ||
+      !user ||
+      !user._id ||
+      !videoFile ||
+      !selectedCategories
+    ) {
       notification.error({ message: "Please fill in all required fields." });
       return;
     }
     setLoading(true);
     try {
+      const allCategoryIds = await resolveCategoryIds(
+        selectedCategories,
+        allCategories,
+        accessToken
+      );
+
       const uploadVideoForm = new FormData();
       uploadVideoForm.append("file", videoFile);
       const tagVideoForm = new FormData();
@@ -163,7 +227,7 @@ const UploadVideoPost: React.FC = () => {
         videoThumbnail: thumbnailUrl,
         userId: user._id,
         videoTag,
-        categories: [selectedCategory],
+        categories: allCategoryIds,
         musicId: selectedMusic || undefined,
       };
 
@@ -179,7 +243,7 @@ const UploadVideoPost: React.FC = () => {
         setVideoDescription("");
         setVideoFile(null);
         setVideoThumbnail(null);
-        setSelectedCategory("");
+        setSelectedCategories([]);
         setSelectedMusic("");
         setHashtagsInput("");
         router.push(`/page/detail_user/${user._id}`);
@@ -200,37 +264,70 @@ const UploadVideoPost: React.FC = () => {
     }
   };
 
+  const handleFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    setFileName: (name: string) => void,
+    setFile: (file: File | null) => void
+  ) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFile(file);
+      setFileName(file.name);
+    } else {
+      setFile(null);
+      setFileName("No file chosen");
+    }
+  };
+
   return (
     <div className="fixed-form-container">
       <div className="upload-form">
-        <div className="form-row">
-          <div className="form-field">
-            <label className="form-label">Video File</label>
-            <input
-              type="file"
-              accept="video/*"
-              onChange={(e) => handleFileChange(e, setVideoFile)}
-              className="form-input-file"
-            />
+        <div className="flex flex-col sm:flex-row gap-4 mb-4">
+          {/* Video Upload */}
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-white mb-1">Video File</label>
+            <div className="relative">
+              <input
+                type="file"
+                accept="video/*"
+                id="video-upload"
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                onChange={(e) => handleFileChange(e, setVideoFileName, setVideoFile)}
+              />
+              <div className="bg-purple-500 hover:bg-purple-400 text-white text-sm px-4 py-2 rounded cursor-pointer text-center">
+                Choose Video File
+              </div>
+            </div>
+            <p className="text-xs text-gray-300 mt-1 truncate">{videoFileName}</p>
           </div>
-          <div className="form-field">
-            <label className="form-label">Thumbnail</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => handleFileChange(e, setVideoThumbnail)}
-              className="form-input-file"
-            />
+
+          {/* Thumbnail Upload */}
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-white mb-1">Thumbnail</label>
+            <div className="relative">
+              <input
+                type="file"
+                accept="image/*"
+                id="thumbnail-upload"
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                onChange={(e) => handleFileChange(e, setThumbnailFileName, setVideoThumbnail)}
+              />
+              <div className="bg-purple-500 hover:bg-purple-400 text-white text-sm px-4 py-2 rounded cursor-pointer text-center">
+                Choose Thumbnail
+              </div>
+            </div>
+            <p className="text-xs text-gray-300 mt-1 truncate">{thumbnailFileName}</p>
           </div>
         </div>
 
         <div className="form-field full-width">
-          <label className="form-label">Description</label>
-          <textarea
+          <label className="form-label">Title</label>
+          <input
+            type="text"
             value={videoDescription}
             onChange={(e) => setVideoDescription(e.target.value)}
-            className="form-textarea"
-            placeholder="Enter description..."
+            className="form-input"
+            placeholder="Enter title..."
           />
         </div>
 
@@ -249,10 +346,21 @@ const UploadVideoPost: React.FC = () => {
           <div className="form-field category-field">
             <label className="form-label">Category</label>
             <Select
+              mode="tags"
               placeholder="Select category"
-              className="form-select"
-              value={selectedCategory || undefined}
-              onChange={(value) => setSelectedCategory(value)}
+              className={`${styles.wrapper} form-select !min-h-[36px] !min-w-[100px]`}
+              value={selectedCategories || undefined}
+              onChange={(value) => setSelectedCategories(value)}
+              style={{
+                // backgroundColor: "#1f2937",
+                // color: "#f9fafb !important",
+                // border: "1px solid #4b5563",
+                // borderRadius: "6px",
+              }}
+            // dropdownStyle={{
+            //   backgroundColor: "#1f2937",
+            //   color: "#f9fafb",
+            // }}
             >
               {allCategories.map((category) => (
                 <Option key={category._id} value={category._id}>
@@ -317,31 +425,35 @@ const UploadVideoPost: React.FC = () => {
         <button
           onClick={handleUpload}
           disabled={loading}
-          className={`form-button ${
-            loading ? "button-disabled" : "button-active"
-          }`}
+          className={`form-button bg-purple-500 hover:bg-purple-400  ${loading ? "button-disabled" : ""
+            }`}
         >
           {loading ? "Uploading..." : "Upload Video"}
         </button>
       </div>
 
       <style jsx>{`
+      .ant-select-selection-item {
+  color: #f9fafb !important;
+  background-color: #374151 !important; /* tùy chọn */
+}
         .fixed-form-container {
           display: flex;
           justify-content: center;
           align-items: center;
           height: auto;
           max-height: 500px;
-          background-color: #f0f2f5;
+          background-color: #1f2937; /* xám đậm nền ngoài */
           padding: 16px;
         }
 
         .upload-form {
           width: 720px;
-          background-color: #ffffff;
+          background-color: #111827; /* xám đậm hơn card */
           padding: 16px;
-          border-radius: 10px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          border-radius: 12px;
+          border: 1px solid #374151; /* border sáng hơn chút */
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5); /* shadow đậm */
         }
 
         .form-row {
@@ -361,18 +473,18 @@ const UploadVideoPost: React.FC = () => {
         }
 
         .form-field.category-field {
-          flex: 1; /* Category chiếm ít không gian hơn */
+          flex: 1;
         }
 
         .form-field.music-field {
-          flex: 2; /* Music chiếm nhiều không gian hơn */
+          flex: 2;
         }
 
         .form-label {
           display: block;
           font-size: 12px;
           font-weight: 500;
-          color: #374151;
+          color: #f9fafb; /* text trắng nhẹ */
           margin-bottom: 3px;
         }
 
@@ -381,17 +493,18 @@ const UploadVideoPost: React.FC = () => {
         .form-input-file {
           width: 100%;
           padding: 6px;
-          border: 1px solid #d1d5db;
+          border: 1px solid #4b5563; /* border xám */
+          background-color: #1f2937; /* nền input tối */
           border-radius: 6px;
           font-size: 12px;
-          color: #1f2937;
+          color: #f9fafb; /* chữ trắng */
           transition: border-color 0.2s ease;
         }
 
         .form-input:focus,
         .form-textarea:focus,
         .form-input-file:focus {
-          border-color: #3b82f6;
+          border-color: #3b82f6; /* xanh focus */
           outline: none;
         }
 
@@ -403,6 +516,10 @@ const UploadVideoPost: React.FC = () => {
         .form-select {
           width: 100%;
           height: 30px;
+          background-color: #1f2937;
+          color: #f9fafb;
+          border: 1px solid #4b5563;
+          border-radius: 6px;
         }
 
         .form-button {
@@ -415,16 +532,8 @@ const UploadVideoPost: React.FC = () => {
           transition: background-color 0.2s ease;
         }
 
-        .button-active {
-          background-color: #3b82f6;
-        }
-
-        .button-active:hover {
-          background-color: #2563eb;
-        }
 
         .button-disabled {
-          background-color: #9ca3af;
           cursor: not-allowed;
         }
       `}</style>
