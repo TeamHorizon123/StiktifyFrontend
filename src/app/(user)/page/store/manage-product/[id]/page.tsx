@@ -175,6 +175,7 @@ const PageProductStoreInfo = () => {
       >
         <EditProduct product={product} onClose={() => setShowModal(false)} refreshProducts={() => getProduct()} />
       </Modal>
+
     </div>
 
   )
