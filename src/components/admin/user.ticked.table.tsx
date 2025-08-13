@@ -144,6 +144,11 @@ const ManageUserTickedTable = (props: IProps) => {
               onConfirm={() =>
                 handleAcceptUserTicked(record.tickedRequests[0].id)
               }
+              okButtonProps={
+                {
+                  className: '!bg-blue !text-white'
+                }
+              }
               okText="Yes"
               cancelText="No"
             >
@@ -159,6 +164,9 @@ const ManageUserTickedTable = (props: IProps) => {
               onConfirm={() => handleRejectClick(record)}
               okText="Yes"
               cancelText="No"
+              okButtonProps={{
+                className: '!bg-blue !text-white'
+              }}
             >
               <CloseCircleTwoTone
                 style={{ fontSize: "20px", cursor: "pointer" }}

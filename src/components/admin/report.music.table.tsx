@@ -64,80 +64,80 @@ const ManageReportMusicTable = (props: IProps) => {
 
   const handleGetReporttData = async () => {
     setIsLoading(true);
-    if (search.length > 0  || filterReq.length > 0) {
-        let res = await handleGetAllReportMusicAction(meta.current, meta.pageSize, search, filterReq);
-        if (res?.statusCode === 200) {
-          if(res.data?.meta?.current>=1 && res.data?.meta?.total<=meta.pageSize){
-             res=await handleGetAllReportMusicAction(1, meta.pageSize, search, filterReq);
-           }
-          const mappedData = res?.data?.result?.map((item: any) => ({
-            _id: item._id,
-            dataMusic: {
-              _id: item.dataMusic._id,
-              musicUrl: item.dataMusic.musicUrl,
-              musicDescription: item.dataMusic.musicDescription,
-              musicThumbnail: item.dataMusic.musicThumbnail,
-              totalListener: item.dataMusic.totalViews || 0,
-              flag: item.dataMusic.flag || false,
-              userId: {
-                _id: item.dataMusic.userId._id,
-                userName: item.dataMusic.userId.userName,
-              },
-            },
-            total: item.total || 1,
-            dataReport: [
-              {
-                userName: item.dataMusic.userName,
-                reason: item.reasons,
-              },
-            ],
-          })) .filter((item: any) => item !== null);
-          setDataTable(mappedData || []);
-            setMetaTable({
-            current: res?.data?.meta?.current || 1,
-            pageSize: res?.data?.meta?.pageSize || 10,
-            total: res?.data?.meta?.total || 0,
-          });
-        } else {
-          notification.error({ message: "Failed to fetch reports." });
+    if (search.length > 0 || filterReq.length > 0) {
+      let res = await handleGetAllReportMusicAction(meta.current, meta.pageSize, search, filterReq);
+      if (res?.statusCode === 200) {
+        if (res.data?.meta?.current >= 1 && res.data?.meta?.total <= meta.pageSize) {
+          res = await handleGetAllReportMusicAction(1, meta.pageSize, search, filterReq);
         }
+        const mappedData = res?.data?.result?.map((item: any) => ({
+          _id: item._id,
+          dataMusic: {
+            _id: item.dataMusic._id,
+            musicUrl: item.dataMusic.musicUrl,
+            musicDescription: item.dataMusic.musicDescription,
+            musicThumbnail: item.dataMusic.musicThumbnail,
+            totalListener: item.dataMusic.totalViews || 0,
+            flag: item.dataMusic.flag || false,
+            userId: {
+              _id: item.dataMusic.userId._id,
+              userName: item.dataMusic.userId.userName,
+            },
+          },
+          total: item.total || 1,
+          dataReport: [
+            {
+              userName: item.dataMusic.userName,
+              reason: item.reasons,
+            },
+          ],
+        })).filter((item: any) => item !== null);
+        setDataTable(mappedData || []);
+        setMetaTable({
+          current: res?.data?.meta?.current || 1,
+          pageSize: res?.data?.meta?.pageSize || 10,
+          total: res?.data?.meta?.total || 0,
+        });
       } else {
-        setDataTable(dataSource);
-        setMetaTable(meta);
+        notification.error({ message: "Failed to fetch reports." });
       }
-       setIsLoading(false);
+    } else {
+      setDataTable(dataSource);
+      setMetaTable(meta);
+    }
+    setIsLoading(false);
   }
 
   useEffect(() => {
-     handleGetReporttData();
+    handleGetReporttData();
   }, [search, dataSource, filterReq, metaTable.current]);
 
-      const dataFilter = [
-      {
-        value: "report_asc",
-        title: "Reports ↑ (fewest first)", 
-      },
-      {
-        value: "report_desc",
-        title: "Reports ↓ (most first)", 
-      },
-      {
-        value: "flagged",
-        title: "Flagged", 
-      },
-      {
-        value: "not_flagged",
-        title: "Not Flagged", 
-      },
-      {
-        value: "blocked",
-        title: "Blocked", 
-      },
-      {
-        value: "not_blocked",
-        title: "Not Blocked", 
-      },
-    ];
+  const dataFilter = [
+    {
+      value: "report_asc",
+      title: "Reports ↑ (fewest first)",
+    },
+    {
+      value: "report_desc",
+      title: "Reports ↓ (most first)",
+    },
+    {
+      value: "flagged",
+      title: "Flagged",
+    },
+    {
+      value: "not_flagged",
+      title: "Not Flagged",
+    },
+    {
+      value: "blocked",
+      title: "Blocked",
+    },
+    {
+      value: "not_blocked",
+      title: "Not Blocked",
+    },
+  ];
 
   const columns: ColumnsType<IReportMusic> = [
     {
@@ -159,7 +159,7 @@ const ManageReportMusicTable = (props: IProps) => {
             className=" text-[18px]"
             animationText={false}
             item={value}
-            onClick={() => {}}
+            onClick={() => { }}
           />
         </div>
       ),
@@ -212,23 +212,29 @@ const ManageReportMusicTable = (props: IProps) => {
               onConfirm={() => handleFlagMusic(value)}
               okText="Yes"
               cancelText="No"
+              okButtonProps={{
+                className: '!bg-blue !text-white'
+              }}
             >
               <FlagTwoTone
                 style={{ fontSize: "20px" }}
                 twoToneColor={value?.flag ? "#ff7675" : ""}
               />
             </Popconfirm>
-              <Popconfirm
-            title="Sure to delete music report?"
-            onConfirm={() => handleDeleteReportVideo(value._id)}
-            okText="Yes"
-            cancelText="No"
-          >
-            <DeleteTwoTone
-              style={{ fontSize: "20px" }}
-              twoToneColor={"#ff7675"}
-            />
-          </Popconfirm>
+            <Popconfirm
+              title="Sure to delete music report?"
+              onConfirm={() => handleDeleteReportVideo(value._id)}
+              okText="Yes"
+              cancelText="No"
+              okButtonProps={{
+                className: '!bg-blue !text-white'
+              }}
+            >
+              <DeleteTwoTone
+                style={{ fontSize: "20px" }}
+                twoToneColor={"#ff7675"}
+              />
+            </Popconfirm>
           </div>
         );
       },
@@ -260,16 +266,16 @@ const ManageReportMusicTable = (props: IProps) => {
         <div
           style={{ width: "130px", marginLeft: "310px", marginTop: "-32px" }}
         >
-           <DropdownCustomize data={dataFilter} title="Filter" selected={filterReq} setSelect={setFilterReq} icon={<FilterOutlined />} />
+          <DropdownCustomize data={dataFilter} title="Filter" selected={filterReq} setSelect={setFilterReq} icon={<FilterOutlined />} />
         </div>
       </div>
       <TableCustomize
         columns={columns}
-        dataSource={dataTable.map((item, index) => ({ ...item, _id:`report-${index}` }))}
+        dataSource={dataTable.map((item, index) => ({ ...item, _id: `report-${index}` }))}
         meta={metaTable}
         filterReq={filterReq}
         searchData={search}
-         isLoadingProp={isLoading}
+        isLoadingProp={isLoading}
       />
       <ModalListReport
         data={dataReport}

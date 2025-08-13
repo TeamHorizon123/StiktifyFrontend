@@ -231,11 +231,20 @@ const CardMusic = (props: IProps) => {
 
                   if (e.key === "delete") {
                     Modal.confirm({
-                      title: "Are you sure you want to delete this music?",
-                      content: "This action cannot be undone.",
+                      style: {
+                        color: '!white'
+                      },
+                      title: <span className="!text-white">Are you sure you want to delete this music?</span>,
+                      content: <span className="!text-white">This action cannot be undone.</span>,
                       okText: "Yes",
                       cancelText: "No",
                       okType: "danger",
+                      okButtonProps: {
+                        className: '!bg-red-600 !text-white hover:!bg-red-700',
+                      },
+                      cancelButtonProps: {
+                        className: '!bg-transparent !text-white hover:!bg-gray-50'
+                      },
                       onOk: async () => {
                         const res = await handleDeleteMusic(item._id);
                         if (res?.statusCode === 200) {

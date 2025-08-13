@@ -5,7 +5,7 @@ import LoadingPage from '@/components/page/shop/loading/loadingPage';
 import CollapseOptionProduct from '@/components/page/shop/product/manage-product/collapseProduct';
 import { AuthContext } from '@/context/AuthContext';
 import { sendRequest } from '@/utils/api';
-import { Descriptions, DescriptionsProps, message, Modal } from 'antd';
+import { Descriptions, DescriptionsProps, message, Modal, Popconfirm } from 'antd';
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation';
 import React, { useContext, useEffect, useState } from 'react'
@@ -138,11 +138,23 @@ const PageProductStoreInfo = () => {
                   <TbEdit className='text-base' />
                   <span>Active product</span>
                 </button> :
-                <button key={"inactive"}
-                  onClick={() => handleUpdate(true)}
-                  type='button' className='mt-2 flex items-center space-x-2 bg-red-600 text-white px-2 py-1 rounded-md hover:underline mr-16'>
-                  <span>Disable product</span>
-                </button>
+                <Popconfirm
+                  placement="rightBottom"
+                  title="Disable product"
+                  description="Are you sure to disable this product?"
+                  onConfirm={() => handleUpdate(true)}
+                  okText="Yes"
+                  okButtonProps={{
+                    className: '!bg-red-600 !text-white hover:!bg-red-700', 
+                    danger: true
+                  }}
+                  cancelText="No"
+                >
+                  <button key={"inactive"}
+                    type='button' className='mt-2 flex items-center space-x-2 bg-red-600 text-white px-2 py-1 rounded-md hover:underline mr-16'>
+                    <span>Disable product</span>
+                  </button>
+                </Popconfirm>
             ]}
             items={items}
           />

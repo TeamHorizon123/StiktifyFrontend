@@ -36,10 +36,13 @@ export const ActionManagerUser = (value: any, record: IUser, index: any, setIsUp
                     </Popconfirm>
                     :
                     <Popconfirm
-                        title="Are you sure lock this user?"
+                        title="Are you sure block this user?"
                         onConfirm={() => handleBanUser(record._id, !record.isBan)}
                         okText="Yes"
                         cancelText="No"
+                        okButtonProps={{
+                            className:'!bg-blue !text-white'
+                        }}
                     >
                         <UnlockTwoTone
                             style={{ fontSize: 20 }}

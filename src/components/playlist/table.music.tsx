@@ -96,7 +96,7 @@ const TableListMusicInPlaylist = (props: IProps) => {
       const newPlaylist = listPlaylist.filter((x) => x.musicId._id !== id);
       setListPlayList(newPlaylist);
       return notification.success({
-        message: "Removed from playlist successfully",
+        message: <span className="text-white">Removed from playlist successfully</span> ,
         style: { backgroundColor: "#1f2937", color: "white" },
       });
     }

@@ -69,9 +69,9 @@ export default function ListProduct() {
                         ) : (<></>)
                     }
                 </div>
-                <div className="min-w-full">
+                <div className="">
                     {products.length > 0 ? (
-                        <div className="min-w-full grid grid-cols-4 gap-4">
+                        <div className=" grid grid-cols-4 gap-4">
                             {
                                 products.map((product: Product) => (
                                     <Product key={product.Id} data={product} />
